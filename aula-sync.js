@@ -94,10 +94,13 @@
   function guardarSucias(a) { if (a.length) escribir(KD, JSON.stringify(a)); else quitar(KD); }
   var estabaSucio = sucias().length > 0;
   var hidratando = false, duranteHidratacion = {}, enVuelo = false, timer = null, fin = false;
+  var bloqueado = false;      // la página está por recargarse con el avance recuperado: no dejar que lo pise
+  var sinHidratar = false;    // no pude consultar el servidor: no subir nada que lo pueda pisar
 
   /* ---------- espejo: observar lo que la clase guarda ---------- */
   if (rol === 'leccion') {
     Storage.prototype.setItem = function (k) {
+      if (bloqueado && this === window.localStorage && String(k).indexOf('aula_') !== 0) return;
       var r = _set.apply(this, arguments);
       try { if (this === window.localStorage) notar(String(k)); } catch (e) {}
       return r;
@@ -112,7 +115,8 @@
   function programar() { if (timer || fin) return; timer = setTimeout(function () { timer = null; empujar(false); }, 15000); }
 
   function empujar(urgente) {
-    if (hidratando || fin) return Promise.resolve();
+    if (hidratando || fin || bloqueado) return Promise.resolve();
+    if (sinHidratar) return reintentar();
     if (enVuelo) { programar(); return Promise.resolve(); }
     var claves = sucias(); if (!claves.length) return Promise.resolve();
     var k = {}, enviados = {};
@@ -151,9 +155,19 @@
     Object.keys(k).forEach(function (x) { if (typeof k[x] === 'string') escribir(x, k[x]); });
     escribir('aula_t:' + clave, String(rec.t));
   }
-  function terminar(cambio, flag) {
+  // Si no pude consultar el servidor, no subo nada hasta poder hacerlo (así no piso el avance guardado)
+  function reintentar() {
+    return llamar('estadoCargar', { clave: claveL }, { timeout: 7000 }).then(function (j) {
+      if (!j.datos) { sinHidratar = false; return empujar(false); }                       // no había nada guardado: ya puedo subir
+      var rec = JSON.parse(j.datos);
+      if (String(rec.t) === leer('aula_t:' + claveL)) { sinHidratar = false; return empujar(false); }
+      aviso('⚠️ Tu avance anterior está en línea: recarga la página para recuperarlo', 'mal');
+    }).catch(function () { aviso('⚠️ Sin conexión · tu avance de hoy se guardará al volver', 'mal', 4000); programar(); });
+  }
+  function terminar(cambio, flag, fallo) {
     hidratando = false;
-    if (cambio && !SS.getItem(flag)) { try { SS.setItem(flag, '1'); } catch (e) {} aviso('☁️ Avance recuperado', 'ok'); location.reload(); return; }
+    if (fallo) { sinHidratar = true; aviso('⚠️ Sin conexión: tu avance anterior no se pudo cargar', 'mal', 6000); }
+    if (cambio && !SS.getItem(flag)) { bloqueado = true; try { SS.setItem(flag, '1'); } catch (e) {} aviso('☁️ Avance recuperado', 'ok'); location.reload(); return; }
     try { SS.removeItem(flag); } catch (e) {}
     veloOff();
     var a = sucias(); Object.keys(duranteHidratacion).forEach(function (x) { if (a.indexOf(x) < 0) a.push(x); }); duranteHidratacion = {};
@@ -170,9 +184,9 @@
       aplicar(rec, claveL); guardarSucias([]);
       return true;
     }).catch(function (e) {
-      if (e && e.codigo === 'sesion') aviso('⚠️ Tu sesión venció: entra de nuevo por la portada', 'mal');
-      return false;
-    }).then(function (c) { terminar(c, 'aula_hyd:' + claveL); });
+      if (e && e.codigo === 'sesion') { aviso('⚠️ Tu sesión venció: entra de nuevo por la portada', 'mal'); return false; }
+      return 'fallo';
+    }).then(function (c) { terminar(c === true, 'aula_hyd:' + claveL, c === 'fallo'); });
   } else {
     hidratando = true; veloOn('☁️ Cargando tu avance…');
     llamar('estadoCargarPrefijo', { prefijo: 'i.' }, { timeout: 8000 }).then(function (j) {

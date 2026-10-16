@@ -574,13 +574,35 @@ function accionEstadoCargarPrefijo(req) {
   return { ok: true, estados: out };
 }
 
+// Etiqueta para reconocerse sin exponer el nombre completo: 2 primeras palabras + iniciales del resto
+function _etiquetaNombre(nombre) {
+  var p = String(nombre || '').trim().split(/\s+/).filter(function (x) { return x; });
+  if (p.length <= 2) return p.join(' ');
+  return p.slice(0, 2).join(' ') + ' ' + p.slice(2).map(function (x) { return x.charAt(0).toUpperCase() + '.'; }).join(' ');
+}
+// Primer ingreso: nombres (abreviados) de quienes aún no activan su perfil en un grupo. Solo con el primer ingreso ABIERTO.
+function accionListaPrimerIngreso(req) {
+  var g = String(req.grupo || '');
+  if (CFG.GRUPOS.indexOf(g) < 0) throw new ErrorApi('Grupo no válido.', 'grupo');
+  if (props().getProperty('PRIMER_INGRESO') === 'cerrado') throw new ErrorApi('El primer ingreso está cerrado por ahora. Pídele al Profe que lo abra.', 'cerrado');
+  var filas = leerTabla(hoja(CFG.HOJA_PERFILES), NC_P), out = [], usados = {};
+  filas.forEach(function (f) {
+    if (!f[P.ID] || String(f[P.GRUPO]) !== g || f[P.ESTADO] !== 'Pendiente' || String(f[P.APODO]).trim()) return;
+    var e = _etiquetaNombre(f[P.NOMBRE]); usados[e] = (usados[e] || 0) + 1;
+    out.push({ id: String(f[P.ID]), n: e, lista: Number(f[P.LISTA]) || 0 });
+  });
+  out.forEach(function (o) { if (usados[o.n] > 1) o.n += ' · N° ' + o.lista; });
+  out.sort(function (a, b) { return a.n.localeCompare(b.n, 'es'); });
+  return { ok: true, estudiantes: out.map(function (o) { return { id: o.id, n: o.n }; }) };
+}
+
 var RUTAS = {
   estado: accionEstado, ranking: accionRanking, registrar: accionRegistrar, entrar: accionEntrar,
   sincronizar: accionSincronizar, visitar: accionVisitar, actividad: accionActividad,
   perfilActualizar: accionPerfilActualizar, cambiarPin: accionCambiarPin,
   estadoGuardar: accionEstadoGuardar, estadoCargar: accionEstadoCargar,
   estadoGuardarLote: accionEstadoGuardarLote, estadoCargarPrefijo: accionEstadoCargarPrefijo,
-  activar: accionActivar
+  activar: accionActivar, listaPrimerIngreso: accionListaPrimerIngreso
 };
 
 /* ============================ PUNTOS DE ENTRADA ========================== */
@@ -678,13 +700,11 @@ function configurar() {
     hl.getRange(4, 5).setValue('3. Todos quedan con PIN ' + CFG.PIN_INICIAL + '. Al entrar por primera vez eligen apodo y cambian el PIN.');
     hl.getRange(5, 5).setValue('Los grupos válidos están en CFG.GRUPOS de Code.gs: ' + CFG.GRUPOS.join(', '));
     hl.setColumnWidth(5, 520);
-    // Resumen por grupo (fórmulas vivas)
-    hr.getRange(2, 1, CFG.GRUPOS.length, 1).setNumberFormat('@').setValues(CFG.GRUPOS.map(function (g) { return [g]; }));
-    var f = CFG.GRUPOS.map(function (g, i) {
-      var r = i + 2;
-      return ['=COUNTIF(Perfiles!G:G,A' + r + ')', '=SUMIF(Perfiles!G:G,A' + r + ',Perfiles!I:I)', '=IF(B' + r + '=0,0,ROUND(C' + r + '/B' + r + ',1))'];
-    });
-    hr.getRange(2, 2, CFG.GRUPOS.length, 3).setFormulas(f);
+    // Resumen por grupo: lo calcula el script (sin fórmulas, funciona en cualquier idioma de la hoja)
+    hr.getRange(2, 1, 2999, 1).setNumberFormat('@');
+    hr.getRange(2, 2, 2999, 2).setNumberFormat('0');
+    hr.getRange(2, 4, 2999, 1).setNumberFormat('0.0');
+    actualizarResumen(libroAct);
     hs.hideSheet(); he.hideSheet();
   } catch (e) { Logger.log('Formato opcional no aplicado: ' + e); }
 
@@ -724,6 +744,7 @@ function cargarLista() {
       hs.getRange(hs.getLastRow() + 1, 1, nuevosS.length, NC_S).setValues(nuevosS);
       cache().remove('rk');
     }
+    try { actualizarResumen(SpreadsheetApp.getActiveSpreadsheet()); } catch (e1) {}
     var msg = '✅ Estudiantes nuevos: ' + nuevosP.length + (repetidos ? '\nYa existían (se omitieron): ' + repetidos : '') +
       '\nPIN inicial de todos: ' + CFG.PIN_INICIAL;
     if (errores.length) msg += '\n\n⚠️ Filas con problemas (' + errores.length + '):\n' + errores.slice(0, 12).join('\n') + (errores.length > 12 ? '\n…' : '');
@@ -752,6 +773,7 @@ function reiniciarPinSeleccion() {
 }
 
 function onOpen() {
+  try { actualizarResumen(SpreadsheetApp.getActiveSpreadsheet()); } catch (e0) {}
   try {
     SpreadsheetApp.getUi().createMenu('🎮 Aula Gamificada')
       .addItem('⚙️ Configurar (solo la primera vez)', 'configurar')
@@ -759,6 +781,7 @@ function onOpen() {
       .addItem('📋 Cargar lista de estudiantes', 'menuCargarLista')
       .addItem('🔑 Restablecer PIN a ' + CFG.PIN_INICIAL + ' (filas seleccionadas en Perfiles)', 'menuReiniciarPin')
       .addItem('🚪 Abrir / cerrar el primer ingreso', 'menuPrimerIngreso')
+      .addItem('📊 Actualizar resumen por grupo', 'menuActualizarResumen')
       .addSeparator()
       .addItem('🔑 Restablecer PIN por apodo', 'menuRestablecerPin')
       .addItem('⭐ Dar XP a un estudiante', 'menuDarXP')
@@ -867,6 +890,7 @@ function reiniciarEstudiantes() {
       if (u >= 2) { h.getRange(2, 1, u - 1, h.getLastColumn()).clearContent(); n += u - 1; }
     });
     cache().remove('rk');
+    try { actualizarResumen(SpreadsheetApp.getActiveSpreadsheet()); } catch (e2) {}
     return 'Listo: se borraron ' + n + ' filas de estudiantes y avances.\nAhora usa "Cargar lista de estudiantes".';
   });
 }
@@ -875,3 +899,21 @@ function menuReiniciarEstudiantes() {
   if (r !== 'BORRAR') { _avisar('No se borró nada.'); return; }
   _seguro(reiniciarEstudiantes);
 }
+
+// "Resumen por grupo": estudiantes, XP total y XP promedio por grupo. Se calcula aquí, sin fórmulas.
+function actualizarResumen(ss) {
+  ss = ss || SpreadsheetApp.getActiveSpreadsheet();
+  var hp = ss.getSheetByName(CFG.HOJA_PERFILES), hr = ss.getSheetByName(CFG.HOJA_RESUMEN);
+  if (!hp || !hr) return;
+  var n = hp.getLastRow(), filas = n < 2 ? [] : hp.getRange(2, 1, n - 1, NC_P).getValues(), cuenta = {}, xp = {};
+  filas.forEach(function (f) {
+    if (!f[P.ID]) return;
+    var g = String(f[P.GRUPO]); cuenta[g] = (cuenta[g] || 0) + 1; xp[g] = (xp[g] || 0) + (Number(f[P.XP]) || 0);
+  });
+  var grupos = CFG.GRUPOS.slice();
+  Object.keys(cuenta).forEach(function (g) { if (grupos.indexOf(g) < 0) grupos.push(g); });
+  var out = grupos.map(function (g) { var c = cuenta[g] || 0, x = xp[g] || 0; return [g, c, x, c ? Math.round(x / c * 10) / 10 : 0]; });
+  hr.getRange(2, 1, Math.max(hr.getMaxRows() - 1, 1), 4).clearContent();
+  hr.getRange(2, 1, out.length, 4).setValues(out);
+}
+function menuActualizarResumen() { _seguro(function () { actualizarResumen(SpreadsheetApp.getActiveSpreadsheet()); return 'Resumen por grupo actualizado.'; }); }

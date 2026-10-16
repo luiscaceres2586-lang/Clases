@@ -2,7 +2,7 @@
 
 ## Qué cambia
 - **Lista de estudiantes**: el Profe pega Grupo, N° de lista y Nombre completo en la hoja "Cargar lista". Todos arrancan con PIN **1111**.
-- **Primer ingreso** (portada → "Primer ingreso"): el estudiante elige su grupo y número de lista, escribe 1111, ve su nombre real, elige apodo y crea un PIN nuevo. Después entra con apodo + PIN desde cualquier equipo.
+- **Primer ingreso** (portada → "Primer ingreso"): el estudiante elige su grupo y toca su nombre en la lista (aparece abreviado, por ejemplo "AGUILAR MARIN H. N."), escribe 1111, ve su nombre completo para confirmar, elige apodo y crea un PIN nuevo. Después entra con apodo + PIN desde cualquier equipo.
 - **La liga solo muestra apodos.** El nombre real lo ven el Profe (hoja Perfiles) y el propio estudiante (Mi jugador).
 - **Avance en línea**: las clases guardan en el servidor y lo recuperan en otro computador o celular.
 - **Hoja "Notas y avance"**: una fila por estudiante y clase (avance %, aciertos, nota). La columna naranja "Nota docente (editable)" es tuya: si la llenas, "Nota final" usa tu nota.
@@ -13,11 +13,13 @@
    - Si tus grupos no son 401, 402, 403, 501, 502 (por ejemplo, tienes 3°), edita `CFG.GRUPOS` al inicio del archivo.
 2. Ejecuta **`configurar`** una vez. Migra la hoja Perfiles (conserva tu perfil de prueba) y crea "Notas y avance" y "Cargar lista".
 3. En la hoja **"Cargar lista"** pega desde la fila 2: Grupo, N° lista, Nombre completo. Menú **🎮 Aula Gamificada → Cargar lista de estudiantes**.
-4. **Implementar → Administrar implementaciones → ✏️ Editar → Versión: Nueva versión → Implementar.** (La URL del servidor no cambia. Sin este paso, el servidor sigue con el código viejo.)
-5. **GitHub**: sube/reemplaza `index.html`, `aula-sync.js` (en la raíz) y las dos páginas de `aritmetica 5°`.
+4. **Implementar → Administrar implementaciones → ✏️ Editar → Versión: Nueva versión → Implementar.** (Repítelo cada vez que cambies `Code.gs`.) (La URL del servidor no cambia. Sin este paso, el servidor sigue con el código viejo.)
+5. **GitHub**: sube/reemplaza `index.html`, `aula-sync.js` (en la raíz) y las dos páginas de `aritmetica 5°`. Si ya tenías una versión anterior de `aula-sync.js`, reemplázala: la nueva corrige un fallo que podía pisar el avance guardado.
+6. `index.html` ya trae la URL de tu implementación (`AKfycbwC…`). Si publicas otra implementación con URL distinta, cámbiala en `API_URL`.
 
 ## Uso en el aula
-- Entrega a cada estudiante su grupo y su N° de lista. El PIN inicial es 1111.
+- Dile a cada estudiante su grupo; ellos eligen su nombre en la lista. El PIN inicial es 1111.
+- La lista de nombres abreviados solo se muestra mientras el primer ingreso está ABIERTO, y solo con quienes aún no activaron su perfil.
 - Cuando todos hayan activado su perfil, cierra la puerta: menú **Abrir / cerrar el primer ingreso → cerrar**.
 - ¿Olvidó el PIN? En "Perfiles" selecciona su fila → **Restablecer PIN a 1111**. Conserva su apodo y avance.
 - Para corregir un nombre o apodo, edítalo directamente en "Perfiles" (el ID de la columna A no se toca). Si cambias un nombre, el avance de la estudiante se conserva.

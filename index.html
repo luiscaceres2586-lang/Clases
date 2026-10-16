@@ -327,6 +327,9 @@ footer small{display:block;opacity:.8;margin-top:4px}
 .gtop input{flex:1 1 200px;min-width:0;font:800 1rem "Trebuchet MS",system-ui,sans-serif;padding:11px 14px;border-radius:14px;border:3px solid #060c2b;color:#12306e;background:#fff}
 .back{cursor:pointer;border:3px solid #060c2b;border-radius:14px;padding:9px 16px;font-weight:900;color:#fff;background:linear-gradient(180deg,#4a86ff,#1d4fd8);box-shadow:0 4px 0 #0f2c85}
 .pfs{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:12px;max-height:52vh;overflow:auto;padding:6px 4px 10px}
+.pn-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;max-height:46vh;overflow:auto;padding:4px}
+.pn{cursor:pointer;padding:13px 10px;border-radius:14px;color:#fff;font:800 .98rem inherit;font-family:inherit;text-align:center;background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.07));border:3px solid rgba(255,255,255,.28)}
+.pn:hover,.pn:focus-visible{border-color:var(--gold);transform:translateY(-2px)}
 .pf{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px 10px;border-radius:20px;color:#fff;font:inherit;text-align:center;
   background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.07));border:3px solid rgba(255,255,255,.28);transition:transform .2s,border-color .2s}
 .pf:hover,.pf:focus-visible{transform:translateY(-4px) scale(1.03);border-color:var(--gold)}
@@ -474,7 +477,7 @@ footer small{display:block;opacity:.8;margin-top:4px}
     <div id="gCfg" class="cfgbox" style="display:none"><b>⚠️ Para el Profe:</b> falta conectar el servidor. Abre este <code>index.html</code> y pega la URL de tu aplicación web en <code>AULA.API_URL</code> (arriba, en la configuración). Mientras tanto se puede entrar como invitado.</div>
     <div class="gmenu" id="gMenu">
       <button class="btn" id="gIr" type="button">🎮 Ya tengo perfil<small>Busca tu apodo en la lista</small></button>
-      <button class="btn sec" id="gNew" type="button">✨ Primer ingreso<small>Con tu grupo y tu número de lista</small></button>
+      <button class="btn sec" id="gNew" type="button">✨ Primer ingreso<small>Elige tu grupo y tu nombre</small></button>
       <button class="btn g3" id="gInv" type="button">👀 Solo mirar<small>Entrar sin guardar avance</small></button>
     </div>
     <div class="gpanel" id="gPerfiles">
@@ -487,8 +490,7 @@ footer small{display:block;opacity:.8;margin-top:4px}
       <div class="gtop"><button class="back" id="nBack" type="button">← Volver</button><b>✨ Primer ingreso</b></div>
       <div class="form">
         <div><label>Mi grupo</label><div class="chs" id="nGrupos"></div></div>
-        <div><label for="nLista">Mi número de lista</label><input id="nLista" type="number" inputmode="numeric" min="1" max="99" placeholder="Ej: 12" autocomplete="off"><div class="hint">Es el número que tienes en la lista del curso. El Profe te da tu PIN inicial.</div></div>
-        <button class="btn" id="nGo" type="button">🔑 Escribir mi PIN inicial</button>
+        <div id="nNombresBox" style="display:none"><label>Toca tu nombre</label><div class="pn-list" id="nNombres"></div><div class="hint">Si no ves tu nombre, avisa al Profe. Después escribirás el PIN que él te dio.</div></div>
       </div>
     </div>
     <div class="gpanel" id="gAct">
@@ -828,15 +830,15 @@ function pintarGatePerfiles(){
   var l=RK.perfiles.filter(function(p){return(!gFiltro.grupo||p.grupo===gFiltro.grupo)&&(!q||p.apodo.toLowerCase().indexOf(q)>=0)}).sort(function(a,b){return a.apodo.localeCompare(b.apodo,'es')});
   l.forEach(function(p){var b=el('button','pf');b.type='button';var av=el('div','av'+(p.enLinea?' on':''));bg(av,'av'+p.avatar);b.appendChild(av);b.appendChild(el('b','',p.apodo));
     b.appendChild(el('small','','Grupo '+p.grupo+' · Nv '+p.nivel));b.addEventListener('click',function(){loginPerfil(p)});lista.appendChild(b)});
-  $('pCuenta').textContent=l.length?(l.length+(l.length===1?' perfil':' perfiles')+' · toca el tuyo y escribe tu PIN'):'No encontré ese apodo. ¿Eres nuevo? Vuelve y toca "Soy nuevo".';
+  $('pCuenta').textContent=l.length?(l.length+(l.length===1?' perfil':' perfiles')+' · toca el tuyo y escribe tu PIN'):'No encontré ese apodo. ¿Eres nuevo? Vuelve y toca "Primer ingreso".';
 }
 $('gIr').addEventListener('click',function(){panel('perfiles');$('pBuscar').value='';gFiltro.q='';pintarGatePerfiles();$('gMsg').textContent=''});
-$('gNew').addEventListener('click',function(){panel('nuevo');$('gMsg').textContent='';pintarFormNuevo()});
+$('gNew').addEventListener('click',function(){panel('nuevo');$('gMsg').textContent='';pintarFormNuevo();cargarNombres()});
 $('gInv').addEventListener('click',function(){INV=true;cerrarGate();pintarHUD();toast('👀 Modo invitado: no se guarda tu avance');decir('aria_hola','Estás mirando como invitado. Crea tu perfil para ganar XP.',7000)});
 $('pBack').addEventListener('click',function(){panel('menu')});$('nBack').addEventListener('click',function(){panel('menu')});
 $('pBuscar').addEventListener('input',function(){gFiltro.q=this.value.trim();pintarGatePerfiles()});
 function pintarFormNuevo(){
-  var g=$('nGrupos');g.innerHTML='';GRUPOS.forEach(function(x){var b=el('button','',x);b.type='button';b.setAttribute('aria-pressed',String(reg.grupo===x));b.addEventListener('click',function(){reg.grupo=x;pintarFormNuevo()});g.appendChild(b)});
+  var g=$('nGrupos');g.innerHTML='';GRUPOS.forEach(function(x){var b=el('button','',x);b.type='button';b.setAttribute('aria-pressed',String(reg.grupo===x));b.addEventListener('click',function(){reg.grupo=x;pintarFormNuevo();cargarNombres()});g.appendChild(b)});
 }
 var ACT=null;
 function pintarAvAct(){
@@ -858,19 +860,27 @@ function iniciar(j,saludo){
 }
 function loginPerfil(p){
   abrirPin({titulo:'PIN de '+p.apodo,sub:'Escribe tus 4 números secretos',avatar:p.avatar,cb:function(pin){
-    return llamar('entrar',{id:p.id,pin:pin}).then(function(j){iniciar(j,'¡Hola de nuevo, ')})}});
-}
-$('nGo').addEventListener('click',function(){
-  var n=parseInt($('nLista').value,10),msg=$('gMsg');msg.className='gmsg';
-  if(!reg.grupo){msg.textContent='Elige tu grupo.';return}
-  if(!(n>=1&&n<=99)){msg.textContent='Escribe tu número de lista (el de la lista del curso).';$('nLista').focus();return}
-  msg.textContent='';
-  abrirPin({titulo:'PIN inicial',sub:'Escribe el PIN que te dio el Profe',alCancelar:function(){panel('nuevo')},cb:function(pin){
-    return llamar('entrar',{grupo:reg.grupo,lista:n,pin:pin}).then(function(j){
+    return llamar('entrar',{id:p.id,pin:pin}).then(function(j){
       if(j.pendiente){ACT={token:j.token,nombre:j.nombre,apodo:j.apodo,avatar:j.avatar};mostrarAct()}
       else iniciar(j,'¡Hola de nuevo, ')})}});
-});
-$('aNo').addEventListener('click',function(){ACT=null;panel('nuevo')});
+}
+function cargarNombres(){
+  var box=$('nNombresBox'),lst=$('nNombres'),g=reg.grupo;
+  if(!g){box.style.display='none';return}
+  box.style.display='';lst.innerHTML='';lst.appendChild(el('p','nota','Buscando tu nombre…'));
+  llamar('listaPrimerIngreso',{grupo:g}).then(function(j){
+    if(reg.grupo!==g)return;lst.innerHTML='';
+    if(!j.estudiantes.length){lst.appendChild(el('p','nota','No quedan nombres pendientes en este grupo. Si ya hiciste tu primer ingreso, vuelve y toca "Ya tengo perfil".'));return}
+    j.estudiantes.forEach(function(e){var b=el('button','pn',e.n);b.type='button';b.addEventListener('click',function(){primerIngreso(e)});lst.appendChild(b)});
+  }).catch(function(e){if(reg.grupo!==g)return;lst.innerHTML='';lst.appendChild(el('p','nota',(e&&e.message)||'No pude cargar la lista.'))});
+}
+function primerIngreso(e){
+  abrirPin({titulo:'PIN inicial',sub:'Escribe el PIN que te dio el Profe',alCancelar:function(){panel('nuevo')},cb:function(pin){
+    return llamar('entrar',{id:e.id,pin:pin}).then(function(j){
+      if(j.pendiente){ACT={token:j.token,nombre:j.nombre,apodo:j.apodo,avatar:j.avatar};mostrarAct()}
+      else iniciar(j,'¡Hola de nuevo, ')})}});
+}
+$('aNo').addEventListener('click',function(){var r=ACT&&ACT.apodo?'perfiles':'nuevo';ACT=null;panel(r)});
 $('aGo').addEventListener('click',function(){
   var ap=$('aApodo').value.replace(/\s+/g,' ').trim(),msg=$('gMsg');msg.className='gmsg';
   if(!ACT.apodo&&ap.length<3){msg.textContent='Escribe un apodo de al menos 3 letras.';$('aApodo').focus();return}

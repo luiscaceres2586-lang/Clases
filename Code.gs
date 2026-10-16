@@ -584,7 +584,7 @@ var RUTAS = {
 };
 
 /* ============================ PUNTOS DE ENTRADA ========================== */
-function doGet() { return salida({ ok: true, servicio: 'Aula Gamificada', mensaje: 'Servidor activo', hora: horaStr() }); }
+function doGet() { return salida({ ok: true, servicio: 'Aula Gamificada', version: 'v2', mensaje: 'Servidor activo', hora: horaStr() }); }
 function doPost(e) {
   var req;
   try {
@@ -764,6 +764,8 @@ function onOpen() {
       .addItem('⭐ Dar XP a un estudiante', 'menuDarXP')
       .addItem('🚫 Bloquear / desbloquear perfil', 'menuBloquear')
       .addItem('🗑️ Eliminar perfil', 'menuEliminar')
+      .addSeparator()
+      .addItem('🧹 Borrar estudiantes y avances (empezar de cero)', 'menuReiniciarEstudiantes')
       .addToUi();
   } catch (e) {}
 }
@@ -854,4 +856,22 @@ function menuPrimerIngreso() {
   if (r !== 'abrir' && r !== 'cerrar') { _avisar('Escribe exactamente abrir o cerrar.'); return; }
   props().setProperty('PRIMER_INGRESO', r === 'abrir' ? 'abierto' : 'cerrado');
   _avisar('Primer ingreso ' + (r === 'abrir' ? 'ABIERTO' : 'CERRADO') + '.');
+}
+
+// Borra TODOS los perfiles, PIN, avances y notas para volver a cargar la lista. No toca la configuración.
+function reiniciarEstudiantes() {
+  return conLock(function () {
+    var n = 0;
+    [CFG.HOJA_PERFILES, CFG.HOJA_SEG, CFG.HOJA_ESTADOS, CFG.HOJA_NOTAS, CFG.HOJA_AVANCES].forEach(function (nom) {
+      var h = hoja(nom), u = h.getLastRow();
+      if (u >= 2) { h.getRange(2, 1, u - 1, h.getLastColumn()).clearContent(); n += u - 1; }
+    });
+    cache().remove('rk');
+    return 'Listo: se borraron ' + n + ' filas de estudiantes y avances.\nAhora usa "Cargar lista de estudiantes".';
+  });
+}
+function menuReiniciarEstudiantes() {
+  var r = _pedir('Empezar de cero', 'Esto BORRA todos los perfiles, PIN, avances y notas.\nEscribe BORRAR para confirmar:');
+  if (r !== 'BORRAR') { _avisar('No se borró nada.'); return; }
+  _seguro(reiniciarEstudiantes);
 }

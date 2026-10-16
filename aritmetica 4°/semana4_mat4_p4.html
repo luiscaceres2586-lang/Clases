@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script src="../aula-sync.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <script>
@@ -6327,6 +6328,17 @@ actualizarBadgeNombre();
 mostrarConfirmacion();
 render();
 iniciarMensajesDocentePorTiempo();
+</script>
+
+<script>
+/* ☁️ AULA ONLINE — resumen para la hoja "Notas y avance" del Profe */
+window.AULA_RESUMEN = function () {
+  var v = (st.seen && (st.seen.size !== undefined ? st.seen.size : st.seen.length)) || 0;
+  return { materia: (claseCtx && claseCtx.materia) || "Aritmética 4°", semana: SEMANA_NUM,
+           avance: Math.min(100, Math.round(v / TOT * 100)),
+           aciertos: Math.min((typeof aciertosReal === 'function' ? aciertosReal() : (st.aciertos || 0)), TOTAL_PREGS),
+           preguntas: TOTAL_PREGS, nota: calcTotal() };
+};
 </script>
 </body>
 </html>

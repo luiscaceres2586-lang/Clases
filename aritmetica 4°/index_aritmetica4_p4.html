@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script src="../aula-sync.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎮 Aritmética 4° — Período 4 · Profe Luis</title>
@@ -985,6 +986,29 @@ document.addEventListener('mousemove', function(e){
 /* ══════════════════════════════════════════════
    RECUPERAR SESIÓN ACTIVA
 ══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════
+   ☁️ AULA ONLINE — entrar con la sesión del Aula (sin otro registro)
+══════════════════════════════════════════════ */
+(function aulaAutoLogin(){
+  try {
+    const A = window.AulaSync, a = A && A.activo && A.sesion();
+    if (!a) return;
+    const gd = CONFIG_CURSO.grupos_disponibles;
+    const delCurso = Array.isArray(gd) ? gd.includes(String(a.grupo)) : String(a.grupo).charAt(0) === String(CONFIG_CURSO.grado);
+    if (!delCurso) return;                       // otro grado: usa el registro de siempre
+    const ya = JSON.parse(sessionStorage.getItem('sesion_activa') || 'null');
+    if (ya && ya.nombre === a.nombre && ya.expira > Date.now()) return;
+    CONFIG_CURSO.grupo = String(a.grupo);
+    CONFIG_CURSO.prefijo = generarPrefijo();
+    const SES = { usuario: normalizarNombre(a.nombre), nombre: a.nombre, nombreCorto: a.apodo || a.nombre.split(' ')[0],
+      grado: CONFIG_CURSO.grado, grupo: CONFIG_CURSO.grupo, area: CONFIG_CURSO.area, prefijo: CONFIG_CURSO.prefijo,
+      avatar: 'av' + (a.avatar || 1), login_time: Date.now(), expira: Date.now() + (5*60*60*1000), aula: true };
+    sessionStorage.setItem('sesion_activa', JSON.stringify(SES));
+    sessionStorage.setItem('edu_session', JSON.stringify(SES));
+    localStorage.setItem('studentName', a.nombre);
+    localStorage.setItem('edu_session', JSON.stringify(SES));
+  } catch (e) { console.warn('Aula: auto-ingreso omitido', e); }
+})();
 (function recuperarSesion(){
   const raw = sessionStorage.getItem('sesion_activa');
   if (!raw) return;

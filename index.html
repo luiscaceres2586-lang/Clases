@@ -474,7 +474,7 @@ footer small{display:block;opacity:.8;margin-top:4px}
     <div id="gCfg" class="cfgbox" style="display:none"><b>⚠️ Para el Profe:</b> falta conectar el servidor. Abre este <code>index.html</code> y pega la URL de tu aplicación web en <code>AULA.API_URL</code> (arriba, en la configuración). Mientras tanto se puede entrar como invitado.</div>
     <div class="gmenu" id="gMenu">
       <button class="btn" id="gIr" type="button">🎮 Ya tengo perfil<small>Busca tu apodo en la lista</small></button>
-      <button class="btn sec" id="gNew" type="button">✨ Soy nuevo<small>Crea tu perfil con el código</small></button>
+      <button class="btn sec" id="gNew" type="button">✨ Primer ingreso<small>Con tu grupo y tu número de lista</small></button>
       <button class="btn g3" id="gInv" type="button">👀 Solo mirar<small>Entrar sin guardar avance</small></button>
     </div>
     <div class="gpanel" id="gPerfiles">
@@ -484,13 +484,21 @@ footer small{display:block;opacity:.8;margin-top:4px}
       <p class="nota" id="pCuenta"></p>
     </div>
     <div class="gpanel" id="gNuevo">
-      <div class="gtop"><button class="back" id="nBack" type="button">← Volver</button><b>✨ Crear mi perfil</b></div>
+      <div class="gtop"><button class="back" id="nBack" type="button">← Volver</button><b>✨ Primer ingreso</b></div>
       <div class="form">
-        <div><label for="nCod">Código de registro</label><input id="nCod" type="text" maxlength="20" autocomplete="off" placeholder="Te lo da el Profe Luis"><div class="hint">Sin el código no se puede crear un perfil.</div></div>
         <div><label>Mi grupo</label><div class="chs" id="nGrupos"></div></div>
-        <div><label for="nApodo">Mi apodo de jugador</label><input id="nApodo" type="text" maxlength="14" autocomplete="off" placeholder="Ej: Rayo Veloz"><div class="hint">Usa un apodo, <b>no tu nombre completo</b>. De 3 a 14 letras o números.</div></div>
-        <div><label>Mi avatar</label><div class="avs" id="nAvs"></div></div>
-        <button class="btn" id="nGo" type="button">🔑 Crear mi PIN</button>
+        <div><label for="nLista">Mi número de lista</label><input id="nLista" type="number" inputmode="numeric" min="1" max="99" placeholder="Ej: 12" autocomplete="off"><div class="hint">Es el número que tienes en la lista del curso. El Profe te da tu PIN inicial.</div></div>
+        <button class="btn" id="nGo" type="button">🔑 Escribir mi PIN inicial</button>
+      </div>
+    </div>
+    <div class="gpanel" id="gAct">
+      <div class="gtop"><button class="back" id="aNo" type="button">← No soy yo</button><b>👋 ¡Hola!</b></div>
+      <div class="form">
+        <div><label>Tu nombre en la lista</label><div id="aNombre" style="font-weight:800;font-size:1.15rem;padding:6px 0"></div><div class="hint">Solo tú y el Profe lo ven. En la liga todos te verán con tu apodo.</div></div>
+        <div id="aApodoBox"><label for="aApodo">Elige tu apodo de jugador</label><input id="aApodo" type="text" maxlength="14" autocomplete="off" placeholder="Ej: Rayo Veloz"><div class="hint">Usa un apodo, <b>no tu nombre completo</b>. De 3 a 14 letras o números.</div></div>
+        <div id="aApodoFijo" style="display:none;font-weight:800"></div>
+        <div><label>Mi avatar</label><div class="avs" id="aAvs"></div></div>
+        <button class="btn" id="aGo" type="button">🔑 Crear mi PIN nuevo</button>
       </div>
     </div>
     <p class="gmsg" id="gMsg" role="alert"></p>
@@ -512,12 +520,12 @@ footer small{display:block;opacity:.8;margin-top:4px}
   <div class="box">
     <img class="ar" data-i="aria_hola" alt="">
     <h2 id="mpT">Mi jugador</h2>
-    <p id="mpSub"></p>
+    <p id="mpSub"></p><p id="mpNombre" style="display:none;margin:-4px 0 10px;font-weight:800"></p>
     <div id="mpLogged">
       <p>Cambia tu avatar:</p><div class="avs" id="mpAvs"></div>
       <div class="row"><button class="btn sec" id="mpPin" type="button">🔑 Cambiar mi PIN</button><button class="btn" id="mpOut" type="button">🚪 Cerrar sesión</button></div>
     </div>
-    <div id="mpGuest" class="row"><button class="btn" id="mpIn" type="button">🎮 Ya tengo perfil</button><button class="btn sec" id="mpNew" type="button">✨ Soy nuevo</button></div>
+    <div id="mpGuest" class="row"><button class="btn" id="mpIn" type="button">🎮 Ya tengo perfil</button><button class="btn sec" id="mpNew" type="button">✨ Primer ingreso</button></div>
     <div class="row"><button class="btn sec" id="mpClose" type="button">Cerrar</button></div>
     <small id="mpNota">Tu progreso se guarda en línea: puedes entrar desde cualquier equipo con tu apodo y tu PIN.</small>
   </div>
@@ -622,7 +630,7 @@ function pintarHUD(){
     d.appendChild(im);d.appendChild(el('b','',g.n));d.appendChild(el('small','',total>=g.xp?'¡Desbloqueada!':g.xp+' XP'));h.appendChild(d)});
 }
 function aplicarPerfil(p,silencioso){
-  var antes=YO?YO.nivel:null;YO=p;
+  var antes=YO?YO.nivel:null;YO=p;if(SES&&p.nombre!==undefined&&SES.nombre!==p.nombre){SES.nombre=p.nombre;guardarSes(SES)}
   if(!silencioso&&antes!==null&&p.nivel>antes){toast('🎉 ¡Subiste al nivel '+p.nivel+'!');confeti(innerWidth/2,innerHeight/3,90);decir('aria_genial','¡Nivel '+p.nivel+'! Eres '+tituloNivel(p.nivel)+'.',6000)}
   pintarHUD();pintarMundos();
 }
@@ -800,7 +808,7 @@ document.addEventListener('keydown',function(e){
 
 /* ============ acceso (gate) ============ */
 var gFiltro={grupo:'',q:''},reg={grupo:'',avatar:1};
-function panel(p){$('gMenu').style.display=p==='menu'?'':'none';$('gPerfiles').classList.toggle('on',p==='perfiles');$('gNuevo').classList.toggle('on',p==='nuevo');
+function panel(p){$('gMenu').style.display=p==='menu'?'':'none';$('gPerfiles').classList.toggle('on',p==='perfiles');$('gNuevo').classList.toggle('on',p==='nuevo');$('gAct').classList.toggle('on',p==='act');
   $('gSub').style.display=p==='menu'?'':'none'}
 function abrirGate(modo,msg){
   $('gate').classList.add('on');document.body.style.overflow='hidden';panel(modo||'menu');$('gMsg').textContent=msg||'';$('gMsg').className='gmsg';
@@ -829,11 +837,19 @@ $('pBack').addEventListener('click',function(){panel('menu')});$('nBack').addEve
 $('pBuscar').addEventListener('input',function(){gFiltro.q=this.value.trim();pintarGatePerfiles()});
 function pintarFormNuevo(){
   var g=$('nGrupos');g.innerHTML='';GRUPOS.forEach(function(x){var b=el('button','',x);b.type='button';b.setAttribute('aria-pressed',String(reg.grupo===x));b.addEventListener('click',function(){reg.grupo=x;pintarFormNuevo()});g.appendChild(b)});
-  var a=$('nAvs');a.innerHTML='';for(var i=1;i<=8;i++)(function(i){var b=el('button');b.type='button';b.setAttribute('aria-label','Avatar '+i);b.setAttribute('aria-pressed',String(reg.avatar===i));var im=el('img');im.alt='';im.src=IMG['av'+i]||'';b.appendChild(im);
-    b.addEventListener('click',function(){reg.avatar=i;pintarFormNuevo()});a.appendChild(b)})(i);
+}
+var ACT=null;
+function pintarAvAct(){
+  var a=$('aAvs');a.innerHTML='';for(var i=1;i<=8;i++)(function(i){var b=el('button');b.type='button';b.setAttribute('aria-label','Avatar '+i);b.setAttribute('aria-pressed',String(reg.avatar===i));var im=el('img');im.alt='';im.src=IMG['av'+i]||'';b.appendChild(im);
+    b.addEventListener('click',function(){reg.avatar=i;pintarAvAct()});a.appendChild(b)})(i);
+}
+function mostrarAct(){
+  panel('act');$('aNombre').textContent=ACT.nombre||'(tu nombre no está en la lista: avisa al Profe)';
+  var tiene=!!ACT.apodo;$('aApodoBox').style.display=tiene?'none':'';$('aApodoFijo').style.display=tiene?'':'none';
+  $('aApodoFijo').textContent='Tu apodo: '+ACT.apodo;$('aApodo').value='';reg.avatar=ACT.avatar||1;pintarAvAct();$('gMsg').textContent='';
 }
 function iniciar(j,saludo){
-  SES={api:API,token:j.token,id:j.perfil.id,apodo:j.perfil.apodo,avatar:j.perfil.avatar,grupo:j.perfil.grupo,grado:j.perfil.grado};guardarSes(SES);
+  SES={api:API,token:j.token,id:j.perfil.id,apodo:j.perfil.apodo,nombre:j.perfil.nombre||'',avatar:j.perfil.avatar,grupo:j.perfil.grupo,grado:j.perfil.grado};guardarSes(SES);
   INV=false;YO=null;saludoLiga=false;LG.grado=j.perfil.grado;LG.grupo='';LG.todos=false;
   aplicarPerfil(j.perfil,true);aplicarRanking(j.ranking);cerrarGate();
   toast((saludo||'¡Hola, ')+j.perfil.apodo+'! 🎮');confeti(innerWidth/2,innerHeight/2.5,80);
@@ -845,17 +861,27 @@ function loginPerfil(p){
     return llamar('entrar',{id:p.id,pin:pin}).then(function(j){iniciar(j,'¡Hola de nuevo, ')})}});
 }
 $('nGo').addEventListener('click',function(){
-  var cod=$('nCod').value.trim(),ap=$('nApodo').value.replace(/\s+/g,' ').trim(),msg=$('gMsg');msg.className='gmsg';
-  if(!cod){msg.textContent='Escribe el código de registro que te dio el Profe.';$('nCod').focus();return}
+  var n=parseInt($('nLista').value,10),msg=$('gMsg');msg.className='gmsg';
   if(!reg.grupo){msg.textContent='Elige tu grupo.';return}
-  if(ap.length<3){msg.textContent='Tu apodo debe tener al menos 3 letras.';$('nApodo').focus();return}
+  if(!(n>=1&&n<=99)){msg.textContent='Escribe tu número de lista (el de la lista del curso).';$('nLista').focus();return}
   msg.textContent='';
-  function volver(){panel('nuevo')}
-  abrirPin({titulo:'Crea tu PIN',sub:'Elige 4 números que recuerdes. ¡No se los digas a nadie!',avatar:reg.avatar,alCancelar:volver,cb:function(p1){
+  abrirPin({titulo:'PIN inicial',sub:'Escribe el PIN que te dio el Profe',alCancelar:function(){panel('nuevo')},cb:function(pin){
+    return llamar('entrar',{grupo:reg.grupo,lista:n,pin:pin}).then(function(j){
+      if(j.pendiente){ACT={token:j.token,nombre:j.nombre,apodo:j.apodo,avatar:j.avatar};mostrarAct()}
+      else iniciar(j,'¡Hola de nuevo, ')})}});
+});
+$('aNo').addEventListener('click',function(){ACT=null;panel('nuevo')});
+$('aGo').addEventListener('click',function(){
+  var ap=$('aApodo').value.replace(/\s+/g,' ').trim(),msg=$('gMsg');msg.className='gmsg';
+  if(!ACT.apodo&&ap.length<3){msg.textContent='Escribe un apodo de al menos 3 letras.';$('aApodo').focus();return}
+  msg.textContent='';
+  function volver(){panel('act')}
+  abrirPin({titulo:'Crea tu PIN nuevo',sub:'Elige 4 números que recuerdes. No uses 1111. ¡No se los digas a nadie!',avatar:reg.avatar,alCancelar:volver,cb:function(p1){
+    if(p1==='1111')return Promise.reject(mkErr('Elige un PIN diferente al inicial.','pin'));
     setTimeout(function(){abrirPin({titulo:'Repite tu PIN',sub:'Escríbelo otra vez para confirmar',avatar:reg.avatar,alCancelar:volver,cb:function(p2){
       if(p2!==p1)return Promise.reject(mkErr('Los PIN no son iguales. Inténtalo otra vez.','pin'));
-      return llamar('registrar',{codigo:cod,apodo:ap,pin:p2,grupo:reg.grupo,avatar:reg.avatar}).then(function(j){iniciar(j,'¡Bienvenido, ')}).catch(function(e){
-        if(['codigo','apodo','apodo_repetido','grupo'].indexOf(e.codigo)>=0){cerrarPin();msg.textContent=e.message;return}throw e})}})},260);
+      return llamar('activar',{token:ACT.token,apodo:ap,pinNuevo:p2,avatar:reg.avatar}).then(function(j){ACT=null;iniciar(j,'¡Bienvenido, ')}).catch(function(e){
+        if(['apodo','apodo_repetido'].indexOf(e.codigo)>=0){cerrarPin();msg.textContent=e.message;return}throw e})}})},260);
     return Promise.resolve()}});
 });
 
@@ -864,6 +890,7 @@ function abrirMp(){
   if(!YO&&!SES){abrirGate('menu');return}
   $('mp').classList.add('on');$('mpLogged').style.display=YO?'':'none';$('mpGuest').style.display=YO?'none':'';
   $('mpSub').textContent=YO?(YO.apodo+' · Grupo '+YO.grupo+' · Nivel '+YO.nivel+' · '+YO.xp+' XP'):'Estás como invitado.';
+  $('mpNombre').style.display=(YO&&YO.nombre)?'':'none';$('mpNombre').textContent=(YO&&YO.nombre)?('👤 '+YO.nombre):'';
   var a=$('mpAvs');a.innerHTML='';
   if(YO)for(var i=1;i<=8;i++)(function(i){var b=el('button');b.type='button';b.setAttribute('aria-label','Avatar '+i);b.setAttribute('aria-pressed',String(YO.avatar===i));var im=el('img');im.alt='';im.src=IMG['av'+i]||'';b.appendChild(im);
     b.addEventListener('click',function(){llamar('perfilActualizar',{token:SES.token,avatar:i}).then(function(j){aplicarPerfil(j.perfil,true);aplicarRanking(j.ranking);abrirMp();toast('✅ Avatar cambiado')}).catch(function(e){if(e.codigo==='sesion')manejar(e);else toast('⚠️ '+e.message)})});a.appendChild(b)})(i);

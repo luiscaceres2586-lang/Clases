@@ -1056,7 +1056,9 @@ document.addEventListener('mousemove', function(e){
   try {
     const A = window.AulaSync, a = A && A.activo && A.sesion();
     if (!a) return;
-    if (!CONFIG_CURSO.grupos_disponibles.includes(String(a.grupo))) return;   // otro grado: usa el registro de siempre
+    const gd = CONFIG_CURSO.grupos_disponibles;
+    const delCurso = Array.isArray(gd) ? gd.includes(String(a.grupo)) : String(a.grupo).charAt(0) === String(CONFIG_CURSO.grado);
+    if (!delCurso) return;                       // otro grado: usa el registro de siempre
     const ya = JSON.parse(sessionStorage.getItem('sesion_activa') || 'null');
     if (ya && ya.nombre === a.nombre && ya.expira > Date.now()) return;
     CONFIG_CURSO.grupo = String(a.grupo);
@@ -1070,7 +1072,6 @@ document.addEventListener('mousemove', function(e){
     localStorage.setItem('edu_session', JSON.stringify(SES));
   } catch (e) { console.warn('Aula: auto-ingreso omitido', e); }
 })();
-
 (function recuperarSesion(){
   const raw = sessionStorage.getItem('sesion_activa');
   if (!raw) return;

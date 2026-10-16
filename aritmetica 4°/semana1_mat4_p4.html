@@ -200,6 +200,10 @@ details p{font-size:.82rem;color:var(--text2);margin-top:7px;line-height:1.7;}
 
 /* 🆕 CONFETI DE CELEBRACIÓN */
 .confetti-layer{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;}
+.fx-overlay{pointer-events:none;}   /* v15.0 (8-W): toda capa decorativa de pantalla completa nunca intercepta clics */
+.reintento-banner{pointer-events:none;}   /* v15.0 (8-W): informativo, nunca tapa ni intercepta nada */
+.aviso-mejor-nota{background:#fff8dc;border:3px solid var(--accent);border-radius:14px;padding:10px 14px;margin:8px auto 14px;max-width:480px;font-family:var(--font-ui);font-size:.85rem;color:var(--primary-dark);line-height:1.6;}
+.aviso-mejor-nota span{font-size:.78rem;color:var(--text2);}
 .confetti-piece{position:absolute;top:-30px;animation:confettiFall ease-in forwards;}
 @keyframes confettiFall{
   0%{transform:translateY(0) rotate(0deg);opacity:1;}
@@ -645,8 +649,8 @@ const _nombreDeSesion = !!studentName && !_nombreDelIndex;
 const NOMBRE_VALIDO   = !!studentName;
 if (!studentName)  studentName  = localStorage.getItem('mat4p4_current_student') || '';
 if (!studentGrupo) studentGrupo = localStorage.getItem('mat4p4_grupo') || '401';
-if (studentName)   localStorage.setItem('mat4p4_current_student', studentName);
-if (studentGrupo)  localStorage.setItem('mat4p4_grupo', studentGrupo);
+if (studentName && !st_modoSinGuardar)   localStorage.setItem('mat4p4_current_student', studentName);   // v15.0 (8-V): acceso directo = sesión efímera
+if (studentGrupo && !st_modoSinGuardar)  localStorage.setItem('mat4p4_grupo', studentGrupo);
 
 // 🆕 v6.3 (Prioridad 8-D): identidad estable basada en nombre normalizado —
 // la misma base se usa para la nota (IDX_SC) y para la posición del slide (SKEY).
@@ -667,7 +671,24 @@ function usuarioKey()    { return normalizarNombre(studentName) || 'anon'; }
 // abre DIRECTO (sin pasar por el index) se arma un respaldo temporal que también
 // incluye la semana, con la MISMA fórmula que usaría el index.
 function prefijoRespaldo() { return prefijoCurso(studentGrupo) + '_s' + SEMANA_NUM; }
-const PREFIX = claseCtx?.storagePrefix || prefijoRespaldo();
+// 🔺🔺🔺 v15.0 (8-V) — SEMANA NUEVA = CERO REAL. El contexto del index solo vale si es de ESTA semana.
+const CONFIG_CLASE = { area:'mat', grado:'4', periodo:'4', semana:SEMANA_NUM };
+const CLASE_ID = `${CONFIG_CLASE.area}_${CONFIG_CLASE.grado}_p${CONFIG_CLASE.periodo}_s${CONFIG_CLASE.semana}`;
+function contextoEsDeEstaSemana(ctx) {
+  if (!ctx) return false;
+  const sem = Number(CONFIG_CLASE.semana);
+  if (ctx.semana !== undefined && ctx.semana !== null && Number(ctx.semana) !== sem) return false;
+  const pfx = String(ctx.storagePrefix || '');
+  if (pfx && !pfx.endsWith('_s' + sem)) return false;      // el prefijo del index TERMINA en la semana
+  return true;
+}
+const CTX_VALIDO = contextoEsDeEstaSemana(claseCtx);
+if (claseCtx && !CTX_VALIDO) {
+  console.warn('⚠️ El contexto que entregó el index es de OTRA semana — se descarta (la identidad se conserva); esta clase arranca en cero.');
+  window.__avisoCtx = '⚠️ Esta clase se abrió con datos de otra semana. Empezó en cero. Entra desde el índice para que tu nota quede bien registrada.';
+  setTimeout(()=>{ try { showToast(window.__avisoCtx); } catch(e){} }, 1400);
+}
+const PREFIX = (CTX_VALIDO && claseCtx && claseCtx.storagePrefix) ? claseCtx.storagePrefix : prefijoRespaldo();
 // 🔺🔺🔺 Prioridad ABSOLUTA MÁXIMA 8-L — BLINDAJE CONTRA LA SEMANA DUPLICADA EN PREFIX:
 // PREFIX YA trae la semana (bien sea del index o del respaldo) — NINGUNA función
 // vuelve a concatenarle "_s"+SEMANA_NUM encima. El bug real documentado en producción
@@ -704,7 +725,9 @@ let st = {
   badges:[], xp:0, vidasUsadas:0, intentos:1,
   focusAdv:0, focusLog:[], zoomLv:100, modoAdmin:false,
   reintentoActivo:false, reintentoPendientes:[], // 🆕 v6.3 (Prioridad 6-B)
-  avatarElegido:null // 🆕 v6.9 (Prioridad 22)
+  avatarElegido:null, // 🆕 v6.9 (Prioridad 22)
+  // 🆕 v15.0 (8-U) — la nota oficial es la MEJOR de todos los intentos
+  mejorNota:0, mejorAciertos:0, mejorIntento:1, historialIntentos:[]
 };
 
 // 🆕 Avatares temáticos del Reino de los Decimales para elegir en el intro
@@ -1062,11 +1085,143 @@ function aciertosReal() {
   const ef = (st.quizActs['evalFinal']?.resps || []).filter(r=>r.correcta).length;
   return q1 + q2 + ef;
 }
+// ═══════════════════════════════════════════════════════════════════════
+// 🔺🔺🔺 v15.0 — Prioridad 8-U: LA NOTA OFICIAL ES LA MEJOR NOTA DE TODOS LOS INTENTOS
+//   calcTotal()    = nota del intento EN CURSO (solo respuestas reales; se redondea a 1 decimal como antes).
+//   notaOficial()  = la ÚNICA que se muestra, se guarda y se envía al index:
+//                    el ajuste manual del docente (st.notaAjustada) si existe; si no, max(intento actual, st.mejorNota).
+//   La mejor nota solo SUBE; solo pdResetCompleto() (Panel Docente) la pone en cero.
+// ═══════════════════════════════════════════════════════════════════════
 function calcTotal() {
-  if (st.notaAjustada) return parseFloat(st.notaAjustada.valor);
   const nota = (aciertosReal() / TOTAL_PREGS) * 5.0;
   return Math.max(0.0, Math.min(5.0, parseFloat(nota.toFixed(1))));
 }
+function actualizarMejorNota() {
+  const act = calcTotal();
+  if (act > (st.mejorNota || 0) + 1e-9) {          // solo SUBE
+    st.mejorNota     = act;
+    st.mejorAciertos = aciertosReal();
+    st.mejorIntento  = st.intentos || 1;
+  }
+}
+function notaOficial() {
+  if (st.notaAjustada) return parseFloat(st.notaAjustada.valor);   // ajuste manual del docente: manda
+  return Math.max(calcTotal(), st.mejorNota || 0);
+}
+function aciertosOficiales() { return Math.max(aciertosReal(), st.mejorAciertos || 0); }
+function renderAvisoMejorNota() {
+  const act = calcTotal(), mejor = st.mejorNota || 0;
+  if ((st.vidasUsadas || 0) === 0 || act >= mejor - 1e-9) return '';
+  return `<div class="aviso-mejor-nota">🏅 Tu nota se mantiene en <strong>${mejor.toFixed(1)}</strong> — es tu mejor intento (el intento ${st.mejorIntento || 1}).<br><span>Este último intento sacó ${act.toFixed(1)}, pero <strong>no baja tu nota</strong>. ¡Puedes seguir intentando!</span></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 🔺🔺🔺 v15.0 — Prioridad 8-V: SEMANA NUEVA = CERO REAL (sello de sesión, almacén, arranque verificado)
+// ═══════════════════════════════════════════════════════════════════════
+// El modo "sin guardar" (acceso directo sin index) NUNCA toca localStorage: usa sessionStorage (propio de la pestaña).
+function almacen() { return st_modoSinGuardar ? sessionStorage : localStorage; }
+// ¿Esta sesión guardada es de ESTE estudiante y de ESTA semana? (lo que no coincide se ignora → arranque en cero)
+// Nota: el grupo NO se compara a propósito — SKEY ya lleva el prefijo del grupo y la reparación 6.10
+// (formato de grupo distinto entre visitas) debe seguir funcionando.
+function sesionGuardadaEsValida(d) {
+  if (!d || typeof d !== 'object') return false;
+  if (d.studentId !== undefined && d.studentId !== usuarioKey()) return false;                 // otra persona
+  if (d.semana    !== undefined && Number(d.semana) !== Number(SEMANA_NUM)) return false;       // otra semana
+  if (d.claseId   !== undefined && d.claseId !== CLASE_ID) return false;                        // otro curso/período
+  return true;   // una sesión antigua SIN sello solo llega aquí si estaba en la clave EXACTA SKEY (ya única por prefijo+nombre)
+}
+function estadoEnCero() {
+  st.name = studentName || '';
+  st.slide = 0; st.seen = new Set(); st.aciertos = 0; st.acts = {}; st.quizActs = {};
+  st.badges = []; st.xp = 0; st.vidasUsadas = 0; st.intentos = 1; st.notaAjustada = null;
+  st.reintentoActivo = false; st.reintentoPendientes = [];
+  st.mejorNota = 0; st.mejorAciertos = 0; st.mejorIntento = 1; st.historialIntentos = [];
+  st.modoAdmin = false;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 🔺🔺🔺 v15.0 — Prioridad 8-W: REINTENTO A PRUEBA DE BLOQUEOS
+//   UNA sola función reinicia un intento (estudiante y panel docente) + prueba de vida del quiz.
+// ═══════════════════════════════════════════════════════════════════════
+function modalAbiertoClase() {
+  return ['modal-overlay', 'modal-grande-overlay'].some(id => { const e = document.getElementById(id); return !!(e && e.classList.contains('vis')); })
+      || !!document.querySelector('#confirm-overlay');
+}
+function limpiarOverlaysDecorativos() {
+  document.querySelectorAll('.fx-overlay, .confetti-layer').forEach(el => { try { el.remove(); } catch (e) {} });
+}
+function iniciarNuevoIntento(origen) {            // origen: 'estudiante' | 'panel'
+  if (origen === 'estudiante' && (st.vidasUsadas || 0) >= MAX_VIDAS) return;
+  // 1) la mejor nota se asegura ANTES de borrar nada (8-U)
+  actualizarMejorNota();
+  st.historialIntentos = st.historialIntentos || [];
+  st.historialIntentos.push({ intento: st.intentos || 1, nota: calcTotal(), aciertos: aciertosReal(), fecha: new Date().toISOString(), origen });
+  // 2) silenciar todo lo que pueda quedar encima o corriendo
+  try { closeModal(); closeModalGrande(); } catch (e) {}
+  if (window.__vivoTimeout) { clearTimeout(window.__vivoTimeout); window.__vivoTimeout = null; }
+  limpiarOverlaysDecorativos();
+  // 3) vidas e intentos (el mismo conteo para estudiante y panel)
+  st.vidasUsadas = Math.min(MAX_VIDAS, (st.vidasUsadas || 0) + 1);
+  st.intentos = (st.intentos || 1) + 1;
+  st.aciertos = 0;
+  // 4) reset de quizzes + reintento dirigido (Prioridad 6-B): salto directo a los evaluables pendientes
+  ['quiz1', 'quiz2', 'evalFinal'].forEach(qk => { delete st.quizActs[qk]; });
+  st.reintentoActivo = true;
+  st.reintentoPendientes = SL.map((s, i) => ({ s, i })).filter(o => ['quiz', 'evalFinal'].includes(o.s.type)).map(o => o.i);
+  st.slide = st.reintentoPendientes[0] ?? st.slide;
+  save();
+  render();                                       // pinta el primer evaluable pendiente
+  verificarQuizVivo();                            // prueba de vida inmediata
+  updateScoreUI();
+  if (origen === 'estudiante') {
+    showModal(`<div style="text-align:center;padding:10px 0">
+      <div style="font-size:3rem;margin-bottom:8px">🔄</div>
+      <h2 style="font-family:var(--font-ui);color:var(--primary);font-size:1.1rem;margin-bottom:10px">¡Intento ${st.intentos} iniciado!</h2>
+      <p style="font-size:.86rem;color:var(--text2);line-height:1.7;margin-bottom:10px">Debes rehacer:<br>• 📝 Quiz 1<br>• 📝 Quiz 2<br>• 🏆 Evaluación Final</p>
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px">Ya viste toda la clase — vas directo a lo que falta, sin esperas. 🎯<br>🏅 Tu mejor nota (${(st.mejorNota || 0).toFixed(1)}) está segura: este intento solo puede subirla.</p>
+      <button class="mbtn" onclick="closeModal()" style="width:100%">💪 ¡A mejorar mi nota!</button>
+    </div>`);
+  }
+  showToast(`❤️ Intento ${st.intentos} — Ve directo a lo que falta 🎯 (tu mejor nota ${(st.mejorNota || 0).toFixed(1)} está segura)`);
+}
+
+// Prueba de vida del quiz: botones habilitados y ningún elemento de pantalla completa tapando el primer botón.
+window.__vivoTimeout = null;
+window.__vivoReparaciones = 0;
+function programarVerificacionQuiz() {            // se llama al FINAL de render()
+  if (window.__vivoTimeout) clearTimeout(window.__vivoTimeout);
+  window.__vivoTimeout = setTimeout(verificarQuizVivo, 300);
+}
+function verificarQuizVivo() {
+  try {
+    const s = SL[st.slide];
+    if (!s || !['quiz', 'evalFinal'].includes(s.type)) { window.__vivoReparaciones = 0; return true; }
+    const qa = st.quizActs[s.qKey || s.type];
+    if (qa && qa.completado) return true;
+    if (modalAbiertoClase()) return true;                          // un modal legítimo (retroalimentación) está encima: no es un bloqueo
+    const opts = [...document.querySelectorAll('#slide-content .quiz-opt')];
+    if (!opts.length) return true;                                 // semáforo de confianza u otra pantalla legítima
+    let problema = false;
+    if (opts.every(b => b.disabled)) problema = true;              // pintado muerto
+    const b0 = opts.find(b => !b.disabled) || opts[0];
+    const r = b0.getBoundingClientRect();
+    if (r.width > 0 && r.bottom > 0 && r.top < window.innerHeight) {
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      if (hit && !b0.contains(hit)) {                              // algo está tapando el botón
+        const cs = getComputedStyle(hit), hr = hit.getBoundingClientRect();
+        const grande = hr.width >= window.innerWidth * 0.8 && hr.height >= window.innerHeight * 0.8;
+        const legitimo = hit.closest('#modal-overlay, #modal-grande-overlay, #confirm-overlay, #pd-modal-ov, #pd-overlay');
+        if (!legitimo && (cs.position === 'fixed' || cs.position === 'absolute') && grande) {
+          hit.style.pointerEvents = 'none'; problema = true;       // capa decorativa de pantalla completa: se neutraliza
+        } else if (!legitimo) { console.warn('verificarQuizVivo: el botón está cubierto por', hit); }
+      }
+    }
+    if (problema && window.__vivoReparaciones < 3) { window.__vivoReparaciones++; render(); return false; }
+    if (!problema) window.__vivoReparaciones = 0;
+    return !problema;
+  } catch (e) { console.warn('verificarQuizVivo:', e); return true; }
+}
+setInterval(() => { try { verificarQuizVivo(); } catch (e) {} }, 3000);   // vigilante: repite la prueba cada 3 s
 
 // 🆕 v6.9 (Prioridad 8-F) — semáforo de participación para el Panel Docente/índice
 function calcularSemaforoParticipacion() {
@@ -1080,7 +1235,10 @@ function calcularSemaforoParticipacion() {
 function save() {
   if (!studentName) return;
   try {
+    actualizarMejorNota();   // v15.0 (8-U): la mejor nota se asegura SIEMPRE antes de guardar
     const data = {
+      studentId:usuarioKey(), semana:SEMANA_NUM, claseId:CLASE_ID, prefix:PREFIX,   // v15.0 (8-V): SELLO de sesión
+      mejorNota:st.mejorNota||0, mejorAciertos:st.mejorAciertos||0, mejorIntento:st.mejorIntento||1, historialIntentos:st.historialIntentos||[],   // 8-U
       name:st.name, grupo:studentGrupo, slide:st.slide, seen:[...st.seen],
       aciertos:st.aciertos, acts:st.acts, quizActs:st.quizActs,
       badges:st.badges, xp:st.xp, vidasUsadas:st.vidasUsadas,
@@ -1094,7 +1252,8 @@ function save() {
     // 🔺🔺🔺 Prioridad 8-L: SKEY es la ÚNICA clave que recibe la sesión completa
     // (slide/seen/quizActs/etc.). syncIndex() jamás escribe aquí — escribe en
     // INDEX_KEY, una clave distinta — así ningún guardado se autodestruye.
-    localStorage.setItem(SKEY, JSON.stringify(data));
+    almacen().setItem(SKEY, JSON.stringify(data));
+    if (st_modoSinGuardar) { showSaveIndicator(); return; }   // v15.0 (8-V): acceso directo = sesión efímera, nada más en localStorage ni en el índice
     // 🔒 Copia de continuidad independiente del grupo: esta es la clave que
     // permite recuperar la sesión incluso si se cerró/reabrió la pestaña o si
     // el grupo llegó con un formato distinto desde el índice.
@@ -1194,14 +1353,16 @@ function load() {
   try {
     const claveDirecta = SKEY;
     // 1) Clave histórica exacta.
-    let d = JSON.parse(localStorage.getItem(claveDirecta) || 'null');
+    let d = JSON.parse(almacen().getItem(claveDirecta) || 'null');
     let fuente = claveDirecta;
+    if (d && !sesionGuardadaEsValida(d)) { console.warn('⚠️ Sesión guardada descartada: no es de este estudiante/semana.'); d = null; }   // v15.0 (8-V)
 
     // 2) 🔒 Clave de continuidad estable por estudiante. Esta es la reparación
     // principal del problema: NO depende de sessionStorage ni de que el grupo
     // llegue exactamente igual desde el índice.
     if (!d) {
-      d = JSON.parse(localStorage.getItem(resumeKey()) || 'null');
+      d = st_modoSinGuardar ? null : JSON.parse(localStorage.getItem(resumeKey()) || 'null');
+      if (d && !sesionGuardadaEsValida(d)) d = null;   // v15.0 (8-V)
       if (d) {
         fuente = resumeKey();
         if (d.grupo) {
@@ -1213,12 +1374,15 @@ function load() {
 
     // 3) Compatibilidad con sesiones antiguas guardadas bajo otra clave.
     if (!d) {
-      d = buscarSesionHuerfanaPorNombre();
+      d = st_modoSinGuardar ? null : buscarSesionHuerfanaPorNombre();
+      if (d && !sesionGuardadaEsValida(d)) d = null;   // v15.0 (8-V)
       if (d) fuente = 'sesion-antigua';
     }
 
     if (!d) {
       console.log('[Reino de los Decimales] Sin sesión previa para "'+studentName+'" — estudiante nuevo.');
+      estadoEnCero();   // v15.0 (8-V): cero REAL, verificado
+      console.assert(calcTotal() === 0 && st.slide === 0 && st.seen.size === 0 && Object.keys(st.acts).length === 0, '🚨 Clase nueva que NO arrancó en cero: revisar 8-V');
       return;
     }
 
@@ -1235,6 +1399,9 @@ function load() {
     st.modoAdmin=d.modoAdmin||false; st.notaAjustada=d.notaAjustada||null;
     st.reintentoActivo=d.reintentoActivo||false; st.reintentoPendientes=d.reintentoPendientes||[];
     st.avatarElegido=d.avatarElegido||null; st.avatarAccesorios=d.avatarAccesorios||[];
+    // 🆕 v15.0 (8-U): la mejor nota SOLO viene de la sesión de esta clase (nunca del index)
+    st.mejorNota=d.mejorNota||0; st.mejorAciertos=d.mejorAciertos||0; st.mejorIntento=d.mejorIntento||1; st.historialIntentos=d.historialIntentos||[];
+    actualizarMejorNota();   // sesiones antiguas sin mejorNota se migran aquí
 
     // Si la recuperación vino por la clave estable, sincronizar también la clave
     // específica del grupo para mantener compatibilidad con el índice actual.
@@ -1262,7 +1429,7 @@ function syncIndex() {
   if (st_modoSinGuardar) return; // 🆕 Prioridad 8-E — blindaje: cero escritura al índice sin identidad confiable
   if (!studentName) return;
   try {
-    const nota      = calcTotal();
+    const nota      = notaOficial();   // v15.0 (8-U): la nota que se envía al index es la OFICIAL
     const pct       = Math.round((st.seen.size / TOT) * 100);
     const completada = st.slide >= TOT-1 && (st.quizActs['evalFinal']?.completado === true);
     const uKey      = usuarioKey();
@@ -1272,7 +1439,8 @@ function syncIndex() {
     const KEY_INDEX = INDEX_KEY;
 
     const payload = {
-      nota:nota.toFixed(1), aciertos:st.aciertos, totalPregs:TOTAL_PREGS,
+      nota:nota.toFixed(1), aciertos:aciertosOficiales(), totalPregs:TOTAL_PREGS,
+      notaIntentoActual:calcTotal().toFixed(1), mejorNota:(st.mejorNota||0).toFixed(1), claseId:CLASE_ID,   // v15.0 (8-U/8-V)
       completada, porcentajeAvance:pct, porcentaje:pct,
       slideActual:st.slide, totalSlides:TOT, semana:SEMANA_NUM,
       studentUser:uKey, studentName, grupo:studentGrupo,
@@ -1290,12 +1458,8 @@ function syncIndex() {
     // usuarioKey() en la clave misma) — se escribe DIRECTAMENTE, sin necesidad
     // de leer/anidar nada antes, y nunca puede pisar a otro estudiante porque
     // estructuralmente nadie más escribe jamás en esta misma clave.
-    try {
-      const prev = JSON.parse(localStorage.getItem(KEY_INDEX) || 'null');
-      if (prev && prev.nota && parseFloat(prev.nota) > nota) {
-        payload.nota = prev.nota; payload.aciertos = prev.aciertos || st.aciertos;
-      }
-    } catch(e) {}
+    // 🆕 v15.0 (8-V): se ELIMINÓ el 'conservar la nota previa del index'. La mejor nota vive SOLO en st.mejorNota
+    // (sesión de esta semana y este estudiante); el index nunca se lee para decidir la nota.
     localStorage.setItem(KEY_INDEX, JSON.stringify(payload));
 
     try {
@@ -1729,7 +1893,7 @@ function dispararConfeti(opts) {
 // SCORE UI
 // ══════════════════════════════════════════
 function updateScoreUI() {
-  const nota = calcTotal();
+  const nota = notaOficial();   // v15.0 (8-U)
   const pct  = (nota/5)*100;
   const els  = ['hud-nota','score-val'];
   els.forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=nota.toFixed(1); });
@@ -2017,6 +2181,7 @@ function render() {
   // Post-render activaciones
   if (s.type==='wordsearch') setTimeout(()=>initWS(s),100);
   if (s.type==='drag')       setTimeout(()=>initDrag(s),100);
+  programarVerificacionQuiz();   // 🆕 v15.0 (8-W): prueba de vida del quiz
 }
 
 function nextSlide() {
@@ -2905,6 +3070,7 @@ function responderQuiz(sId, qKey, opId, correcta, idx, retro) {
   if (existente) { existente.opId = opId; existente.correcta = correcta; existente.retro = retro; }
   else st.quizActs[qKey].resps.push({idx:idxN,opId,correcta,retro});
   st.aciertos = aciertosReal();
+  actualizarMejorNota();   // v15.0 (8-U)
   if (correcta) dispararConfeti({particleCount:35,spread:60,origin:{y:.6}});
   const s = SL.find(x=>x.id===sId);
   const nuevoIdx = idxN+1;
@@ -3406,9 +3572,9 @@ function rFinal() {
     return `<div style="text-align:center;padding:40px 20px"><div style="font-size:3.5rem;margin-bottom:12px">🔒</div><p style="font-family:var(--font-ui);color:var(--primary-dark);font-size:1.1rem">Completa toda la clase para ver tu nota final</p></div>`;
   }
 
-  const t=calcTotal(); const vr=MAX_VIDAS-(st.vidasUsadas||0);
+  const t=notaOficial(); const vr=MAX_VIDAS-(st.vidasUsadas||0);   // v15.0 (8-U)
   const nombre=studentName||'Explorador/a';
-  const aciertos=aciertosReal();
+  const aciertos=aciertosOficiales();   // v15.0 (8-U)
   let msg,emoji,col;
   if(t>=4.5){msg=`🏆 ¡${nombre}, eres un maestro del Reino de los Decimales!`;emoji='🔥';col='var(--success)';}
   else if(t>=3.5){msg=`🚀 ¡Muy bien, ${nombre}! ¡Dominas la lectura de decimales!`;emoji='⭐';col='var(--success)';}
@@ -3434,6 +3600,7 @@ function rFinal() {
         <div style="font-size:clamp(4.5rem,16vw,7.5rem);line-height:1;font-family:var(--font-ui);color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.2);font-weight:900">${t.toFixed(1)}<span style="font-size:clamp(1.6rem,5vw,2.4rem);color:var(--gold)">/5.0</span></div>
       </div>
     </div>
+    ${renderAvisoMejorNota()}
     <div class="mc" style="max-width:460px;margin:0 auto 14px">
       <p style="font-family:var(--font-ui);color:var(--primary-dark);font-size:.85rem;margin-bottom:10px">🏅 Tus insignias de esta semana:</p>
       <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
@@ -3452,7 +3619,8 @@ function rFinal() {
         <p>📝 Quiz 1: <strong>${q1ok}/8</strong> correctas</p>
         <p>📝 Quiz 2: <strong>${q2ok}/8</strong> correctas</p>
         <p>🏆 Eval Final: <strong>${efok}/14</strong> correctas</p>
-        <p>💎 Total: <strong>${aciertos}/30</strong> aciertos</p>
+        ${(st.vidasUsadas||0)>0 && calcTotal()<(st.mejorNota||0)-1e-9 ? '<p style="font-size:.7rem;color:var(--muted);line-height:1.4">Quiz 1, Quiz 2 y Eval Final muestran tu último intento.</p>' : ''}
+        <p>💎 Total${(st.vidasUsadas||0)>0?' de tu mejor intento':''}: <strong>${aciertos}/30</strong> aciertos</p>
         <p>❤️ Vidas usadas: <strong>${st.vidasUsadas}/${MAX_VIDAS}</strong></p>
       </div>
     </div>
@@ -3495,23 +3663,9 @@ function pedirReintento() {
   </div>`);
 }
 function confirmarReintento() {
+  // 🆕 v15.0 (8-W): UNA sola función reinicia un intento (la misma que usa el Panel Docente)
   closeModal();
-  st.vidasUsadas=(st.vidasUsadas||0)+1; st.intentos=(st.intentos||1)+1; st.aciertos=0;
-  ['quiz1','quiz2','evalFinal'].forEach(qk=>{ delete st.quizActs[qk]; });
-  // 🆕 v6.3 (Prioridad 6-B): activar reintento dirigido — salto directo entre
-  // evaluables pendientes, sin cronómetros ni recorrer la clase de nuevo.
-  st.reintentoActivo = true;
-  st.reintentoPendientes = SL.map((s,i)=>({s,i})).filter(o=>['quiz','evalFinal'].includes(o.s.type)).map(o=>o.i);
-  st.slide = st.reintentoPendientes[0] ?? 0;
-  save(); render(); updateScoreUI();
-  setTimeout(()=>{ showModal(`<div style="text-align:center;padding:10px 0">
-    <div style="font-size:3rem;margin-bottom:8px">🔄</div>
-    <h2 style="font-family:var(--font-ui);color:var(--primary);font-size:1.1rem;margin-bottom:10px">¡Intento ${st.intentos} iniciado!</h2>
-    <p style="font-size:.86rem;color:var(--text2);line-height:1.7;margin-bottom:10px">Debes rehacer:<br>• 📝 Quiz 1<br>• 📝 Quiz 2<br>• 🏆 Evaluación Final</p>
-    <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px">Ya viste toda la clase — vas directo a lo que falta, sin esperas. 🎯</p>
-    <button class="mbtn" onclick="closeModal()" style="width:100%">💪 ¡A mejorar mi nota!</button>
-  </div>`); },300);
-  showToast(`❤️ Intento ${st.intentos} — Ve directo a lo que falta 🎯`);
+  iniciarNuevoIntento('estudiante');
 }
 
 // 🆕 v6.3 (Prioridad 6-B): banner protagonista con lo que falta durante el reintento
@@ -3519,12 +3673,13 @@ function renderBannerReintento() {
   if (!st.reintentoActivo) return '';
   const nombresPend = (st.reintentoPendientes||[]).map(i=>SL[i]?.title||`Actividad ${i+1}`).join(' · ');
   if (!nombresPend) return '';
-  return `<div style="display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,#fff8dc,#ffecb3);border:3px solid var(--accent);border-radius:14px;padding:12px 16px;margin-bottom:14px;box-shadow:0 4px 0 var(--primary-dark)">
+  return `<div class="reintento-banner" style="display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,#fff8dc,#ffecb3);border:3px solid var(--accent);border-radius:14px;padding:12px 16px;margin-bottom:14px;box-shadow:0 4px 0 var(--primary-dark)">
     <div style="font-size:1.8rem;flex-shrink:0">🎯</div>
     <div>
       <p style="font-family:var(--font-ui);font-size:.88rem;color:var(--primary-dark);margin-bottom:3px">¡Ya casi! Solo debes volver a responder esto:</p>
       <p style="font-size:.82rem;color:var(--text)"><strong>${nombresPend}</strong></p>
       <p style="font-size:.74rem;color:var(--text2);margin-top:3px">Ya viste toda la clase — no repases lecturas, videos ni actividades. Solo lo que tiene nota. 💪</p>
+      <p style="font-size:.74rem;color:var(--primary-dark);margin-top:3px">🏅 Tu mejor nota (<strong>${(st.mejorNota||0).toFixed(1)}</strong>) está segura: este intento solo puede subirla.</p>
     </div>
   </div>`;
 }
@@ -3882,7 +4037,7 @@ function pdSwitchTab(tab){
 }
 
 function pdTabStats(){
-  const nota=calcTotal();
+  const nota=notaOficial();   // v15.0 (8-U)
   const pct=Math.round((st.seen.size/TOT)*100);
   const q1=(st.quizActs['quiz1']?.resps||[]).filter(r=>r.correcta).length;
   const q2=(st.quizActs['quiz2']?.resps||[]).filter(r=>r.correcta).length;
@@ -4050,18 +4205,15 @@ function pdTabFoco(){
 function pdResetCompleto(){
   if(!confirm('¿Borrar TODO el progreso? No se puede deshacer.')) return;
   st.aciertos=0; st.seen=new Set(); st.acts={}; st.quizActs={}; st.badges=[]; st.xp=0; st.slide=0; st.vidasUsadas=0; st.intentos=1; st.notaAjustada=null;
+  // 🆕 v15.0 (8-U): el ÚNICO borrón total permitido — también pone en cero la mejor nota
+  st.mejorNota=0; st.mejorAciertos=0; st.mejorIntento=1; st.historialIntentos=[]; st.reintentoActivo=false; st.reintentoPendientes=[];
   save(); closePanelDoc(); render(); showToast('♻️ Reset completo realizado');
 }
 function pdResetQuizzes(){
   if(!confirm('¿Resetear quizzes? Consumirá 1 vida.')) return;
-  st.quizActs={}; st.aciertos=0; st.vidasUsadas=Math.min(MAX_VIDAS,(st.vidasUsadas||0)+1);
-  // 🔺🔺🔺 Prioridad 8-M: termina EXACTAMENTE igual que confirmarReintento() —
-  // salta directo a los evaluables pendientes, nunca deja al estudiante en la
-  // slide donde estaba (antes se sentía como "usar una vida reinicia la clase").
-  st.reintentoActivo = true;
-  st.reintentoPendientes = SL.map((s,i)=>({s,i})).filter(o=>['quiz','evalFinal'].includes(o.s.type)).map(o=>o.i);
-  st.slide = st.reintentoPendientes[0] ?? st.slide;
-  save(); closePanelDoc(); render(); showToast('🔄 Quizzes reseteados · 1 vida usada');
+  // 🆕 v15.0 (8-W): mismo camino que el estudiante — la mejor nota se conserva y el quiz queda vivo
+  iniciarNuevoIntento('panel');
+  closePanelDoc(); showToast('🔄 Quizzes reseteados · 1 vida usada · mejor nota conservada');
 }
 function pdReactivarVidas(){
   st.vidasUsadas=0; st.reintentoActivo=false; st.reintentoPendientes=[]; save();
@@ -4146,7 +4298,7 @@ const MENSAJES_DOCENTE = [
 ];
 const MAX_MENSAJES_DOCENTE_POR_CLASE = 3;
 function checarHitoNotaDocente() {
-  const t = calcTotal();
+  const t = notaOficial();   // v15.0 (8-U): los hitos se miden con la nota oficial
   [4.0, 5.0].forEach(h => {
     const clave = 'hito_msg_docente_' + h;
     if (t >= h && !st.acts[clave]) {
@@ -4205,8 +4357,8 @@ window.AULA_RESUMEN = function () {
   var v = (st.seen && (st.seen.size !== undefined ? st.seen.size : st.seen.length)) || 0;
   return { materia: (claseCtx && claseCtx.materia) || "Aritmética 4°", semana: SEMANA_NUM,
            avance: Math.min(100, Math.round(v / TOT * 100)),
-           aciertos: Math.min((typeof aciertosReal === 'function' ? aciertosReal() : (st.aciertos || 0)), TOTAL_PREGS),
-           preguntas: TOTAL_PREGS, nota: calcTotal() };
+           aciertos: Math.min((typeof aciertosOficiales === 'function' ? aciertosOficiales() : (st.aciertos || 0)), TOTAL_PREGS),
+           preguntas: TOTAL_PREGS, nota: notaOficial() };
 };
 </script>
 </body>

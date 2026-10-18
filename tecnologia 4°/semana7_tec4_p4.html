@@ -389,6 +389,9 @@ details p{font-size:.82rem;color:var(--text2);margin-top:7px;line-height:1.7;}
   #hud{flex-wrap:wrap;}
   .hud-mid{display:none;}
 }
+.fx-overlay{pointer-events:none;}
+.aviso-mejor-nota{background:#fff8dc;border:3px solid var(--accent,#F59E0B);border-radius:14px;padding:10px 14px;margin:8px auto 14px;max-width:480px;font-family:var(--font-ui,inherit);font-size:.85rem;color:var(--primary-dark,#1e3a8a);line-height:1.6;}
+.aviso-mejor-nota span{font-size:.78rem;}
 </style>
 <style>
 /* ====== ARIA AVATAR VISUAL v1.6 — estilos del widget flotante y arrastrable ====== */
@@ -781,7 +784,10 @@ const CONFIG_CLASE = { area: 'tec', grado: '4', periodo: '4', semana: SEMANA_NUM
 function prefijoRespaldo() {
   return `${CONFIG_CLASE.area}_${CONFIG_CLASE.grado}_sinregistro_p${CONFIG_CLASE.periodo}_s${CONFIG_CLASE.semana}`;
 }
-const PREFIX = claseCtx?.storagePrefix || prefijoRespaldo();
+// 🔺 v15.0 (8-V): el contexto del index solo vale si es de ESTA semana; si no, se descarta (la identidad se conserva)
+const __CTX_V15 = (function(c){ if(!c) return false; if(c.semana!=null && Number(c.semana)!==7) return false; const p=String(c.storagePrefix||''); if(p && !p.endsWith('_s7')) return false; return true; })(claseCtx);
+if (claseCtx && !__CTX_V15) console.warn('⚠️ El contexto del index es de OTRA semana — se descarta; esta clase arranca en cero.');
+const PREFIX = (__CTX_V15 && claseCtx && claseCtx.storagePrefix) || ((claseCtx && claseCtx.grupo) ? 'tec_4_' + String(claseCtx.grupo).toLowerCase().replace(/[^a-z0-9]/g,'') + '_p4_s7' : prefijoRespaldo());
 
 // 7) Claves derivadas — sufijos fijos, nunca renombrados, nunca coincidentes entre sí (8-J)
 const SKEY      = `${PREFIX}_${NOMBRE_NORM || 'sinregistro'}_session`;
@@ -885,6 +891,228 @@ const SL = [
 // ══════════════════════════════════════════
 // CALC Y SAVE
 // ══════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════════════════
+// 🔺🔺🔺 CAPA v15.0 (parche sobre la clase existente) — Prioridades 8-U · 8-V · 8-W del Prompt Maestro
+//   8-U: la nota OFICIAL es la MEJOR de todos los intentos (calcTotal() ahora devuelve la nota oficial).
+//   8-V: semana nueva = cero real (se descartan registros de OTRA semana/estudiante; contexto de otra semana ignorado).
+//   8-W: reintento a prueba de bloqueos (historial + prueba de vida del quiz + capas decorativas sin clics).
+// Se engancha a las funciones existentes; no elimina ninguna funcionalidad (ajuste manual del docente incluido).
+// ═══════════════════════════════════════════════════════════════════════════════════════════
+(function () {
+  const CLASE_ID = 'tec_4_p4_s7', SEM = 7;
+  // ── enganche tolerante: envuelve lo que YA existe; lo que se define en <script> posteriores se envuelve al terminar de cargar ──
+  const __pend = [];
+  function envolver(nombre, hacer) {
+    try {
+      const f = eval('typeof ' + nombre + " === 'function' ? " + nombre + ' : null');
+      if (!f) return false; if (f.__v15) return true;
+      const nuevo = hacer(f); nuevo.__v15 = true; eval(nombre + ' = nuevo'); return true;
+    } catch (e) { return false; }
+  }
+  function intentar(nombre, hacer) { if (!envolver(nombre, hacer)) __pend.push([nombre, hacer]); }
+  function __tarde() { __pend.splice(0).forEach(([n, h]) => { if (!envolver(n, h)) console.warn('CAPA v15: no se pudo enganchar', n); }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', __tarde); else __tarde();
+  window.addEventListener('load', __tarde);
+  const nz = t => String(t == null ? '' : t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  function idEst() {
+    try { if (typeof usuarioKey === 'function') return usuarioKey(); } catch (e) {}
+    try { if (typeof NOMBRE_NORM !== 'undefined' && NOMBRE_NORM) return NOMBRE_NORM; } catch (e) {}
+    try { return nz(studentName) || 'anon'; } catch (e) { return 'anon'; }
+  }
+  function sinGuardar() { try { return !!st_modoSinGuardar; } catch (e) { return false; } }
+  function claveMejor() {
+    let g = ''; try { g = nz(studentGrupo); } catch (e) {}
+    return 'v15_mejor_' + CLASE_ID + '_' + g + '_' + idEst();
+  }
+
+  // ── 8-U · mejor nota ──────────────────────────────────────────────────────────────────
+  function aciertosIntento() {
+    try { if (typeof aciertosReal === 'function') return aciertosReal(); } catch (e) {}
+    return st.aciertos || 0;
+  }
+  function calcIntento() {                         // nota del intento EN CURSO (sin ajuste del docente)
+    const a = Math.min(aciertosIntento(), TOTAL_PREGS);
+    return Math.max(0.0, Math.min(5.0, parseFloat(((a / TOTAL_PREGS) * 5.0).toFixed(1))));
+  }
+  function guardarMejor() {
+    if (sinGuardar()) return;
+    try {
+      localStorage.setItem(claveMejor(), JSON.stringify({ studentId: idEst(), semana: SEM, claseId: CLASE_ID,
+        mejorNota: st.mejorNota || 0, mejorAciertos: st.mejorAciertos || 0, mejorIntento: st.mejorIntento || 1,
+        historialIntentos: st.historialIntentos || [], ts: Date.now() }));
+    } catch (e) {}
+  }
+  function restaurarMejor() {
+    if (sinGuardar()) return;
+    try {
+      const raw = localStorage.getItem(claveMejor()); if (!raw) return;
+      const d = JSON.parse(raw);
+      if (!d || d.studentId !== idEst() || Number(d.semana) !== SEM || d.claseId !== CLASE_ID) return;   // 8-V: solo lo de ESTE estudiante y ESTA semana
+      if ((d.mejorNota || 0) > (st.mejorNota || 0)) { st.mejorNota = d.mejorNota; st.mejorAciertos = d.mejorAciertos || 0; st.mejorIntento = d.mejorIntento || 1; }
+      if (Array.isArray(d.historialIntentos) && d.historialIntentos.length > (st.historialIntentos || []).length) st.historialIntentos = d.historialIntentos;
+    } catch (e) {}
+  }
+  function actualizarMejorNota() {
+    if (st.mejorNota === undefined) { st.mejorNota = 0; st.mejorAciertos = 0; st.mejorIntento = 1; st.historialIntentos = []; }
+    const act = calcIntento();
+    if (act > (st.mejorNota || 0) + 1e-9) { st.mejorNota = act; st.mejorAciertos = aciertosIntento(); st.mejorIntento = st.intentos || 1; guardarMejor(); }
+  }
+  function notaOficial() {
+    if (st.notaAjustada) return parseFloat(st.notaAjustada.valor);   // el ajuste manual del docente sigue mandando
+    actualizarMejorNota();
+    return Math.max(calcIntento(), st.mejorNota || 0);
+  }
+  window.notaOficial = notaOficial; window.actualizarMejorNota = actualizarMejorNota; window.calcIntento = calcIntento;
+  window.aciertosOficiales = function () { return Math.max(aciertosIntento(), st.mejorAciertos || 0); };
+  intentar('calcTotal', () => function () {                        // TODAS las pantallas (HUD, final, panel docente, index, Aula) usan la nota oficial
+    if ((st.aciertos || 0) > TOTAL_PREGS) st.aciertos = TOTAL_PREGS;
+    return notaOficial();
+  });
+
+  // ── persistencia: save/load ───────────────────────────────────────────────────────────
+  intentar('save', __save => function () { try { actualizarMejorNota(); } catch (e) {} const r = __save.apply(this, arguments); try { guardarMejor(); } catch (e) {} return r; });
+  intentar('load', __load => function () {
+    try { restaurarMejor(); } catch (e) {}         // ANTES: el save() interno de load() no debe pisar la mejor nota guardada
+    const r = __load.apply(this, arguments);
+    try { restaurarMejor(); actualizarMejorNota(); purgarCandadosHuerfanos(); } catch (e) {}
+    return r;
+  });
+
+  // ── 8-V · registros de OTRA semana u otro estudiante nunca se adoptan ─────────────────
+  function registroEsDeEste(d) {
+    if (!d || typeof d !== 'object') return false;
+    if (d.studentId !== undefined && d.studentId !== idEst()) return false;
+    if (d.studentUser !== undefined && d.studentUser !== idEst()) return false;                  // resumen del índice de otra persona (ej. "ana" vs "mariana")
+    if (d.semana !== undefined && d.semana !== null && Number(d.semana) !== SEM) return false;   // resumen/sesión de OTRA semana
+    if (d.claseId !== undefined && d.claseId !== CLASE_ID) return false;
+    try { if (d.name !== undefined && d.name && nz(d.name) !== nz(studentName)) return false; } catch (e) {}
+    return true;
+  }
+  ['buscarSesionHuerfanaPorIdentidad', 'buscarSesionHuerfanaPorNombre'].forEach(n => {
+    intentar(n, f => function () { const d = f.apply(this, arguments); if (d && !registroEsDeEste(d)) { console.warn('⚠️ ' + n + ': registro de otra semana/estudiante descartado.'); return null; } return d; });
+  });
+
+  // ── 8-W · candados q_contada_* huérfanos (un candado sin pregunta contada en quizActs deja el quiz MUERTO) ──
+  function purgarCandadosHuerfanos() {
+    try {
+      Object.keys(st.acts || {}).forEach(k => {
+        const m = /^q_contada_(.+)_(\d+)$/.exec(k); if (!m) return;
+        const qa = st.quizActs && st.quizActs[m[1]];
+        if (!qa || Number(m[2]) >= (qa.idx || 0)) delete st.acts[k];
+      });
+    } catch (e) {}
+  }
+  window.purgarCandadosHuerfanos = purgarCandadosHuerfanos;
+  // ── 8-W · reintento a prueba de bloqueos ──────────────────────────────────────────────
+  function modalAbiertoClase() {
+    return ['modal-overlay', 'modal-grande-overlay'].some(id => { const e = document.getElementById(id); return !!(e && e.classList.contains('vis')); }) || !!document.querySelector('#confirm-overlay');
+  }
+  function limpiarOverlaysDecorativos() { document.querySelectorAll('.fx-overlay, .confetti-layer').forEach(el => { try { el.remove(); } catch (e) {} }); }
+  window.__vivoTimeout = null; window.__vivoReparaciones = 0;
+  window.verificarQuizVivo = function () {
+    try {
+      const s = SL[st.slide];
+      if (!s || !['quiz', 'evalFinal'].includes(s.type)) { window.__vivoReparaciones = 0; return true; }
+      const qa = st.quizActs && st.quizActs[s.qKey || s.type];
+      if (qa && qa.completado) return true;
+      if (modalAbiertoClase()) return true;
+      const opts = [...document.querySelectorAll('.quiz-opt')];
+      if (!opts.length) return true;
+      let problema = false;
+      if (opts.every(b => b.disabled)) problema = true;
+      const b0 = opts.find(b => !b.disabled) || opts[0], r = b0.getBoundingClientRect();
+      if (r.width > 0 && r.bottom > 0 && r.top < window.innerHeight) {
+        const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+        if (hit && !b0.contains(hit)) {
+          const cs = getComputedStyle(hit), hr = hit.getBoundingClientRect();
+          const grande = hr.width >= window.innerWidth * 0.8 && hr.height >= window.innerHeight * 0.8;
+          const legitimo = hit.closest('#modal-overlay, #modal-grande-overlay, #confirm-overlay, #pd-modal-ov, #pd-overlay');
+          if (!legitimo && (cs.position === 'fixed' || cs.position === 'absolute') && grande) { hit.style.pointerEvents = 'none'; problema = true; }
+        }
+      }
+      if (problema && window.__vivoReparaciones < 3) { window.__vivoReparaciones++; render(); return false; }
+      if (!problema) window.__vivoReparaciones = 0;
+      return !problema;
+    } catch (e) { return true; }
+  };
+  setInterval(function () { try { window.verificarQuizVivo(); } catch (e) {} }, 3000);
+  function registrarIntento(origen) {
+    st.historialIntentos = st.historialIntentos || [];
+    st.historialIntentos.push({ intento: st.intentos || 1, nota: calcIntento(), aciertos: aciertosIntento(), fecha: new Date().toISOString(), origen });
+    guardarMejor();
+  }
+  intentar('confirmarReintento', __conf => function () {
+    try { actualizarMejorNota(); registrarIntento('estudiante'); limpiarOverlaysDecorativos(); if (window.__vivoTimeout) clearTimeout(window.__vivoTimeout); } catch (e) {}
+    const r = __conf.apply(this, arguments);
+    try { purgarCandadosHuerfanos(); save(); window.__avisoReintento = true; setTimeout(window.verificarQuizVivo, 500); } catch (e) {}
+    return r;
+  });
+  intentar('pdResetQuizzes', __pdq => function () {
+    const v0 = st.vidasUsadas || 0;
+    try { actualizarMejorNota(); } catch (e) {}
+    const r = __pdq.apply(this, arguments);
+    try { purgarCandadosHuerfanos(); } catch (e) {}
+    try {
+      if ((st.vidasUsadas || 0) > v0) {
+        registrarIntento('panel'); limpiarOverlaysDecorativos();
+        // versiones antiguas dejaban al estudiante a mitad de clase: SIEMPRE se le lleva al primer quiz pendiente (igual que "Reintentar")
+        const cur = SL[st.slide];
+        if (!st.reintentoActivo || !cur || !['quiz', 'evalFinal'].includes(cur.type)) {
+          st.reintentoActivo = true;
+          st.reintentoPendientes = SL.map((s, i) => ({ s, i })).filter(o => ['quiz', 'evalFinal'].includes(o.s.type)).map(o => o.i);
+          st.slide = st.reintentoPendientes[0] ?? st.slide; save(); render();
+        } else save();
+        setTimeout(window.verificarQuizVivo, 500);
+      }
+    } catch (e) {}
+    return r;
+  });
+  intentar('pdResetCompleto', __pdc => function () {                  // el ÚNICO borrón total permitido: también pone en cero la mejor nota
+    const r = __pdc.apply(this, arguments);
+    try {
+      if (Object.keys(st.quizActs || {}).length === 0 && !st.xp && !st.vidasUsadas && (st.intentos || 1) === 1 && !st.notaAjustada && !(st.aciertos > 0)) {   // el original ya vació todo (render() re-marca la slide 0 como vista, por eso no se mira st.seen)
+        st.mejorNota = 0; st.mejorAciertos = 0; st.mejorIntento = 1; st.historialIntentos = []; st.reintentoActivo = false; st.reintentoPendientes = [];
+        guardarMejor(); save();
+      }
+    } catch (e) {}
+    return r;
+  });
+
+  // ── avisos visuales + prueba de vida tras cada render ─────────────────────────────────
+  function insertarDespues(re, html) {
+    try {
+      const w = document.createTreeWalker(document.getElementById('slide-wrap') || document.body, NodeFilter.SHOW_TEXT); let n;
+      while ((n = w.nextNode())) {
+        if (re.test(n.nodeValue)) {
+          let el = n.parentElement; if (!el) return;
+          if (el.closest('.aviso-mejor-nota')) return;
+          const cont = el.closest('.mc, .final-box, div') || el;
+          if (cont.parentElement && !cont.parentElement.querySelector('.aviso-mejor-nota')) cont.insertAdjacentHTML('afterend', html);
+          return;
+        }
+      }
+    } catch (e) {}
+  }
+  function avisos() {
+    try {
+      const mejor = st.mejorNota || 0, act = calcIntento();
+      if (!(st.vidasUsadas > 0)) return;
+      if (st.reintentoActivo) {
+        insertarDespues(/Ya viste toda la clase/, '<div class="aviso-mejor-nota">🏅 Tu mejor nota (<strong>' + mejor.toFixed(1) + '</strong>) está segura: este intento solo puede subirla.</div>');
+      } else if (act < mejor - 1e-9) {
+        insertarDespues(/TU NOTA FINAL/, '<div class="aviso-mejor-nota">🏅 Tu nota se mantiene en <strong>' + mejor.toFixed(1) + '</strong> — es tu mejor intento (el intento ' + (st.mejorIntento || 1) + ').<br><span>Este último intento sacó ' + act.toFixed(1) + ', pero <strong>no baja tu nota</strong>. ¡Puedes seguir intentando!</span></div>');
+      }
+    } catch (e) {}
+  }
+  intentar('render', __render => function () {
+    try { purgarCandadosHuerfanos(); } catch (e) {}
+    const r = __render.apply(this, arguments);
+    try { avisos(); if (window.__vivoTimeout) clearTimeout(window.__vivoTimeout); window.__vivoTimeout = setTimeout(window.verificarQuizVivo, 300); } catch (e) {}
+    return r;
+  });
+  window.__capaV15 = true;
+})();
+
 function calcTotal() {
   if (st.notaAjustada) return parseFloat(st.notaAjustada.valor);
   // 🔺🔺🔺 Prioridad 8-M — SEGUNDA CAPA DE SEGURIDAD, independiente de las
@@ -1031,12 +1259,7 @@ function syncIndex() {
     };
 
     // No bajar la nota si ya había una mejor guardada (protege contra reintentos peores)
-    try {
-      const prev = JSON.parse(localStorage.getItem(INDEX_KEY) || 'null');
-      if (prev && typeof prev.nota === 'number' && prev.nota > payload.nota) {
-        payload.nota = prev.nota; payload.aciertos = prev.aciertos ?? st.aciertos;
-      }
-    } catch(e) {}
+    // 🆕 v15.0 (8-V): se ELIMINÓ el 'conservar la nota previa del index'.
 
     localStorage.setItem(INDEX_KEY, JSON.stringify(payload));
     // Registrar esta clave en el índice general de "clases guardadas" para que el

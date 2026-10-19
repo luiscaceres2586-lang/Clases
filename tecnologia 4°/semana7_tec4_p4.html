@@ -4007,66 +4007,147 @@ function respuestaConversacionSocialAria(pregunta){
 }
 
 function responderAria(pregunta){
-  // 🛡️ v2.5 — Filtro de lenguaje inapropiado: se revisa ANTES que cualquier otra lógica.
+  // 🛡️ v2.5 — Filtro de lenguaje inapropiado: se revisa PRIMERO, antes de cualquier otra lógica.
   if (typeof contieneLenguajeInapropiadoAria === 'function' && contieneLenguajeInapropiadoAria(pregunta)){
     return respuestaFiltroLenguajeAria(pregunta);
   }
-  // 💜 v2.6 — Insinuación romántica hacia ARIA: se responde siempre de forma cálida y NO
-  // romántica, y jamás debe terminar cayendo en una búsqueda de Wikipedia al azar.
+  // 💜 v2.6 — Insinuación romántica hacia ARIA: respuesta cálida y NO romántica, y jamás cae a Wikipedia/IA.
   if (typeof esIntentoRomanticoAria === 'function' && esIntentoRomanticoAria(pregunta)){
     return respuestaIntentoRomanticoAria();
   }
+
+  const n = normalizaTexto(pregunta);
+
+  // 1) 30-B — ¿pregunta de quiz/evalFinal copiada o muy parecida? Nunca se resuelve.
+  const copiada = detectarPreguntaCopiadaAria(pregunta);
+  if (copiada) return orientacionSocraticaAria(copiada);
+
+  // 2) Moderación
+  if (esInsultoAria(n)) return responderAriaBase(pregunta);
+
+  // 2b) v2.5 — ¿ARIA está esperando una respuesta (ejercicio activo, oferta de ejercicio sí/no,
+  //     pregunta socrática)? Eso se resuelve ANTES de tratar el mensaje como una pregunta nueva.
+  let cascadaIntentada = false;
+  if ((typeof ariaEjercicioActivo !== 'undefined' && ariaEjercicioActivo) ||
+      (typeof ariaOfertaEjercicioPendiente !== 'undefined' && ariaOfertaEjercicioPendiente) ||
+      (typeof ariaEsperandoSocratico !== 'undefined' && ariaEsperandoSocratico)){
+    cascadaIntentada = true;
+    const pendiente = cascadaDeIntentosAria(pregunta);
+    if (pendiente) return pendiente;
+  }
+
+  // 3) Tema / objetivo del día (CLASE_META)
+  if (esPreguntaTemaClaseAria(pregunta)) return respuestaTemaClaseAria();
+
+  // 4) GLOSARIO real de la semana
+  const deGlosario = respuestaGlosarioAria(n);
+  if (deGlosario) return deGlosario;
+
+  // 5) (Opcional) METODOS — procedimientos curados a mano por el profe Luis
+  if (typeof METODOS !== 'undefined' && Array.isArray(METODOS)){
+    for (const m of METODOS){
+      if (m.disparadores.some(d => n.includes(normalizaTexto(d)))) return `🧮 <strong>${m.titulo}:</strong> ${m.pasos}`;
+    }
+  }
+
+  // 5b) v2.2 — Banco de métodos pedagógicos reutilizable (coincidencia exacta = alta confianza),
+  //     con andamiaje/refuerzo. Va antes de la explicación de la clase, igual que en el demo v2.8.0.
+  if (typeof buscarMetodoExactoAria === 'function' && typeof manejarMetodoEncontradoAria === 'function'){
+    const metodoExacto = buscarMetodoExactoAria(pregunta);
+    if (metodoExacto) return manejarMetodoEncontradoAria(metodoExacto);
+  }
+
+  // 6) 30-C — "explícame / cómo se hace / qué es / cómo funciona…": lee TODA la clase (menos quiz/evalFinal)
+  if (esPreguntaDeExplicacionAria(pregunta)){
+    if (!ARIA_INDICE_CLASE.length) indexarContenidoClaseAria();
+    const explicacion = explicarConceptoOProcesoAria(pregunta);
+    if (explicacion) return explicacion;
+  }
+
+  // 7) Saludo / despedida / gracias y conversación social
   const base = responderAriaBase(pregunta);
   if (base) return base;
   const social = respuestaConversacionSocialAria(pregunta);
   if (social) return social;
-  // ¿Pregunta por el tema/objetivo de la clase de hoy? Se resuelve aparte porque
-  // casi nunca hay coincidencia literal de palabras clave con el contenido.
-  if (typeof esPreguntaTemaClaseAria === 'function' && esPreguntaTemaClaseAria(pregunta)){
-    return respuestaTemaClaseAria();
+
+  // 8) "¿Qué hago aquí?" según el tipo real de la diapositiva actual
+  if (esPreguntaOrientacionAria(pregunta)) return respuestaOrientacionSlideAria();
+
+  // 9) v2.2 — CASCADA DE INTENTOS (lo que quede): búsqueda en la clase (nunca cita una evaluación),
+  //    pasada tolerante a errores de escritura sobre el banco de métodos y, si todo falla, queda
+  //    registrada la duda para el profe.
+  if (!cascadaIntentada && typeof cascadaDeIntentosAria === 'function'){
+    const desdeCascada = cascadaDeIntentosAria(pregunta);
+    if (desdeCascada) return desdeCascada;
+  } else if (!cascadaIntentada) {
+    const desdeClase = buscarEnClaseAria(pregunta);
+    if (desdeClase) return desdeClase;
   }
-  // Prioridad más alta: ¿el estudiante pegó o escribió (casi) literal una pregunta de quiz/evalFinal?
-  // Ver Prioridad 30-B del PROMPT_MAESTRO — nunca se debe revelar la respuesta.
-  if (typeof detectarPreguntaCopiadaAria === 'function'){
-    const copiada = detectarPreguntaCopiadaAria(pregunta);
-    if (copiada) return orientacionSocraticaAria(copiada);
-  }
-  if (typeof esPreguntaOrientacionAria === 'function' && esPreguntaOrientacionAria(pregunta)){
-    return respuestaOrientacionSlideAria();
-  }
-  // GLOSARIO real de esta clase (Prioridad 30.3): definición exacta del término. Si piden un PROCESO
-  // ("cómo se hace", "explícame", "pasos"), se deja pasar a la explicación profunda de la clase (30-C).
-  try {
-    if (typeof GLOSARIO !== 'undefined' && Array.isArray(GLOSARIO)) {
-      const nn = normalizaTexto(pregunta);
-      const pideProceso = /como se hace|como hago|como puedo|como se crea|como se pone|como funciona|explica|pasos|procedimiento|ensena/.test(nn);
-      if (!pideProceso) {
-        for (const g of GLOSARIO) {
-          if (nn.includes(normalizaTexto(g.termino))) return `📖 <strong>${g.termino}:</strong> ${g.definicion}`;
-        }
-      }
-    }
-  } catch(e) {}
-  // Prioridad alta (v2.0): si la pregunta suena a pedido de explicación de un concepto o de
-  // un proceso ("explícame...", "¿cómo se hace...?", "¿qué es...?", "¿cómo funciona...?"),
-  // ARIA lee TODO el contenido ya indexado de la clase y arma una explicación completa —
-  // con pasos numerados si el texto original los trae — en vez de solo un fragmento corto.
-  // Nunca toca una diapositiva de tipo "quiz" (eso lo protege detectarTipoSlideAria arriba).
-  //
-  // v2.2 — CASCADA DE INTENTOS: en vez de un solo intento con un solo umbral, ARIA prueba,
-  // en orden, el banco de métodos pedagógicos reutilizable (alta confianza), la explicación
-  // profunda de ESTA clase, la búsqueda general en la clase, y por último una pasada tolerante
-  // a errores de escritura sobre el banco de métodos. Solo si las 4 fallan, sigue con el
-  // diccionario y, si tampoco hay nada, la respuesta honesta final (y queda registrada la duda).
-  const desdeCascada = cascadaDeIntentosAria(pregunta);
-  if (desdeCascada) return desdeCascada;
+
+  // 10) Diccionario ampliado
   const desdeDiccionario = respuestaDiccionarioAmpliadoAria(pregunta);
   if (desdeDiccionario) return desdeDiccionario;
+
+  // 11) Honestidad final — jamás inventa (el controlador intentará después Gemini y, si no, Wikipedia)
   return elegirAlAzar([
     'Todavía no sé responder eso — ¡sigo aprendiendo cada día! 🌱 Se lo dejé anotado a tu profe para revisarlo.',
     'Esa no la conozco aún, pero me la anoto para "aprenderla" pronto 📝 (ya quedó registrada para tu profe)'
   ]);
 }
+
+// ═══ v2.8.0 — funciones del motor de ARIA incorporadas desde el maestro (sin tocar datos de la clase) ═══
+const ARIA_PALABRAS_VACIAS_EXPLICACION = new Set(['para','como','sobre','donde','cuando','porque',
+  'cual','cuales','esta','estos','estas','desde','entre','pero','este','esto','sirve','sirven',
+  'hacer','puedo','quiero','saber','tiene','tienen','hace','dime','explica','explicame','funciona']);
+
+function esInsultoAria(n){
+  return /tonta|tonto|estupid|fea|feo|callate|odio esto/.test(n);
+}
+
+function htmlDeSlideParaIndiceAria(s){
+  try {
+    switch (s.type){
+      case 'intro':       return rIntro(s);
+      case 'info':        return rInfo(s);
+      case 'interactive': return rExplorador(s);
+      case 'practica':    return rPractica(s);
+      case 'repaso':      return rRepaso(s);
+      case 'repaso2':     return rRepaso2(s);
+      default:            return '';
+    }
+  } catch(e){ return ''; }
+}
+
+function raizAria(p){
+  if (p.length >= 8) return p.slice(0, p.length - 3);
+  if (p.length >= 6) return p.slice(0, p.length - 1);
+  return p;
+}
+
+function respuestaGlosarioAria(n){
+  if (typeof GLOSARIO === 'undefined' || !Array.isArray(GLOSARIO)) return null;
+  let mejor = null, mejorLargo = 0;
+  GLOSARIO.forEach(g => {
+    const completo = normalizaTexto(g.termino);                                        // "precio por kilo (o unitario)"
+    const base = normalizaTexto(g.termino.replace(/\s*\([^)]*\)\s*/g, ' '));           // "precio por kilo"
+    const alternos = (g.termino.match(/\(([^)]*)\)/g) || [])
+      .map(x => normalizaTexto(x.replace(/[()]/g, '').replace(/^\s*o\s+/i, '')));      // "unitario"
+    [completo, base, ...alternos].filter(k => k.length >= 4).forEach(k => {
+      if (n.includes(k) && k.length > mejorLargo){ mejorLargo = k.length; mejor = g; }
+    });
+  });
+  return mejor ? `📖 <strong>${mejor.termino}:</strong> ${mejor.definicion}` : null;
+}
+
+function textoPlanoDeHtmlAria(html){
+  const limpio = String(html || '')
+    .replace(/<img[^>]*>/gi, ' ')                       // evita decodificar imágenes base64
+    .replace(/<(script|style|svg)[\s\S]*?<\/\1>/gi, ' ');
+  const d = document.createElement('div');
+  d.innerHTML = limpio;
+  return String(d.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
 </script>
 
 <script>
@@ -5200,8 +5281,6 @@ function categoriaExpresionAria(pregunta, respuesta){
   if (/^(hola|buenos dias|buenas tardes|buenas noches|hey|holaa*)\b/.test(p) && p.length < 30) return 'saludo';
   if (/chao|adios|hasta luego|nos vemos|me voy|hasta manana/.test(p)) return 'despedida';
   if (/correcto|excelente|felicidades|lo lograste|muy bien hecho|lo conseguiste/.test(r)) return 'logro';
-  if (/tu puedes|animo|no te rindas|sigue intentando|vas muy bien/.test(r)) return 'animo';
-  if (/lo estas haciendo genial|genial|que bien|buen trabajo|muy bien/.test(r)) return 'genial';
   if (/no entiendo nada|es muy dificil|no puedo con esto|es muy complicado|me equivoque|fracase/.test(p)) return 'triste';
   if (/dame una pista|ayudame con esto|no se como empezar|estoy atascado|estoy atascada/.test(p)) return 'pista';
   if (/practica|ejercicio|resolver|calcula|operacion/.test(p)) return 'practica';
@@ -5262,7 +5341,7 @@ function ariaReaccionar(estado, ms){
   const img = cont.querySelector('img');
   img.src = ARIA_SPRITES[r.sprite];
   cont.className = '';
-  void cont.offsetWidth;                 // reinicia la animación si se repite el estado
+  void cont.offsetWidth;                 // reinicia la animación si el mismo estado se repite
   cont.className = 'aria-reaccion-visible ' + r.anim;
   clearTimeout(ariaReaccionTimer);
   ariaReaccionTimer = setTimeout(() => { cont.className = ''; }, ms || 3200);
@@ -5324,45 +5403,36 @@ const ARIA_PALABRAS_VACIAS = new Set(['para','como','sobre','donde','cuando','po
 // Intenta reconocer automáticamente cómo está armada la clase (distintas clases de HTML del
 // profe Luis pueden usar distintos nombres de contenedor para cada diapositiva/pantalla)
 function indexarContenidoClaseAria(){
-  // 🔗 Adaptado a esta clase (Semana 4 — Taller de Word Pro): aquí se dibuja UNA sola
-  // diapositiva a la vez, así que en vez de rastrear el DOM se lee cada diapositiva de SL
-  // con su type real. El contenido de las diapositivas de explicación se obtiene con sus
-  // propias funciones de dibujo (rInfo, rRepaso, ...) sobre un nodo SIN conectar a la página:
-  // no toca la pantalla, no guarda nada y no descarga imágenes.
-  // Los quizzes y la evaluación final se indexan solo con su enunciado y con type 'quiz'/'evalFinal':
-  // ARIA nunca los usa para explicar (ver detectarTipoSlideAria y Prioridad 30-B/30-C).
+  if (typeof SL === 'undefined' || !Array.isArray(SL)) return [];
+  const previo = {};
+  (typeof ARIA_INDICE_CLASE !== 'undefined' && Array.isArray(ARIA_INDICE_CLASE) ? ARIA_INDICE_CLASE : [])
+    .forEach(it => { previo[it.slideId] = it; });
   const indice = [];
-  const DIBUJA = { intro:'rIntro', info:'rInfo', interactive:'rExplorador', video:'rVideo', repaso:'rRepaso', repaso2:'rRepaso2' };
-  try {
-    if (typeof SL !== 'undefined' && Array.isArray(SL)) {
-      SL.forEach((s, i) => {
-        let texto = '';
-        if ((s.type === 'quiz' || s.type === 'evalFinal') && Array.isArray(s.preguntas)) {
-          texto = s.preguntas.map(p => [p.contexto, p.pregunta].filter(Boolean).join(' ')).join(' ');
-        } else if (DIBUJA[s.type] && typeof window[DIBUJA[s.type]] === 'function') {
-          try {
-            let html = String(window[DIBUJA[s.type]](s) || '');
-            html = html.replace(/<(script|style|iframe)[\s\S]*?<\/\1>/gi, '').replace(/<img\b[^>]*>/gi, '');
-            const tmp = document.createElement('div');
-            tmp.innerHTML = html;
-            texto = tmp.textContent || '';
-          } catch(e) { texto = ''; }
-        }
-        texto = String(texto).replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, '').replace(/\s+/g, ' ').trim();
-        if (texto.length < 25) return;
-        const titulo = (s.title || ('la parte ' + (i + 1) + ' de la clase')).replace(/^[^\wáéíóúñÁÉÍÓÚÑ¿¡]+/, '').trim();
-        indice.push({ titulo, texto, textoNorm: normalizaTexto(texto), tipo: s.type, slideId: s.id });
-      });
+  SL.forEach((s, i) => {
+    const titulo = String(s.title || ('parte ' + (i + 1))).replace(/\s+/g, ' ').trim();
+    const esEvaluable = (s.type === 'quiz' || s.type === 'evalFinal');
+    let texto;
+    if (esEvaluable){
+      texto = titulo + ' — evaluación con nota'; // 🔒 nunca el enunciado ni las opciones
+    } else if (['drag','fill','match','wordsearch','slot'].includes(s.type)){
+      texto = titulo + ' — actividad para practicar'; // solo título: sirve para ubicar "dónde vimos…" sin leer sus ítems
+    } else if (previo[s.id] && previo[s.id].tipo === s.type && previo[s.id].fuente === 'html'){
+      texto = previo[s.id].texto; // ya indexada: no se regenera
+    } else {
+      texto = textoPlanoDeHtmlAria(htmlDeSlideParaIndiceAria(s));
     }
-  } catch(e) { /* si algo cambia de estructura, seguimos con lo demás */ }
-  try {
-    if (typeof GLOSARIO !== 'undefined' && Array.isArray(GLOSARIO)) {
-      GLOSARIO.forEach(g => {
-        const texto = `${g.termino}: ${g.definicion}`;
-        indice.push({ titulo: g.termino, texto, textoNorm: normalizaTexto(texto), tipo: 'glosario' });
-      });
-    }
-  } catch(e) {}
+    texto = String(texto || '').trim();
+    if (texto.length < 20) return; // ignora diapositivas casi vacías
+    indice.push({
+      titulo,
+      texto,
+      textoNorm: normalizaTexto(texto),
+      tipo: s.type,            // 'quiz' | 'evalFinal' | 'info' | 'repaso' | 'practica' | ...
+      slideId: s.id,
+      fuente: (esEvaluable || ['drag','fill','match','wordsearch','slot'].includes(s.type)) ? 'titulo' : 'html'
+    });
+  });
+  ARIA_INDICE_CLASE = indice;
   return indice;
 }
 
@@ -5384,14 +5454,12 @@ function estaVisibleAria(el){
 }
 
 function obtenerSlideActualAria(){
-  // Esta clase sabe exactamente en qué diapositiva está el estudiante: SL[st.slide]
-  try {
-    if (typeof SL !== 'undefined' && typeof st !== 'undefined' && SL[st.slide]) {
-      const cur = SL[st.slide];
-      const hit = ARIA_INDICE_CLASE.find(x => x.slideId === cur.id);
-      return hit || { titulo: cur.title || 'esta parte de la clase', texto: '', textoNorm: '', tipo: cur.type, slideId: cur.id };
-    }
-  } catch(e) {}
+  // 🆕 v14.0: en esta clase la diapositiva actual la conoce el propio motor (st.slide / SL)
+  if (typeof SL !== 'undefined' && typeof st !== 'undefined' && SL[st.slide]){
+    const s = SL[st.slide];
+    return ARIA_INDICE_CLASE.find(it => it.slideId === s.id)
+        || { titulo: s.title || '', texto: '', textoNorm: '', tipo: s.type, slideId: s.id };
+  }
   if (!ARIA_INDICE_CLASE.length) return null;
 
   // 1) Prioriza marcadores explícitos de "activa/actual" si la clase los usa
@@ -5423,11 +5491,11 @@ function obtenerSlideActualAria(){
 
 // Heurística de TIPO de diapositiva: quiz/evaluación vs. explicación de concepto vs. actividad
 function detectarTipoSlideAria(item){
-  if (item && item.tipo) {
+  // 🆕 v14.0: si el item viene del índice de SL, el type real manda (no hace falta adivinar por el DOM)
+  if (item && item.tipo){
     if (item.tipo === 'quiz' || item.tipo === 'evalFinal') return 'quiz';
     if (['drag','fill','match','wordsearch','slot','interactive'].includes(item.tipo)) return 'actividad';
-    if (['info','repaso','repaso2','video','intro','glosario'].includes(item.tipo)) return 'concepto';
-    return 'general';
+    return 'concepto';
   }
   if (!item || !item.nodo) return 'general';
   const nodo = item.nodo;
@@ -5516,21 +5584,6 @@ function similitudTextoAria(a, b){
 }
 
 function detectarPreguntaCopiadaAria(pregunta){
-  // Si el texto pegado contiene el enunciado exacto de una pregunta evaluable de esta clase
-  // (20 letras o más), cuenta como copiada aunque la pregunta sea corta.
-  try {
-    if (typeof SL !== 'undefined' && Array.isArray(SL)) {
-      const limpia = t => normalizaTexto(t).replace(/[^a-z0-9ñ ]+/g, ' ').replace(/\s+/g, ' ').trim();
-      const pl = limpia(pregunta);
-      for (const s of SL) {
-        if (!s.preguntas) continue;
-        for (const p of s.preguntas) {
-          const ql = limpia(p.pregunta || '');
-          if (ql.length >= 20 && pl.includes(ql)) return { origen:'datos', preg:p };
-        }
-      }
-    }
-  } catch(e) {}
   // Descarta preguntas muy cortas para evitar falsos positivos (ej. "¿qué es esto?")
   if (normalizaTexto(pregunta).split(/\W+/).filter(w => w.length > 3).length < 4) return null;
 
@@ -5540,7 +5593,10 @@ function detectarPreguntaCopiadaAria(pregunta){
     SL.forEach(s => {
       if (!s.preguntas) return;
       s.preguntas.forEach(p => {
-        const score = similitudTextoAria(pregunta, p.pregunta || '');
+        const score = Math.max(
+          similitudTextoAria(pregunta, p.pregunta || ''),
+          similitudTextoAria(pregunta, (p.contexto || '') + ' ' + (p.pregunta || ''))   // 🆕 el enunciado real está en contexto + pregunta
+        );
         if (score > mejorScore){ mejorScore = score; mejor = { origen:'datos', preg:p }; }
       });
     });
@@ -5629,11 +5685,13 @@ function buscarEnClaseAria(pregunta){
     .filter(p => p.length > 3 && !ARIA_PALABRAS_VACIAS.has(p));
   if (!palabras.length) return null;
 
-  const candidatos = ARIA_INDICE_CLASE.filter(item => detectarTipoSlideAria(item) !== 'quiz');
-
-  const _r = puntuarCandidatosAria(candidatos, palabras);
-  const mejor = _r.mejor, mejorPuntaje = _r.coincidencias;
-  palabras.sort((a, b) => (_r.df[a] || 0) - (_r.df[b] || 0)); // el fragmento se ancla en la palabra más específica
+  let mejor = null, mejorPuntaje = 0;
+  ARIA_INDICE_CLASE.forEach(item => {
+    if (item.tipo === 'quiz' || item.tipo === 'evalFinal') return;   // 🔒 nunca se cita una evaluación
+    let puntaje = 0;
+    palabras.forEach(p => { if (item.textoNorm.includes(raizAria(p))) puntaje++; });
+    if (puntaje > mejorPuntaje){ mejorPuntaje = puntaje; mejor = item; }
+  });
 
   const minimoNecesario = Math.max(1, Math.ceil(palabras.length * 0.34));
   if (!mejor || mejorPuntaje < minimoNecesario){
@@ -5647,10 +5705,8 @@ function buscarEnClaseAria(pregunta){
     return null;
   }
 
-  // Cuando SÍ hay un buen match en una diapositiva de concepto/actividad, se entrega una
-  // explicación completa (con pasos, si el texto los trae) en vez de solo un fragmento corto —
-  // ver explicarConceptoOProcesoAria(), que reutiliza este mismo "mejor" resultado.
-  return construirExplicacionDesdeItemAria(mejor, palabras);
+  const fragmento = extraerFragmentoRelevanteAria(mejor.texto, palabras);
+  return `Eso lo vimos en "${mejor.titulo}" 👉 ${fragmento}`;
 }
 
 // ============================================================
@@ -5670,13 +5726,14 @@ function esPreguntaDeExplicacionAria(pregunta){
 // Reconoce una secuencia de pasos dentro de un bloque de texto: numerados (1. / 1) / Paso 1)
 // o marcados con palabras de secuencia (primero, luego, después, a continuación, finalmente...).
 function extraerPasosAria(texto){
-  const porNumero = texto.match(/(?:^|[\s.;])(\d{1,2}[\.\)]\s*[^\d]{6,200}?)(?=\s*\d{1,2}[\.\)]|$)/g);
+  // Numerados: "1. ...", "2) ...", "Paso 1: ..." — el marcador debe ir precedido de espacio y seguido de espacio
+  const porNumero = String(texto).match(/(?:^|[\s;])(\d{1,2}[\.\)]\s+[\s\S]{6,200}?)(?=\s+\d{1,2}[\.\)]\s|\s*$)/g);
   if (porNumero && porNumero.length >= 2){
-    return porNumero.map(p => p.replace(/^[\s.;]+/, '').trim()).slice(0, 6);
+    return porNumero.map(p => p.replace(/^[\s;]+/, '').trim()).slice(0, 6);
   }
   const marcador = /\b(primero|para empezar|en primer lugar|luego|despues|después|a continuacion|a continuación|posteriormente|finalmente|por ultimo|por último|para terminar)\b/i;
   if (marcador.test(texto)){
-    const frases = texto.split(/(?<=[\.\!\?])\s+/);
+    const frases = String(texto).split(/(?<=[\.\!\?])\s+/);
     const relevantes = frases.filter(fr => marcador.test(fr));
     if (relevantes.length >= 2) return relevantes.slice(0, 6);
   }
@@ -5686,15 +5743,20 @@ function extraerPasosAria(texto){
 // Baja levemente el registro del texto sin cambiar su significado — no es un resumen ni una
 // reescritura libre, solo cambia conectores/verbos formales por su equivalente cotidiano.
 function simplificarLenguajeAria(texto){
-  return String(texto)
-    .replace(/\butilizar\b/gi, 'usar')
-    .replace(/\butilizamos\b/gi, 'usamos')
-    .replace(/\butilizando\b/gi, 'usando')
-    .replace(/\bse utiliza\b/gi, 'se usa')
-    .replace(/\bpor consiguiente\b/gi, 'entonces')
-    .replace(/\bcon el fin de\b/gi, 'para')
-    .replace(/\bdicho de otra forma\b/gi, 'en otras palabras')
-    .replace(/\bconsiste en\b/gi, 'se trata de');
+  // Cambia solo conectores/verbos formales por su equivalente cotidiano, conservando
+  // la mayúscula inicial si la palabra abría una oración.
+  const cambiar = (t, re, nuevo) => t.replace(re, m =>
+    (m[0] !== m[0].toLowerCase()) ? nuevo.charAt(0).toUpperCase() + nuevo.slice(1) : nuevo);
+  let t = String(texto);
+  t = cambiar(t, /\bse utiliza\b/gi, 'se usa');
+  t = cambiar(t, /\butilizar\b/gi, 'usar');
+  t = cambiar(t, /\butilizamos\b/gi, 'usamos');
+  t = cambiar(t, /\butilizando\b/gi, 'usando');
+  t = cambiar(t, /\bpor consiguiente\b/gi, 'entonces');
+  t = cambiar(t, /\bcon el fin de\b/gi, 'para');
+  t = cambiar(t, /\bdicho de otra forma\b/gi, 'en otras palabras');
+  t = cambiar(t, /\bconsiste en\b/gi, 'se trata de');
+  return t;
 }
 
 // Arma la respuesta final a partir de una diapositiva ya elegida: si el texto trae pasos
@@ -5706,10 +5768,9 @@ function construirExplicacionDesdeItemAria(item, palabras){
   if (pasos && pasos.length >= 2){
     cuerpo = pasos.map((p, i) => `${i + 1}) ${simplificarLenguajeAria(p)}`).join('<br>');
   } else {
-    const fragmento = extraerFragmentoRelevanteAria(item.texto, palabras || []);
-    cuerpo = simplificarLenguajeAria(fragmento.length > 60 ? fragmento : item.texto.slice(0, 420).trim());
+    cuerpo = simplificarLenguajeAria(item.texto.slice(0, 420).trim()) + (item.texto.length > 420 ? '…' : '');
   }
-  return `Vamos con calma 😊 Esto lo vimos en "<strong>${item.titulo}</strong>":<br>${cuerpo}<br><br>Si alguna parte no te queda clara, cuéntame exactamente cuál y te la explico de otra manera.`;
+  return `Vamos con calma 😊 Esto lo vimos en "<strong>${escaparHtmlAria(item.titulo)}</strong>":<br>${cuerpo}<br><br>Si alguna parte no te queda clara, cuéntame exactamente cuál y te la explico de otra manera.`;
 }
 
 // Punto de entrada específico para preguntas de tipo "explícame/cómo se hace/qué es" —
@@ -5719,18 +5780,30 @@ function construirExplicacionDesdeItemAria(item, palabras){
 // menos palabras clave que el que busca un dato puntual).
 function explicarConceptoOProcesoAria(pregunta){
   if (!ARIA_INDICE_CLASE.length) return null;
-  const palabras = aplicarSinonimosAria(normalizaTexto(pregunta))
+  const palabras = normalizaTexto(pregunta)
     .split(/[^a-z0-9ñ]+/)
-    .filter(p => p.length > 3 && !ARIA_PALABRAS_VACIAS.has(p));
+    .filter(p => p.length > 3 && !ARIA_PALABRAS_VACIAS_EXPLICACION.has(p));
   if (!palabras.length) return null;
 
-  const candidatos = ARIA_INDICE_CLASE.filter(item => detectarTipoSlideAria(item) !== 'quiz');
-  const _r = puntuarCandidatosAria(candidatos, palabras);
-  const mejor = _r.mejor, mejorPuntaje = _r.coincidencias;
-  palabras.sort((a, b) => (_r.df[a] || 0) - (_r.df[b] || 0)); // el fragmento se ancla en la palabra más específica
+  const candidatos = ARIA_INDICE_CLASE.filter(item => item.tipo !== 'quiz' && item.tipo !== 'evalFinal');
+  let mejor = null, mejorPuntaje = 0;
+  let coincidenciasMejor = 0;
+  candidatos.forEach(item => {
+    let coincidencias = 0, bonus = 0;
+    const tituloNorm = normalizaTexto(item.titulo);
+    palabras.forEach(p => {
+      const r = raizAria(p);
+      if (item.textoNorm.includes(r)) coincidencias++;
+      if (tituloNorm.includes(r)) bonus += 1.5;               // si el título habla de eso, es la diapositiva correcta
+    });
+    if (item.tipo === 'intro') bonus -= 1;                     // la portada menciona todo por encima; casi nunca es la explicación
+    if (item.tipo !== 'intro' && extraerPasosAria(item.texto)) bonus += 0.5; // un procedimiento paso a paso explica mejor un "cómo se hace"
+    const puntaje = coincidencias + bonus;
+    if (puntaje > mejorPuntaje){ mejorPuntaje = puntaje; mejor = item; coincidenciasMejor = coincidencias; }
+  });
 
   const minimoNecesario = Math.max(1, Math.ceil(palabras.length * 0.25));
-  if (!mejor || mejorPuntaje < minimoNecesario) return null;
+  if (!mejor || coincidenciasMejor < minimoNecesario) return null;
   return construirExplicacionDesdeItemAria(mejor, palabras);
 }
 

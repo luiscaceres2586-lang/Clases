@@ -4394,7 +4394,293 @@ function respuestaGlosarioAria(n){
   return mejor ? `📖 <strong>${mejor.termino}:</strong> ${mejor.definicion}` : null;
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+// v2.8.0 — motor de ARIA actualizado desde el maestro (solo código y datos comunes; el contenido de la clase no se toca)
+// ═══════════════════════════════════════════════════════════════════════
+const ariaSesionTemas = {};
+
+const ARIA_LENGUAJE_INAPROPIADO = /\b(idiota|estupid[oa]|imbecil|malparid[oa]|marica|maric[oó]n|pendej[oa]|mierda|hijueputa|hijo\s*de\s*puta|gonorrea|malnacid[oa]|zorra|put[oa]|verga|culo|cagad[oa])\b/;
+
+let ariaContadorLenguajeInapropiado = 0;
+
+const ARIA_GENERADORES_EJERCICIO = {
+  suma_fracciones_igual_denom: () => {
+    const den = ariaAleatorio(5,10), a = ariaAleatorio(1,den-2), b = ariaAleatorio(1,den-a);
+    return { enunciado:`¿Cuánto es ${a}/${den} + ${b}/${den}?`, respuesta:`${a+b}/${den}` , tolerancia:['fraccion']};
+  },
+  suma_fracciones_distinto_denom: () => {
+    const d1 = ariaAleatorio(2,5), d2 = ariaAleatorio(2,5) === d1 ? d1+1 : ariaAleatorio(2,5);
+    const n1 = ariaAleatorio(1,d1-1), n2 = ariaAleatorio(1,d2-1);
+    const den = d1*d2, num = n1*d2 + n2*d1;
+    return { enunciado:`¿Cuánto es ${n1}/${d1} + ${n2}/${d2}? (déjalo sin simplificar, en /${den})`, respuesta:`${num}/${den}`, tolerancia:['fraccion'] };
+  },
+  multiplicacion_decimales: () => {
+    const a = (ariaAleatorio(11,29)/10).toFixed(1), b = ariaAleatorio(2,9);
+    const resp = (parseFloat(a)*b).toFixed(1);
+    return { enunciado:`¿Cuánto es ${a} × ${b}?`, respuesta: resp, tolerancia:['decimal'] };
+  },
+  division_decimales: () => {
+    const b = ariaAleatorio(2,5), resp = ariaAleatorio(2,9), a = (b*resp).toFixed(1);
+    return { enunciado:`¿Cuánto es ${a} ÷ ${b}?`, respuesta: String(resp), tolerancia:['decimal'] };
+  },
+  regla_de_tres_simple: () => {
+    const x1 = ariaAleatorio(2,5), precio1 = ariaAleatorio(2,9)*1000, x2 = x1 + ariaAleatorio(1,4);
+    const resp = (precio1/x1)*x2;
+    return { enunciado:`Si ${x1} cuadernos cuestan $${precio1.toLocaleString('es-CO')}, ¿cuánto cuestan ${x2} cuadernos?`, respuesta: String(resp), tolerancia:['entero'] };
+  },
+  porcentaje: () => {
+    const pct = [10,20,25,50][ariaAleatorio(0,3)], base = ariaAleatorio(2,20)*10;
+    return { enunciado:`¿Cuánto es el ${pct}% de ${base}?`, respuesta: String((pct/100)*base), tolerancia:['entero'] };
+  },
+  perimetro: () => {
+    const l = ariaAleatorio(3,12), a = ariaAleatorio(3,12);
+    return { enunciado:`Un rectángulo mide ${l} cm de largo y ${a} cm de ancho. ¿Cuál es su perímetro?`, respuesta: String(2*l+2*a), tolerancia:['entero'] };
+  },
+  area_rectangulo: () => {
+    const l = ariaAleatorio(3,12), a = ariaAleatorio(3,12);
+    return { enunciado:`Un rectángulo mide ${l} cm de largo y ${a} cm de ancho. ¿Cuál es su área?`, respuesta: String(l*a), tolerancia:['entero'] };
+  },
+  mcm: () => {
+    const a = ariaAleatorio(2,6), b = ariaAleatorio(2,6);
+    const mcm = (x,y)=>{ const gcd=(m,n)=>n?gcd(n,m%n):m; return (x*y)/gcd(x,y); };
+    return { enunciado:`¿Cuál es el m.c.m. de ${a} y ${b}?`, respuesta: String(mcm(a,b)), tolerancia:['entero'] };
+  },
+  mcd: () => {
+    const a = ariaAleatorio(6,24), b = ariaAleatorio(6,24);
+    const gcd = (m,n)=>n?gcd(n,m%n):m;
+    return { enunciado:`¿Cuál es el M.C.D. de ${a} y ${b}?`, respuesta: String(gcd(a,b)), tolerancia:['entero'] };
+  },
+  redondeo_decimales: () => {
+    const entero = ariaAleatorio(1,9), dec1 = ariaAleatorio(0,9), dec2 = ariaAleatorio(0,9);
+    const num = `${entero},${dec1}${dec2}`;
+    const resp = (Math.round(parseFloat(num.replace(',','.'))*10)/10).toFixed(1).replace('.',',');
+    return { enunciado:`Redondea ${num} a los décimos (una sola cifra decimal).`, respuesta: resp, tolerancia:['decimal'] };
+  },
+  algoritmo: () => ({ tarea:'Escribe, en tus propias palabras y en orden, los pasos de un algoritmo para "cepillarte los dientes". No hay una única respuesta correcta — lo importante es que tenga inicio, pasos en orden, y final.' }),
+  diagrama_flujo: () => ({ tarea:'Imagina un diagrama de flujo para decidir si puedes salir al recreo: la pregunta sería "¿ya terminé la tarea?". Cuéntame qué irías poniendo en cada figura (óvalo, rombo, rectángulo).' }),
+  hardware_software: () => ({ tarea:'Nombra 2 cosas de tu salón de tecnología que sean hardware, y 2 programas que sean software.' }),
+  contrasena_segura: () => ({ tarea:'Inventa (sin usar datos reales tuyos) una contraseña seguida de ejemplo que cumpla las 3 reglas que vimos. Cuéntamela para revisarla juntos (no la uses de verdad en ninguna cuenta).' })
+};
+
+let ariaEjercicioActivo = null;
+
+let ariaOfertaEjercicioPendiente = null;
+
+const ARIA_FRASES_ROMANTICAS = [
+  'quieres ser mi novia','quieres ser mi novio','eres mi novia','eres mi novio',
+  'quieres salir conmigo','te amo','te quiero mucho','estoy enamorado de ti','estoy enamorada de ti',
+  'casate conmigo','quieres casarte conmigo',
+  'dame un beso','eres muy bonita','eres muy linda','eres muy guapa','eres muy guapo',
+  'eres muy hermosa','eres muy hermoso','me robaste el corazon'
+];
+
+const ARIA_PATRON_GUSTAS_ROMANTICO = /\bme\s+gustas\b/;
+
+const ARIA_MARCADORES_CONSULTA_FACTUAL = [
+  'que es','quien es','quien fue','como se llama','donde queda','donde esta',
+  'cuando fue','cuando nacio','cuando murio','cuanto mide','cuanto pesa','cuanto vale',
+  'capital de','significado de','definicion de','que significa','para que sirve',
+  'en que consiste','cuantos habitantes'
+];
+
+const ARIA_FRASES_ORIENTACION_SLIDE = [
+  'que hago aqui','que hago aca','que se hace aqui','que se hace aca',
+  'que hay que hacer aqui','que hay que hacer aca','que toca hacer aqui','que toca hacer aca',
+  'que debo hacer aqui','que debo hacer aca','que tengo que hacer aqui','que tengo que hacer aca',
+  'que se supone que haga','que hago en esta diapositiva','que hago en esta parte',
+  'que hago en esta pantalla','que hago en esta hoja','que es esto','que es esta parte',
+  'no entiendo que hacer','no se que hacer','no se que hacer aqui','ayuda con esto',
+  'en que voy','que sigue aqui','que sigue ahora','como hago esto','como se hace esto',
+  'como resuelvo esto','que hay que hacer en esta diapositiva','que se hace en esta parte',
+  'estoy perdido','estoy perdida','no entiendo esta parte','no entiendo esta diapositiva'
+];
+
+let ARIA_ORIGEN_CLAVE = 'sin configurar';
+
+let GEMINI_API_KEY = (() => {
+  const delArchivo = String(window.ARIA_CLAVE_GEMINI || '').trim().replace(/^['"]|['"]$/g, '');
+  // v2.7.8 — Solo se acepta como clave algo que TENGA FORMA de clave de Gemini (AQ.… o AIza…).
+  // Cualquier otro texto (incluido un 'PEGA_TU_CLAVE_AQUI' alterado) se ignora y se avisa en consola.
+  const tieneFormaDeClave = v => /^(AQ\.|AIza)[A-Za-z0-9._-]{20,}$/.test(v);
+  if (delArchivo && delArchivo !== 'PEGA_TU_CLAVE_AQUI'){
+    if (tieneFormaDeClave(delArchivo)){ ARIA_ORIGEN_CLAVE = 'archivo (línea de arriba)'; return delArchivo; }
+    console.log('[ARIA → Gemini] ⚠️ lo que hay en la línea 11 NO parece una clave: empieza con "' + delArchivo.slice(0,6) + '" y tiene ' + delArchivo.length + ' caracteres. Una clave real empieza con AQ. o AIza. Pega la clave completa entre las comillas.');
+  }
+  try { const g = localStorage.getItem('aria_gemini_key'); if (g){ ARIA_ORIGEN_CLAVE = 'guardada con ponerClaveAria()'; return g; } } catch(e){ /* sin almacenamiento */ }
+  return 'PEGA_TU_CLAVE_AQUI';
+})();
+
+const ARIA_EMOCIONES_IA = ['academico','pista','practica','logro','genial','animo','motivacion','carino','duda','confundida','pena','triste','saludo','pensando'];
+
+function ariaAleatorio(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function borrarClaveAria(){ try{ localStorage.removeItem('aria_gemini_key'); }catch(e){} GEMINI_API_KEY = 'PEGA_TU_CLAVE_AQUI'; console.log('[ARIA → Gemini] clave borrada de este navegador'); }
+
+function coincideAlgunaFraseAria(textoNorm, listaFrases){
+  return listaFrases.some(f => textoNorm.includes(f) || coincideFraseAproximadaAria(textoNorm, f));
+}
+
+function coincideFraseAproximadaAria(textoNorm, fraseClave){
+  const palabrasTexto = textoNorm.split(/\s+/).filter(Boolean);
+  const palabrasClave = fraseClave.split(/\s+/).filter(p => p.length > 3);
+  if (!palabrasClave.length) return textoNorm.includes(fraseClave);
+  return palabrasClave.every(pc => palabrasTexto.some(pt => seParecenAria(pt, pc)));
+}
+
+function conectarConTemaAnteriorAria(metodoNuevo){
+  const previos = Object.values(ariaSesionTemas)
+    .filter(e => e.metodo.id !== metodoNuevo.id && e.metodo.materia === metodoNuevo.materia)
+    .sort((a,b) => b.primeraVez - a.primeraVez);
+  if (!previos.length) return '';
+  return `Esto se parece un poco a lo que vimos hace un rato con <strong>"${previos[0].metodo.titulo}"</strong> — los dos son de ${metodoNuevo.materia === 'aritmetica' ? 'Aritmética' : 'Tecnología'}. `;
+}
+
+function contieneLenguajeInapropiadoAria(texto){
+  return ARIA_LENGUAJE_INAPROPIADO.test(normalizaTexto(texto));
+}
+
+function esIntentoRomanticoAria(pregunta){
+  const n = normalizaTexto(pregunta);
+  return coincideAlgunaFraseAria(n, ARIA_FRASES_ROMANTICAS) || ARIA_PATRON_GUSTAS_ROMANTICO.test(n);
+}
+
+function evaluarRespuestaEjercicioAria(pregunta){
+  if (!ariaEjercicioActivo) return null;
+  const { metodo, respuesta } = ariaEjercicioActivo;
+  // Extrae un posible número/fracción de la respuesta del estudiante
+  const match = pregunta.match(/-?\d+([.,]\d+)?(\/\d+)?/);
+  const dada = match ? match[0] : pregunta.trim();
+
+  if (respuestasCoincidenAria(dada, respuesta)){
+    ariaEjercicioActivo = null;
+    return `✅ ¡Exacto! Ya dominas "${metodo.titulo}". 🎉 ¿Quieres otro ejercicio o seguimos con otra cosa?`;
+  }
+  ariaEjercicioActivo.intentos++;
+  if (ariaEjercicioActivo.intentos >= 2){
+    const resp = respuesta;
+    ariaEjercicioActivo = null;
+    return `Casi — la respuesta era <strong>${resp}</strong>. No pasa nada, repasemos el método:<br><br>` + armarExplicacionMetodoAria(metodo, 0);
+  }
+  return `Esa no es todavía 🤔 Repasa el paso a paso de "${metodo.titulo}" e inténtalo una vez más.`;
+}
+
+function extraerEmocionAria(texto){
+  let emocion = null, limpio = String(texto || '');
+  const m = limpio.match(/^\s*\[\s*([A-Za-zÁÉÍÓÚáéíóúÑñ_]+)\s*\]\s*/);
+  if (m){
+    const e = m[1].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (ARIA_EMOCIONES_IA.includes(e)) emocion = e;
+    limpio = limpio.slice(m[0].length);
+  }
+  limpio = limpio.replace(new RegExp('\\[(?:' + ARIA_EMOCIONES_IA.join('|') + ')\\]\\s*', 'gi'), '').trim();
+  return { texto: limpio, emocion };
+}
+
+function extraerTerminoBusquedaWikiAria(pregunta){
+  let t = normalizaTexto(pregunta);
+  ARIA_MARCADORES_CONSULTA_FACTUAL.forEach(m => { t = t.replace(m, ''); });
+  t = t.replace(/^\s*(un|una|el|la|los|las|de|del)\s+/, '').trim();
+  return t || normalizaTexto(pregunta); // si quedó vacío, mejor usar el original completo
+}
+
+function generarEjercicioMetodoAria(metodo){
+  const gen = ARIA_GENERADORES_EJERCICIO[metodo.id];
+  if (!gen) return null;
+  const resultado = gen();
+  if (resultado.tarea){
+    // Tarea abierta (Tecnología) — no se autoevalúa con un número
+    ariaEjercicioActivo = null;
+    return `✏️ <strong>Para practicar "${metodo.titulo}":</strong><br>${resultado.tarea}<br><br>Cuéntame cómo te fue e intentamos juntos si te trabas.`;
+  }
+  ariaEjercicioActivo = { metodo, respuesta: resultado.respuesta, intentos: 0 };
+  return `✏️ <strong>Practiquemos "${metodo.titulo}":</strong><br>${resultado.enunciado}<br><br>Escríbeme tu respuesta cuando la tengas.`;
+}
+
+function generarResumenFinDeClaseAria(){
+  const temas = Object.values(ariaSesionTemas);
+  if (!temas.length) return null; // no se tocó ningún tema del banco — no hay nada real que resumir
+
+  const conCosto = temas.filter(t => t.tuvoRefuerzo || t.nivelMax >= 2)
+                         .sort((a,b) => b.nivelMax - a.nivelMax || (b.tuvoRefuerzo - a.tuvoRefuerzo));
+  const vistos = temas.map(t => t.metodo.titulo);
+
+  let linea1 = `📚 Hoy vimos ${vistos.length === 1 ? '"' + vistos[0] + '"' : vistos.length + ' temas: ' + vistos.join(', ')}.`;
+  let linea2;
+  if (conCosto.length){
+    const nombres = conCosto.slice(0,2).map(t => `"${t.metodo.titulo}"`).join(' y ');
+    linea2 = `Lo que más trabajo te costó fue ${nombres} — te recomiendo repasarlo antes de la próxima clase.`;
+  } else {
+    linea2 = `Todo lo que preguntaste te quedó claro a la primera — ¡muy bien hecho! 🎉`;
+  }
+  return `${linea1} ${linea2}`;
+}
+
+function pareceConsultaFactualAria(pregunta){
+  const n = normalizaTexto(pregunta);
+  return ARIA_MARCADORES_CONSULTA_FACTUAL.some(m => n.includes(m));
+}
+
+function ponerClaveAria(k){
+  k = String(k || '').trim().replace(/^['"]|['"]$/g, '');
+  if (!k){ console.log('[ARIA → Gemini] no pegaste ninguna clave'); return; }
+  GEMINI_API_KEY = k;
+  try { localStorage.setItem('aria_gemini_key', k); } catch(e){ console.log('[ARIA → Gemini] clave activa solo hasta recargar (el navegador no dejó guardarla)'); }
+  console.log('[ARIA → Gemini] clave guardada:', k.slice(0,4) + '… (' + k.length + ' caracteres)');
+}
+
+function registrarLenguajeInapropiadoAria(pregunta){
+  try{
+    const clave = 'aria_lenguaje_inapropiado';
+    const lista = JSON.parse(localStorage.getItem(clave) || '[]');
+    lista.push({ mensaje: String(pregunta).slice(0,200), fecha: new Date().toISOString() });
+    localStorage.setItem(clave, JSON.stringify(lista.slice(-50)));
+  } catch(e){ /* sin localStorage, no se registra, pero ARIA igual responde */ }
+}
+
+function registrarTemaEnSesionAria(metodo, nivelAlcanzado, fueRefuerzo){
+  let e = ariaSesionTemas[metodo.id];
+  if (!e){
+    e = { metodo, usos: 0, nivelMax: 0, tuvoRefuerzo: false, primeraVez: Date.now() };
+    ariaSesionTemas[metodo.id] = e;
+  }
+  e.usos++;
+  e.nivelMax = Math.max(e.nivelMax, nivelAlcanzado || 0);
+  if (fueRefuerzo) e.tuvoRefuerzo = true;
+  return e;
+}
+
+function respuestaFiltroLenguajeAria(pregunta){
+  ariaContadorLenguajeInapropiado++;
+  registrarLenguajeInapropiadoAria(pregunta);
+  if (ariaContadorLenguajeInapropiado === 1){
+    return 'Prefiero que hablemos con respeto 🙂 Sigo aquí para ayudarte con la clase cuando quieras — ¿en qué te ayudo?';
+  }
+  return 'En serio, hablemos con respeto — es importante para mí 💜 No voy a responder a ese tipo de lenguaje, pero con gusto seguimos con la clase cuando estés listo/a.';
+}
+
+function respuestaIntentoRomanticoAria(){
+  return elegirAlAzar([
+    'jaja gracias por el cariño 💜 pero soy un robot de la clase — no puedo tener novio/novia. Lo que sí puedo es ayudarte con lo que estamos viendo, ¿seguimos?',
+    'Qué tierno/a, gracias 🤖 pero mi trabajo aquí es ayudarte a aprender, no puedo ser tu novia/novio. ¿En qué te ayudo de la clase?',
+    'Eso no puedo dártelo 😅 pero sí puedo darte ánimo y ayudarte con la clase todo lo que quieras — ¿seguimos con lo que estábamos viendo?'
+  ]);
+}
+
+function respuestasCoincidenAria(dada, esperada){
+  const limpiar = s => String(s).trim().replace(/\s+/g,'').replace(',', '.');
+  return limpiar(dada) === limpiar(esperada);
+}
+
 function responderAria(pregunta){
+  // 🛡️ v2.5 — Filtro de lenguaje inapropiado: se revisa PRIMERO, antes de cualquier otra lógica.
+  if (typeof contieneLenguajeInapropiadoAria === 'function' && contieneLenguajeInapropiadoAria(pregunta)){
+    return respuestaFiltroLenguajeAria(pregunta);
+  }
+  // 💜 v2.6 — Insinuación romántica hacia ARIA: respuesta cálida y NO romántica, y jamás cae a Wikipedia/IA.
+  if (typeof esIntentoRomanticoAria === 'function' && esIntentoRomanticoAria(pregunta)){
+    return respuestaIntentoRomanticoAria();
+  }
+
   const n = normalizaTexto(pregunta);
 
   // 1) 30-B — ¿pregunta de quiz/evalFinal copiada o muy parecida? Nunca se resuelve.
@@ -4403,6 +4689,17 @@ function responderAria(pregunta){
 
   // 2) Moderación
   if (esInsultoAria(n)) return responderAriaBase(pregunta);
+
+  // 2b) v2.5 — ¿ARIA está esperando una respuesta (ejercicio activo, oferta de ejercicio sí/no,
+  //     pregunta socrática)? Eso se resuelve ANTES de tratar el mensaje como una pregunta nueva.
+  let cascadaIntentada = false;
+  if ((typeof ariaEjercicioActivo !== 'undefined' && ariaEjercicioActivo) ||
+      (typeof ariaOfertaEjercicioPendiente !== 'undefined' && ariaOfertaEjercicioPendiente) ||
+      (typeof ariaEsperandoSocratico !== 'undefined' && ariaEsperandoSocratico)){
+    cascadaIntentada = true;
+    const pendiente = cascadaDeIntentosAria(pregunta);
+    if (pendiente) return pendiente;
+  }
 
   // 3) Tema / objetivo del día (CLASE_META)
   if (esPreguntaTemaClaseAria(pregunta)) return respuestaTemaClaseAria();
@@ -4418,9 +4715,19 @@ function responderAria(pregunta){
     }
   }
 
-  // 6) 30-E/30-F + 30-C — banco de métodos (andamiaje socrático), explicación profunda de TODA la clase (excluye quiz/evalFinal)
-  const desdeCascadaTemprana = cascadaTempranaAria(pregunta);
-  if (desdeCascadaTemprana) return desdeCascadaTemprana;
+  // 5b) v2.2 — Banco de métodos pedagógicos reutilizable (coincidencia exacta = alta confianza),
+  //     con andamiaje/refuerzo. Va antes de la explicación de la clase, igual que en el demo v2.8.0.
+  if (typeof buscarMetodoExactoAria === 'function' && typeof manejarMetodoEncontradoAria === 'function'){
+    const metodoExacto = buscarMetodoExactoAria(pregunta);
+    if (metodoExacto) return manejarMetodoEncontradoAria(metodoExacto);
+  }
+
+  // 6) 30-C — "explícame / cómo se hace / qué es / cómo funciona…": lee TODA la clase (menos quiz/evalFinal)
+  if (esPreguntaDeExplicacionAria(pregunta)){
+    if (!ARIA_INDICE_CLASE.length) indexarContenidoClaseAria();
+    const explicacion = explicarConceptoOProcesoAria(pregunta);
+    if (explicacion) return explicacion;
+  }
 
   // 7) Saludo / despedida / gracias y conversación social
   const base = responderAriaBase(pregunta);
@@ -4431,18 +4738,25 @@ function responderAria(pregunta){
   // 8) "¿Qué hago aquí?" según el tipo real de la diapositiva actual
   if (esPreguntaOrientacionAria(pregunta)) return respuestaOrientacionSlideAria();
 
-  // 9) Búsqueda por palabras clave en la clase (nunca cita una evaluación)
-  const desdeCascada = cascadaDeIntentosAria(pregunta); // búsqueda en clase + tolerancia a errores de escritura; registra la duda si falla
-  if (desdeCascada) return desdeCascada;
+  // 9) v2.2 — CASCADA DE INTENTOS (lo que quede): búsqueda en la clase (nunca cita una evaluación),
+  //    pasada tolerante a errores de escritura sobre el banco de métodos y, si todo falla, queda
+  //    registrada la duda para el profe.
+  if (!cascadaIntentada && typeof cascadaDeIntentosAria === 'function'){
+    const desdeCascada = cascadaDeIntentosAria(pregunta);
+    if (desdeCascada) return desdeCascada;
+  } else if (!cascadaIntentada) {
+    const desdeClase = buscarEnClaseAria(pregunta);
+    if (desdeClase) return desdeClase;
+  }
 
   // 10) Diccionario ampliado
   const desdeDiccionario = respuestaDiccionarioAmpliadoAria(pregunta);
   if (desdeDiccionario) return desdeDiccionario;
 
-  // 11) Honestidad final — jamás inventa
+  // 11) Honestidad final — jamás inventa (el controlador intentará después Gemini y, si no, Wikipedia)
   return elegirAlAzar([
-    '🤔 No estoy segura de haber entendido eso. Puedo explicarte cualquier concepto o proceso que ya vimos en la clase (pregúntame "¿cómo se hace…?" o "explícame…"), buscar una palabra en el <strong>glosario</strong> ("¿qué es…?") o darte <strong>ánimo</strong>.',
-    'Todavía no sé responder eso — ¡sigo aprendiendo cada día! 🌱 Prueba preguntándome "explícame…" con alguna palabra de la clase.'
+    'Todavía no sé responder eso — ¡sigo aprendiendo cada día! 🌱 Se lo dejé anotado a tu profe para revisarlo.',
+    'Esa no la conozco aún, pero me la anoto para "aprenderla" pronto 📝 (ya quedó registrada para tu profe)'
   ]);
 }
 </script>
@@ -4793,7 +5107,7 @@ function distanciaLevenshteinAria(a, b){
 }
 function seParecenAria(palabraEstudiante, palabraClave){
   if (palabraEstudiante === palabraClave) return true;
-  const tolerancia = palabraClave.length <= 4 ? 0 : (palabraClave.length <= 7 ? 1 : 2);
+  const tolerancia = palabraClave.length <= 3 ? 0 : (palabraClave.length <= 6 ? 1 : 2);
   return distanciaLevenshteinAria(palabraEstudiante, palabraClave) <= tolerancia;
 }
 
@@ -4809,6 +5123,7 @@ const NIVEL_EXPLICACION = ['pasos','analogia','visual','ejemplo'];
 function armarExplicacionMetodoAria(metodo, nivel){
   nivel = Math.max(0, Math.min(3, nivel));
   ariaUltimoMetodoExplicado = { metodo, nivel };
+  if (typeof registrarTemaEnSesionAria === 'function') registrarTemaEnSesionAria(metodo, nivel, false);
   const encabezado = `📘 <strong>${metodo.titulo}</strong>`;
   if (nivel === 0){
     const cuerpo = metodo.pasos.map((p,i)=>`${i+1}) ${p}`).join('<br>');
@@ -4819,6 +5134,11 @@ function armarExplicacionMetodoAria(metodo, nivel){
   }
   if (nivel === 2){
     return `${encabezado} — con un dibujo simple 👀:<br>${metodo.visual}<br><br>¿Ya tiene más sentido, o te muestro un ejemplo ya resuelto?`;
+  }
+  // v2.5 — Nivel más profundo: además del ejemplo, ARIA ofrece generar un ejercicio a la medida
+  if (typeof ARIA_GENERADORES_EJERCICIO !== 'undefined' && ARIA_GENERADORES_EJERCICIO[metodo.id]){
+    ariaOfertaEjercicioPendiente = { metodo };
+    return `${encabezado} — con un ejemplo resuelto 🧮:<br>${metodo.ejemplo}<br><br>¿Quieres que te arme un ejercicio parecido para practicar? (escribe "sí" o "no")`;
   }
   return `${encabezado} — con un ejemplo resuelto 🧮:<br>${metodo.ejemplo}<br><br>Ahora inténtalo tú con tu propio ejercicio, usando el mismo método. Si te trabas en algún paso, dime exactamente cuál y seguimos desde ahí.`;
 }
@@ -4839,12 +5159,14 @@ function esRespuestaNegativaAria(t){
 // Primer contacto con un método: si tiene pregunta guía y aún no se hizo esta sesión,
 // ARIA pregunta primero y ESPERA la respuesta antes de soltar la explicación completa.
 function iniciarOExplicarMetodoAria(metodo){
+  const conector = (typeof conectarConTemaAnteriorAria === 'function') ? conectarConTemaAnteriorAria(metodo) : '';
   if (metodo.preguntaGuia && !ariaMetodosYaIniciados.has(metodo.id)){
     ariaMetodosYaIniciados.add(metodo.id);
     ariaEsperandoSocratico = { metodo };
-    return `Antes de explicarte, una pregunta rápida 🤔 ${metodo.preguntaGuia}`;
+    return `${conector}Antes de explicarte, una pregunta rápida 🤔 ${metodo.preguntaGuia}`;
   }
-  return armarExplicacionMetodoAria(metodo, 0);
+  const explicacion = armarExplicacionMetodoAria(metodo, 0);
+  return conector ? conector + explicacion : explicacion;
 }
 
 // ── REFUERZO PROACTIVO: si ya preguntó por este método antes, no espera a que
@@ -4860,6 +5182,7 @@ function manejarMetodoEncontradoAria(metodo){
     // se salta la pregunta socrática y da de una vez pasos + analogía juntos.
     ariaMetodosYaIniciados.add(metodo.id);
     ariaUltimoMetodoExplicado = { metodo, nivel: 1 };
+    if (typeof registrarTemaEnSesionAria === 'function') registrarTemaEnSesionAria(metodo, 1, true);
     const pasos = metodo.pasos.map((p,i)=>`${i+1}) ${p}`).join('<br>');
     return `👀 Veo que esto te ha costado un poco — vamos con calma y más detalle 💪<br><br>` +
            `📘 <strong>${metodo.titulo}</strong>:<br>${pasos}<br><br>` +
@@ -4895,7 +5218,6 @@ function registrarDudaNoResueltaAria(pregunta){
   try{
     const clave = 'aria_dudas_no_resueltas';
     const lista = JSON.parse(localStorage.getItem(clave) || '[]');
-    if (lista.length && lista[lista.length-1].pregunta === String(pregunta).slice(0,200)) return; // evita duplicar la misma duda
     lista.push({ pregunta: String(pregunta).slice(0,200), fecha: new Date().toISOString() });
     localStorage.setItem(clave, JSON.stringify(lista.slice(-100)));
   } catch(e){ /* si no hay localStorage disponible, simplemente no se registra */ }
@@ -4915,6 +5237,21 @@ function registrarFalloQuizComoMetodoAria(metodoId){
 // PUNTO DE ENTRADA DE LA CASCADA
 // ═══════════════════════════════════════════════════════════════════════
 function cascadaDeIntentosAria(pregunta){
+  // -3) ¿Hay un ejercicio activo esperando la respuesta del estudiante? (v2.5)
+  if (typeof ariaEjercicioActivo !== 'undefined' && ariaEjercicioActivo){
+    const resultadoEjercicio = evaluarRespuestaEjercicioAria(pregunta);
+    if (resultadoEjercicio) return resultadoEjercicio;
+  }
+  // -2) ¿ARIA ofreció un ejercicio y está esperando sí/no? (v2.5)
+  if (typeof ariaOfertaEjercicioPendiente !== 'undefined' && ariaOfertaEjercicioPendiente){
+    const { metodo } = ariaOfertaEjercicioPendiente;
+    ariaOfertaEjercicioPendiente = null;
+    if (esRespuestaAfirmativaAria(pregunta)){
+      const ejercicio = generarEjercicioMetodoAria(metodo);
+      if (ejercicio) return ejercicio;
+    }
+    // Negativa o ambigua: sigue la conversación con normalidad (no se queda esperando).
+  }
   // -1) ¿ARIA está esperando la respuesta a una pregunta socrática? Resolver eso PRIMERO,
   //     antes de tratar el mensaje como una pregunta nueva.
   if (ariaEsperandoSocratico){
@@ -5105,8 +5442,6 @@ function categoriaExpresionAria(pregunta, respuesta){
   if (/^(hola|buenos dias|buenas tardes|buenas noches|hey|holaa*)\b/.test(p) && p.length < 30) return 'saludo';
   if (/chao|adios|hasta luego|nos vemos|me voy|hasta manana/.test(p)) return 'despedida';
   if (/correcto|excelente|felicidades|lo lograste|muy bien hecho|lo conseguiste/.test(r)) return 'logro';
-  if (/tu puedes|animo|no te rindas|sigue intentando|vas muy bien/.test(r)) return 'animo';
-  if (/lo estas haciendo genial|genial|que bien|buen trabajo|muy bien/.test(r)) return 'genial';
   if (/no entiendo nada|es muy dificil|no puedo con esto|es muy complicado|me equivoque|fracase/.test(p)) return 'triste';
   if (/dame una pista|ayudame con esto|no se como empezar|estoy atascado|estoy atascada/.test(p)) return 'pista';
   if (/practica|ejercicio|resolver|calcula|operacion/.test(p)) return 'practica';
@@ -5453,8 +5788,7 @@ function respuestaOrientacionSlideAria(){
 
 // Detecta si el estudiante está preguntando "qué debo hacer aquí" en cualquiera de sus formas
 function esPreguntaOrientacionAria(pregunta){
-  const n = normalizaTexto(pregunta);
-  return /que (debo |tengo que |hay que )?hacer aqui|que hago aqui|que hago aca|que se hace aqui|que se hace aca|como hago esto|como se hace esto|que es esto|no entiendo que hacer|no se que hacer|ayuda con esto|en que voy|que sigue aqui|como resuelvo esto/.test(n);
+  return coincideAlgunaFraseAria(normalizaTexto(pregunta), ARIA_FRASES_ORIENTACION_SLIDE);
 }
 
 // ============================================================

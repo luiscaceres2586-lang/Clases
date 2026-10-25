@@ -398,6 +398,12 @@ body{
   .faction-row{flex-direction:column;align-items:center;}
   .epic-stats{gap:16px;}
 }
+
+/* ═══ Navegación: volver a la portada y cambiar de materia ═══ */
+#btn-inicio-flotante{position:fixed;top:12px;left:12px;z-index:9000;display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:999px;background:rgba(11,20,64,.8);border:2px solid rgba(255,210,63,.8);color:#fff;font:800 .85rem 'Nunito',system-ui,sans-serif;text-decoration:none;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);box-shadow:0 4px 14px rgba(0,0,0,.4);cursor:pointer}
+#btn-inicio-flotante:hover,#btn-inicio-flotante:focus-visible{background:rgba(20,42,110,.95);outline:2px solid #ffd23f}
+#app-header:not(.hidden) ~ #btn-inicio-flotante{display:none}
+@media (max-width:520px){#btn-inicio-flotante{top:8px;left:8px;padding:7px 12px;font-size:.78rem}}
 </style>
 </head>
 <body>
@@ -423,11 +429,14 @@ body{
     <span class="h-nota hidden" id="h-nota-badge">⭐ —</span>
   </div>
   <div class="h-btns">
+    <button class="h-btn" title="Inicio · Cambiar de materia" aria-label="Volver al inicio y cambiar de materia" onclick="irAlInicioAula()">🏠</button>
     <button class="h-btn h-btn-wide" title="Panel del Profe" onclick="abrirPanelDocente()"><img data-asset="btn_config" alt="Config"></button>
     <button class="h-btn" title="Modo administrador" aria-label="Modo administrador" onclick="abrirCandadoAdmin()">🔒</button>
     <button class="h-btn h-btn-wide sq" title="Salir" onclick="cerrarSesion()"><img data-asset="btn_salir_g4" alt="Salir"></button>
   </div>
 </div>
+
+<a id="btn-inicio-flotante" href="../index.html" title="Volver a la portada para elegir otra materia" aria-label="Volver al inicio y cambiar de materia">🏠 Inicio · Cambiar de materia</a>
 
 <div class="main-wrap">
 
@@ -1974,6 +1983,29 @@ INDEX_SEMANAS_META.forEach(s => {
   console.log(`Galaxia ${s.num} → STORAGE_KEY: mat_4_[grupo]_p4_s${s.num}_data | tema: ${s.tema} (${s.universo})`);
 });
 console.log('sessionStorage["clase_contexto"] = { area:"mat", grado:"4", grupo, periodo:4, prefijoIndex, storagePrefix:"mat_4_[g]_p4_sN", semana:N, studentName, studentUser }');
+</script>
+
+<script>
+/* ═══ Navegación y aviso de grado (Aula gamificada) ═══ */
+function irAlInicioAula(){ window.location.href = '../index.html'; }
+(function(){
+  var GRADO_CURSO = 4;
+  try{
+    if (sessionStorage.getItem('aula_aviso_grado_omitido') === '1') return;
+    var s = JSON.parse(localStorage.getItem('aula_sesion_v1') || 'null');
+    if (!s || !s.token || !s.grado || Number(s.grado) === GRADO_CURSO) return;     // sin sesión de la portada, o del mismo grado: nada que avisar
+    var d = document.createElement('div'); d.id = 'aviso-grado'; d.setAttribute('role', 'alertdialog');
+    d.style.cssText = 'position:fixed;inset:0;z-index:99990;display:flex;align-items:center;justify-content:center;background:rgba(5,10,35,.94);padding:20px';
+    d.innerHTML = '<div style="max-width:470px;text-align:center;color:#fff;background:#142a6e;border:3px solid #ffd23f;border-radius:24px;padding:26px 24px;font-family:Nunito,system-ui,sans-serif;box-shadow:0 12px 40px rgba(0,0,0,.6)">'
+      + '<div style="font-size:3rem">🎒</div>'
+      + '<h2 style="font-size:1.35rem;margin:6px 0 10px">Esta materia es de ' + GRADO_CURSO + '° grado</h2>'
+      + '<p style="font-size:1rem;line-height:1.5;margin-bottom:18px">Tú eres de <strong>' + Number(s.grado) + '°</strong>' + (s.grupo ? ' (grupo ' + String(s.grupo).replace(/[<>&"]/g,'') + ')' : '') + '. En la portada verás solo las clases de tu grado.</p>'
+      + '<a href="../index.html" style="display:inline-block;padding:12px 26px;border-radius:999px;background:linear-gradient(180deg,#ffd23f,#ffb000);color:#0b1440;font-weight:900;text-decoration:none;font-size:1.05rem">🏠 Ir a mis clases</a>'
+      + '<div style="margin-top:14px"><a href="#" id="aviso-grado-omitir" style="color:#9fb4ff;font-size:.8rem">Entrar de todos modos (profe)</a></div></div>';
+    document.body.appendChild(d);
+    document.getElementById('aviso-grado-omitir').addEventListener('click', function(e){ e.preventDefault(); try{ sessionStorage.setItem('aula_aviso_grado_omitido','1'); }catch(x){} d.remove(); });
+  }catch(e){}
+})();
 </script>
 </body>
 </html>

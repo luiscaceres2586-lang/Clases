@@ -647,9 +647,44 @@ function resolver(m){
   var lista=candidatas(m);if(esFile)return Promise.resolve(lista[0]);var fallos=0;
   return Promise.all(lista.map(function(u){return fetch(u,{method:'HEAD',cache:'no-store'}).then(function(r){return r.ok}).catch(function(){fallos++;return false})}))
    .then(function(res){var i=res.indexOf(true);if(i>=0)return lista[i];if(fallos===lista.length)return lista[0];return null})}
+function sesionAula(){
+  /* sesión del estudiante: perfil en línea (YO) → sesión de la memoria (SES) → sesión guardada en el navegador (válida aunque aún no cargue el perfil) */
+  try{ if(YO&&YO.grado) return {grado:Number(YO.grado),grupo:YO.grupo||''}; }catch(e){}
+  try{ if(SES&&SES.grado) return {grado:Number(SES.grado),grupo:SES.grupo||''}; }catch(e){}
+  try{ var g=(typeof leerSes==='function')?leerSes():null; if(g&&g.grado) return {grado:Number(g.grado),grupo:g.grupo||''}; }catch(e){}
+  return null;
+}
+function gradoDelEstudiante(){
+  /* 4 o 5 según la sesión; si no hay sesión, la elección del invitado; 0 = mostrar todos */
+  var s=sesionAula(), g=s?s.grado:0;
+  if(!g){ try{ g=Number(localStorage.getItem('aula_grado_pref'))||0; }catch(e){} }
+  return (g===4||g===5)?g:0;
+}
+function pintarSelectorGrado(G){
+  var sec=$('mundos'), mapa=$('mapa'); if(!sec||!mapa) return;
+  var box=$('gradoSel');
+  if(!box){ box=document.createElement('div'); box.id='gradoSel'; box.setAttribute('role','group'); box.setAttribute('aria-label','Elige tu grado');
+    box.style.cssText='display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;margin:0 auto 14px;padding:0 12px;font-weight:700;font-size:.95rem;text-align:center'; sec.insertBefore(box,mapa); }
+  box.innerHTML='';
+  var s=sesionAula();
+  var msg=document.createElement('span'); msg.style.cssText='color:#fff;opacity:.95';
+  if(s&&(s.grado===4||s.grado===5)){
+    msg.textContent='🎒 Estas son las clases de tu grado: '+s.grado+'°'+(s.grupo?' · grupo '+String(s.grupo).replace(/[<>&"]/g,''):'');
+    box.appendChild(msg); return;
+  }
+  msg.textContent='¿De qué grado eres?'; box.appendChild(msg);
+  [[4,'4°'],[5,'5°'],[0,'Ver todos']].forEach(function(o){
+    var activo=((G||0)===o[0]);
+    var b=document.createElement('button'); b.type='button'; b.textContent=o[1]; b.setAttribute('aria-pressed',String(activo));
+    b.style.cssText='cursor:pointer;border:2px solid rgba(255,210,63,.75);border-radius:999px;padding:7px 18px;font:inherit;color:'+(activo?'#0b1440':'#fff')+';background:'+(activo?'linear-gradient(180deg,#ffd23f,#ffb000)':'rgba(255,255,255,.12)');
+    b.addEventListener('click',function(){ try{ if(o[0]) localStorage.setItem('aula_grado_pref',String(o[0])); else localStorage.removeItem('aula_grado_pref'); }catch(e){} pintarMundos(); });
+    box.appendChild(b);
+  });
+}
 function pintarMundos(){
   var mapa=$('mapa');mapa.innerHTML='';
-  MUNDOS.forEach(function(m,k){
+  var G=gradoDelEstudiante(); pintarSelectorGrado(G);
+  MUNDOS.filter(function(m){return !G||Number(m.g)===G}).forEach(function(m,k){
     var hecho=!!(YO&&YO.visitasHoy&&YO.visitasHoy[m.id]);
     var a=el('a','world rv'+(hecho?' hecho':' nuevo'));a.style.animationDelay=(k*0.09)+'s';
     a.style.setProperty('--c1',m.colores[0]);a.style.setProperty('--c2',m.colores[1]);

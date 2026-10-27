@@ -404,6 +404,7 @@ body{
 #app-header:not(.hidden) ~ #btn-inicio-flotante{display:none}
 @media (max-width:520px){#btn-inicio-flotante{top:8px;left:8px;padding:7px 12px;font-size:.78rem}}
 </style>
+<script src="../aula-fx.js"></script>
 </head>
 <body>
 
@@ -1628,7 +1629,7 @@ function irAClase(semanaNum, archivoHtml, temaSemana) {
     timestamp:      Date.now()
   }));
   sessionStorage.setItem('desde_index', 'true');
-  window.location.href = archivoHtml;
+  (window.AulaFX ? AulaFX.ir(archivoHtml) : (window.location.href = archivoHtml));
 }
 
 /* ══════════════════════════════════════════════
@@ -2029,7 +2030,7 @@ console.log('sessionStorage["clase_contexto"] = { area:"mat", grado:"5", grupo, 
 
 <script>
 /* ═══ Navegación y aviso de grado (Aula gamificada) ═══ */
-function irAlInicioAula(){ window.location.href = '../index.html'; }
+function irAlInicioAula(){ if (window.AulaFX) { AulaFX.ir('../index.html'); } else { window.location.href = '../index.html'; } }
 (function(){
   var GRADO_CURSO = 5;
   try{

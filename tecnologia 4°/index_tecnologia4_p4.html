@@ -413,6 +413,7 @@ body{
 #app-header:not(.hidden) ~ #btn-inicio-flotante{display:none}
 @media (max-width:520px){#btn-inicio-flotante{top:8px;left:8px;padding:7px 12px;font-size:.78rem}}
 </style>
+<script src="../aula-fx.js"></script>
 </head>
 <body>
 
@@ -1502,7 +1503,7 @@ function abrirSemana(semanaNum, archivoHtml, temaSemana) {
   }));
   sessionStorage.setItem('desde_index', 'true');
 
-  const ir = () => { window.location.href = archivoHtml; };
+  const ir = () => { (window.AulaFX ? AulaFX.ir(archivoHtml) : (window.location.href = archivoHtml)); };
   // En un servidor (http/https) se comprueba que el archivo exista; abierto desde disco (file://)
   // el navegador no permite comprobarlo, así que se abre directamente.
   if (location.protocol === 'http:' || location.protocol === 'https:') {
@@ -1947,7 +1948,7 @@ console.log('sessionStorage["clase_contexto"] = { area:"tec", grado:"4", grupo, 
 
 <script>
 /* ═══ Navegación y aviso de grado (Aula gamificada) ═══ */
-function irAlInicioAula(){ window.location.href = '../index.html'; }
+function irAlInicioAula(){ if (window.AulaFX) { AulaFX.ir('../index.html'); } else { window.location.href = '../index.html'; } }
 (function(){
   var GRADO_CURSO = 4;
   try{

@@ -371,6 +371,7 @@ footer small{display:block;opacity:.8;margin-top:4px}
 .cfgbox{max-width:620px;margin:10px auto;padding:14px 16px;border-radius:18px;background:rgba(255,210,63,.18);border:3px dashed var(--gold);font-size:.9rem;text-align:left}
 .cfgbox code{background:rgba(0,0,0,.4);padding:1px 6px;border-radius:6px}
 </style>
+<script src="aula-fx.js"></script>
 </head>
 <body>
 <canvas id="bg" aria-hidden="true"></canvas>
@@ -712,7 +713,7 @@ function entrar(ev,a,m){
     var espera=YO&&SES?llamar('visitar',{token:SES.token,mundo:m.id},{timeout:5000}).then(function(j){
       if(j.otorgado>0)toast('⭐ ¡+'+j.otorgado+' XP! Misión iniciada');aplicarPerfil(j.perfil,true)}).catch(function(e){
       if(e.codigo==='sesion'){return}toast('No pude guardar tu XP ahora ('+e.message+')')}):Promise.resolve();
-    return Promise.race([espera,new Promise(function(ok){setTimeout(ok,5200)})]).then(function(){setTimeout(function(){location.href=url},reduce?50:700)});
+    return Promise.race([espera,new Promise(function(ok){setTimeout(ok,5200)})]).then(function(){setTimeout(function(){window.AulaFX?AulaFX.ir(url):location.href=url},reduce?50:700)});
   }).catch(function(){ocupado=false;a.classList.remove('buscando')});
 }
 
@@ -847,9 +848,27 @@ document.addEventListener('keydown',function(e){
 var gFiltro={grupo:'',q:''},reg={grupo:'',avatar:1};
 function panel(p){$('gMenu').style.display=p==='menu'?'':'none';$('gPerfiles').classList.toggle('on',p==='perfiles');$('gNuevo').classList.toggle('on',p==='nuevo');$('gAct').classList.toggle('on',p==='act');
   $('gSub').style.display=p==='menu'?'':'none'}
+panel=(function(o){return function(p){var r=o.apply(this,arguments);try{if(window.AulaFX&&AulaFX.activo()){var m={menu:$('gMenu'),perfiles:$('gPerfiles'),nuevo:$('gNuevo'),act:$('gAct')}[p];if(m){m.classList.remove('fx-in');void m.offsetWidth;m.classList.add('fx-in')}}}catch(e){}return r}})(panel);
+function pintarUltimo(){
+  /* "Continuar como …": el último jugador que entró en este navegador (solo apodo y avatar; el PIN siempre se pide) */
+  var u=null; try{u=JSON.parse(localStorage.getItem('aula_ultimo')||'null')}catch(e){}
+  var box=$('gUlt');
+  if(!box){ box=el('div'); box.id='gUlt'; var m=$('gMenu'); m.insertBefore(box,m.firstChild); }
+  box.innerHTML='';
+  if(!u||!u.id||!u.apodo||!API||SES){ box.style.display='none'; return }
+  box.style.cssText='display:block;grid-column:1 / -1;width:100%;margin:0 auto 14px;text-align:center';
+  var b=el('button','pf'); b.type='button';
+  b.style.cssText='width:100%;max-width:440px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center;padding:12px 16px;border:3px solid #ffd23f;border-radius:18px;background:linear-gradient(180deg,rgba(255,210,63,.28),rgba(255,176,0,.12));color:#fff;font:900 1.05rem Nunito,system-ui,sans-serif;cursor:pointer;box-shadow:0 0 20px rgba(255,210,63,.4)';
+  var av=el('div','av'); av.style.cssText='width:46px;height:46px;border-radius:50%;background-size:cover;background-position:center;flex:none;border:2px solid #fff'; bg(av,'av'+(u.avatar||1));
+  b.appendChild(av); var s=el('span'); s.appendChild(document.createTextNode('▶ Continuar como ')); var nb=el('b','',u.apodo); s.appendChild(nb); b.appendChild(s);
+  b.addEventListener('click',function(){loginPerfil(u)});
+  var x=el('button','','No soy yo'); x.type='button'; x.style.cssText='display:block;margin:6px auto 0;background:none;border:0;color:#9fb4ff;font-size:.82rem;text-decoration:underline;cursor:pointer';
+  x.addEventListener('click',function(){try{localStorage.removeItem('aula_ultimo')}catch(e){} pintarUltimo()});
+  box.appendChild(b); box.appendChild(x);
+}
 function abrirGate(modo,msg){
   $('gate').classList.add('on');document.body.style.overflow='hidden';panel(modo||'menu');$('gMsg').textContent=msg||'';$('gMsg').className='gmsg';
-  $('gCfg').style.display=API?'none':'block';$('gIr').disabled=$('gNew').disabled=!API;$('gIr').style.opacity=$('gNew').style.opacity=API?'':'.5';
+  pintarUltimo();$('gCfg').style.display=API?'none':'block';$('gIr').disabled=$('gNew').disabled=!API;$('gIr').style.opacity=$('gNew').style.opacity=API?'':'.5';
   if(API&&!RK)sincronizar(false);pintarGatePerfiles();
   if(!API)decir('aria_duda','Para el Profe: falta pegar la URL del servidor en la configuración.',9000);
   else decir('aria_hola','¡Hola! Soy ARIA. Entra con tu perfil para guardar tu avance.',9000);
@@ -867,11 +886,12 @@ function pintarGatePerfiles(){
     b.appendChild(el('small','','Grupo '+p.grupo+' · Nv '+p.nivel));b.addEventListener('click',function(){loginPerfil(p)});lista.appendChild(b)});
   $('pCuenta').textContent=l.length?(l.length+(l.length===1?' perfil':' perfiles')+' · toca el tuyo y escribe tu PIN'):'No encontré ese apodo. ¿Eres nuevo? Vuelve y toca "Primer ingreso".';
 }
-$('gIr').addEventListener('click',function(){panel('perfiles');$('pBuscar').value='';gFiltro.q='';pintarGatePerfiles();$('gMsg').textContent=''});
+$('gIr').addEventListener('click',function(){panel('perfiles');$('pBuscar').value='';gFiltro.q='';pintarGatePerfiles();$('gMsg').textContent='';setTimeout(function(){try{$('pBuscar').focus()}catch(e){}},160)});
 $('gNew').addEventListener('click',function(){panel('nuevo');$('gMsg').textContent='';pintarFormNuevo();cargarNombres()});
 $('gInv').addEventListener('click',function(){INV=true;cerrarGate();pintarHUD();toast('👀 Modo invitado: no se guarda tu avance');decir('aria_hola','Estás mirando como invitado. Crea tu perfil para ganar XP.',7000)});
 $('pBack').addEventListener('click',function(){panel('menu')});$('nBack').addEventListener('click',function(){panel('menu')});
 $('pBuscar').addEventListener('input',function(){gFiltro.q=this.value.trim();pintarGatePerfiles()});
+$('pBuscar').addEventListener('keydown',function(e){if(e.key==='Enter'){var l=document.querySelectorAll('#pLista .pf');if(l.length===1){e.preventDefault();l[0].click()}}});
 function pintarFormNuevo(){
   var g=$('nGrupos');g.innerHTML='';GRUPOS.forEach(function(x){var b=el('button','',x);b.type='button';b.setAttribute('aria-pressed',String(reg.grupo===x));b.addEventListener('click',function(){reg.grupo=x;pintarFormNuevo();cargarNombres()});g.appendChild(b)});
 }
@@ -886,6 +906,7 @@ function mostrarAct(){
   $('aApodoFijo').textContent='Tu apodo: '+ACT.apodo;$('aApodo').value='';reg.avatar=ACT.avatar||1;pintarAvAct();$('gMsg').textContent='';
 }
 function iniciar(j,saludo){
+  try{localStorage.setItem('aula_ultimo',JSON.stringify({id:j.perfil.id,apodo:j.perfil.apodo,avatar:j.perfil.avatar,grupo:j.perfil.grupo}))}catch(e){}
   SES={api:API,token:j.token,id:j.perfil.id,apodo:j.perfil.apodo,nombre:j.perfil.nombre||'',avatar:j.perfil.avatar,grupo:j.perfil.grupo,grado:j.perfil.grado};guardarSes(SES);
   INV=false;YO=null;saludoLiga=false;LG.grado=j.perfil.grado;LG.grupo='';LG.todos=false;
   aplicarPerfil(j.perfil,true);aplicarRanking(j.ranking);cerrarGate();
@@ -986,5 +1007,8 @@ else if(SES){
 window.AulaPortada={sincronizar:sincronizar};
 })();
 </script>
+<script>try{ if(window.AulaFX){
+  AulaFX.intro({icono:'🎮',titulo:'AULA GAMIFICADA',sub:'Colegio Integrado Simón Bolívar · Profe Luis'});
+} }catch(e){}</script>
 </body>
 </html>

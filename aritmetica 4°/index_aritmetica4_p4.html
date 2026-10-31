@@ -1436,7 +1436,7 @@ function renderizarSemanas() {
     if (estaHoy && sem.archivo) estado = 'hoy';
 
     const cfgs = {
-      'pendiente':       {badge:'SIN JUGAR',           badgeCls:'pendiente', btn:'🚀 ¡PRÓXIMAMENTE!',      btnCls:'bloqueada'},
+      'pendiente':       {badge:'SIN JUGAR',           badgeCls:'pendiente', btn:'🚀 ¡EMPEZAR!',      btnCls:'ir-clase'},
       'nueva':           {badge:'🆕 NUEVA',              badgeCls:'progreso',  btn:'▶ EMPEZAR',              btnCls:'ir-clase'},
       'en-progreso':     {badge:'EN CURSO',             badgeCls:'progreso',  btn:'▶ CONTINUAR',            btnCls:''},
       'sin-sincronizar': {badge:'⏳ EN PROGRESO (sin nota aún)', badgeCls:'progreso', btn:'▶ CONTINUAR',    btnCls:''},
@@ -1445,7 +1445,7 @@ function renderizarSemanas() {
       'hoy':             {badge:'📌 HOY',               badgeCls:'hoy',       btn:'⚡ ¡JUGAR AHORA!',        btnCls:'ir-clase'}
     };
     let cfg = cfgs[estado] || cfgs['pendiente'];
-    if (!sem.archivo) { cfg = {badge:'🚧 EN CONSTRUCCIÓN', badgeCls:'pendiente', btn:'🚧 PRÓXIMAMENTE', btnCls:'bloqueada'}; }
+    if (!sem.archivo || sem.disponible === false) { cfg = {badge:'🚧 EN CONSTRUCCIÓN', badgeCls:'pendiente', btn:'🚧 PRÓXIMAMENTE', btnCls:'bloqueada'}; }
 
     const scoreHtml = (nota !== null && nota > 0)
       ? `<span class="sc-score">${nota.toFixed(1)} ⭐</span>`
@@ -1457,7 +1457,7 @@ function renderizarSemanas() {
     card.style.setProperty('--card-color', sem.color);
 
     const temaSafe = sem.tema.replace(/'/g, "\\'");
-    const onclickBtn = sem.archivo
+    const onclickBtn = (sem.archivo && sem.disponible !== false)
       ? `abrirSemana(${sem.num},'${sem.archivo}','${temaSafe}')`
       : `mostrarToast('🚧 Esta galaxia se activará muy pronto, ¡mantente atento!')`;
 
@@ -2005,6 +2005,28 @@ function irAlInicioAula(){ if (window.AulaFX) { AulaFX.ir('../index.html'); } el
       + '<div style="margin-top:14px"><a href="#" id="aviso-grado-omitir" style="color:#9fb4ff;font-size:.8rem">Entrar de todos modos (profe)</a></div></div>';
     document.body.appendChild(d);
     document.getElementById('aviso-grado-omitir').addEventListener('click', function(e){ e.preventDefault(); try{ sessionStorage.setItem('aula_aviso_grado_omitido','1'); }catch(x){} d.remove(); });
+  }catch(e){}
+})();
+</script>
+<script>
+/* ═══ Disponibilidad real de cada semana (la clase existe → se puede jugar; no existe → "En construcción") ═══ */
+(function(){
+  try{
+    if (typeof INDEX_SEMANAS_META === 'undefined') return;
+    if (typeof archivoDeSemana === 'function') INDEX_SEMANAS_META.forEach(function(s){ if (!s.archivo) s.archivo = archivoDeSemana(s.num); });
+    if (typeof window.verificarArchivosSemanas !== 'function') {
+      window.verificarArchivosSemanas = async function(){
+        var web = (location.protocol === 'http:' || location.protocol === 'https:');
+        await Promise.all(INDEX_SEMANAS_META.map(async function(sem){
+          if (!sem.archivo) { sem.disponible = false; return; }
+          if (!web) { sem.disponible = true; return; }          // abierto como archivo local: no se puede comprobar, no se bloquea nada
+          try { var r = await fetch(sem.archivo, { method:'HEAD', cache:'no-store' }); sem.disponible = r.ok; }
+          catch (e) { sem.disponible = true; }
+        }));
+      };
+    }
+    var repintar = function(){ try{ if (typeof sesionActiva !== 'undefined' && sesionActiva && typeof renderizarSemanas === 'function') renderizarSemanas(); }catch(e){} };
+    window.verificarArchivosSemanas().then(repintar, repintar);
   }catch(e){}
 })();
 </script>

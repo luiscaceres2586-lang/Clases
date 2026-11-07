@@ -10,7 +10,7 @@
    =========================================================================== */
 (function () {
   'use strict';
-  /* ▼▼ PROFE: cambia aquí el período en que van (1, 2, 3 o 4) ▼▼ */
+  /* El período en curso se cambia en recursos/js/aula-config.js */
   var CFG = { PERIODO_ACTUAL: 4 };
   if (window.AULA_CONFIG) for (var k in window.AULA_CONFIG) CFG[k] = window.AULA_CONFIG[k];
 
@@ -38,7 +38,19 @@
   var me = document.currentScript, base = '';
   try { base = new URL('../../', me.src).href; } catch (e) {}
   var m = decodeURIComponent(location.pathname).match(/periodo-(\d)\/(aritmetica|tecnologia)-(\d)\/(?:semana(\d+)_)?/i);
-  if (!m) return;
+  if (!m) {
+    var ini = function () {
+      var s = document.createElement('style');
+      s.textContent = '#aula-modo{position:fixed;left:10px;bottom:10px;z-index:2147483000;font:800 .95rem Nunito,"Trebuchet MS",sans-serif;border-radius:999px;padding:7px 14px;cursor:pointer;color:#fff;border:2px solid rgba(255,255,255,.8);box-shadow:0 4px 14px rgba(0,0,0,.3)}#aula-modo.on{background:#1fc86a;color:#052b16}#aula-modo.off{background:#566079}';
+      document.head.appendChild(s);
+      var b = document.createElement('button'); b.id = 'aula-modo'; b.type = 'button';
+      var est = function () { var off = sinRed(); b.className = off ? 'off' : 'on'; b.textContent = off ? '📴 Sin internet' : '🌐 En línea'; };
+      b.onclick = function () { var n = sinRed() ? 'online' : 'offline'; guardar(n); est(); if (n === 'online') try { window.dispatchEvent(new Event('online')); } catch (e) {} };
+      window.addEventListener('online', est); window.addEventListener('offline', est); est(); document.body.appendChild(b);
+    };
+    if (document.body) ini(); else document.addEventListener('DOMContentLoaded', ini);
+    return;
+  }
   var per = +m[1], area = m[2].toLowerCase(), grado = m[3], sem = m[4] ? +m[4] : 0;
   var A = area === 'aritmetica'
     ? { n: 'ARITMÉTICA', i: '🔢', c: '#ffb020', d: '#ff6a00' }

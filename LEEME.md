@@ -14,8 +14,8 @@
 ## Reglas para agregar clases nuevas
 - Ponerlas en `periodo-N/area-grado/`.
 - Nombre de la clase: `semanaN_mat4_pN.html` (mat o tec, grado y período). El índice: `index_aritmetica4_pN.html` o `index_tecnologia5_pN.html`.
-- En el `<head>`, estas líneas (con `../../`): `recursos/css/fuentes.css`, `recursos/js/aula-sync.js`, `recursos/js/aula-contexto.js`.
+- En el `<head>`, estas líneas (con `../../`): `recursos/css/fuentes.css`, `recursos/js/aula-sync.js`, `recursos/js/aula-config.js`, `recursos/js/aula-contexto.js` (en ese orden).
 - No usar enlaces `https://` a scripts, fuentes o estilos: así la clase sigue funcionando sin internet.
 
 ## Período en curso
-En `recursos/js/aula-contexto.js` cambia `PERIODO_ACTUAL`. Si un estudiante abre una clase de otro período, la barra superior muestra una alerta roja.
+En `recursos/js/aula-config.js` cambia `PERIODO_ACTUAL` (y `PERIODOS_LISTOS` cuando publiques clases de otro período). Si un estudiante abre una clase de otro período, la barra superior muestra una alerta roja.

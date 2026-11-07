@@ -1,3 +1,5 @@
+> **Nota:** el servidor ahora está en `servidor/Code.gs`; `index.html` y las páginas de `aula-sync.js` usan `recursos/js/`. Las clases viven en `periodo-N/area-grado/`.
+
 # Aula Gamificada v2 — piloto (Aritmética 5° · semana 1)
 
 ## Qué cambia

@@ -89,7 +89,21 @@
     if (fuera) { var al = document.createElement('div'); al.className = 'alerta'; al.textContent = '⚠️ ¡Cuidado! Esta clase es del PERÍODO ' + per + ' y ahora vamos en el PERÍODO ' + CFG.PERIODO_ACTUAL; b.appendChild(al); }
     document.body.insertBefore(b, document.body.firstChild);
     var ajustar = function () { document.documentElement.style.setProperty('--aula-h', b.offsetHeight + 'px'); };
-    ajustar(); window.addEventListener('resize', ajustar);
+    /* Encabezados propios de la clase (fijos o pegados arriba) bajan para no quedar tapados */
+    var acomodar = function () {
+      var h = b.offsetHeight;
+      var lista = document.querySelectorAll('header,nav,[id*="header" i],[class*="header" i],[id*="topbar" i],[class*="topbar" i],[id*="navbar" i],[class*="navbar" i]');
+      for (var i = 0; i < lista.length; i++) {
+        var e = lista[i]; if (b.contains(e)) continue;
+        var cs = getComputedStyle(e);
+        if ((cs.position === 'fixed' || cs.position === 'sticky') && e.offsetHeight < innerHeight * 0.3) {
+          if (e.dataset.aulaTop === undefined) { if (parseFloat(cs.top) !== 0) continue; e.dataset.aulaTop = '0'; }
+          e.style.setProperty('top', h + 'px', 'important');
+        }
+      }
+    };
+    ajustar(); acomodar(); window.addEventListener('resize', function () { ajustar(); acomodar(); });
+    window.addEventListener('load', function () { ajustar(); acomodar(); }); setTimeout(acomodar, 800);
     if (window.ResizeObserver) new ResizeObserver(ajustar).observe(b);
     document.title = 'P' + per + (sem ? '·S' + sem : '') + ' · ' + document.title;
   }

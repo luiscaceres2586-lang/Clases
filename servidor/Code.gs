@@ -32,7 +32,7 @@ var CFG = {
   ZONA: 'America/Bogota',
   GRUPOS: ['401', '402', '403', '501', '502'],   // <- cambia aquí tus grupos
   MUNDOS: ['a4', 'a5', 't4', 't5'],
-  AVATARES: 8,
+  AVATARES: 10,
   MAX_INTENTOS: 5,
   BLOQUEO_MIN: 15,
   TOKEN_DIAS: 60,

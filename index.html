@@ -603,6 +603,8 @@ window.IMG={
 "av6": "recursos/imagenes/avatares/avatares_avatar-06-nino-gorra.png",
 "av7": "recursos/imagenes/avatares/avatares_avatar-07-nina-afro.png",
 "av8": "recursos/imagenes/avatares/avatares_avatar-08-nino-pecas.png",
+"av9": "recursos/imagenes/avatares/avatares_avatar-09-nina-rizos.png",
+"av10": "recursos/imagenes/avatares/avatares_avatar-10-nino-astronauta.png",
 "ch_azul": "recursos/imagenes/legado/ch_azul.webp",
 "ch_bus": "recursos/imagenes/legado/ch_bus.webp",
 "ch_capucha": "recursos/imagenes/legado/ch_capucha.webp",
@@ -626,7 +628,7 @@ window.IMG={
 </script>
 <script>
 (function(){'use strict';
-var A=window.AULA||{}, API=String(A.API_URL||'').trim(), GRUPOS=A.GRUPOS||['401','402','403','501','502'];
+var NAV=Math.min(10,+((window.AULA_CONFIG||{}).AVATARES)||8), A=window.AULA||{}, API=String(A.API_URL||'').trim(), GRUPOS=A.GRUPOS||['401','402','403','501','502'];
 var REFRESCO=Math.max(20,A.REFRESCO_SEG||45), KS='aula_sesion_v1';
 var MUNDOS=window.MUNDOS||[], IMG=window.IMG||{};
 var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -978,7 +980,7 @@ function pintarFormNuevo(){
 }
 var ACT=null;
 function pintarAvAct(){
-  var a=$('aAvs');a.innerHTML='';for(var i=1;i<=8;i++)(function(i){var b=el('button');b.type='button';b.setAttribute('aria-label','Avatar '+i);b.setAttribute('aria-pressed',String(reg.avatar===i));var im=el('img');im.alt='';im.src=IMG['av'+i]||'';b.appendChild(im);
+  var a=$('aAvs');a.innerHTML='';for(var i=1;i<=NAV;i++)(function(i){var b=el('button');b.type='button';b.setAttribute('aria-label','Avatar '+i);b.setAttribute('aria-pressed',String(reg.avatar===i));var im=el('img');im.alt='';im.src=IMG['av'+i]||'';b.appendChild(im);
     b.addEventListener('click',function(){reg.avatar=i;pintarAvAct()});a.appendChild(b)})(i);
 }
 function mostrarAct(){
@@ -1039,7 +1041,7 @@ function abrirMp(){
   $('mpSub').textContent=YO?(YO.apodo+' · Grupo '+YO.grupo+' · Nivel '+YO.nivel+' · '+YO.xp+' XP'):'Estás como invitado.';
   $('mpNombre').style.display=(YO&&YO.nombre)?'':'none';$('mpNombre').textContent=(YO&&YO.nombre)?('👤 '+YO.nombre):'';
   var a=$('mpAvs');a.innerHTML='';
-  if(YO)for(var i=1;i<=8;i++)(function(i){var b=el('button');b.type='button';b.setAttribute('aria-label','Avatar '+i);b.setAttribute('aria-pressed',String(YO.avatar===i));var im=el('img');im.alt='';im.src=IMG['av'+i]||'';b.appendChild(im);
+  if(YO)for(var i=1;i<=NAV;i++)(function(i){var b=el('button');b.type='button';b.setAttribute('aria-label','Avatar '+i);b.setAttribute('aria-pressed',String(YO.avatar===i));var im=el('img');im.alt='';im.src=IMG['av'+i]||'';b.appendChild(im);
     b.addEventListener('click',function(){llamar('perfilActualizar',{token:SES.token,avatar:i}).then(function(j){aplicarPerfil(j.perfil,true);aplicarRanking(j.ranking);abrirMp();toast('✅ Avatar cambiado')}).catch(function(e){if(e.codigo==='sesion')manejar(e);else toast('⚠️ '+e.message)})});a.appendChild(b)})(i);
 }
 function cerrarMp(){$('mp').classList.remove('on')}

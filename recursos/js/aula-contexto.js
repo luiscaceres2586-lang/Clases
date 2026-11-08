@@ -68,7 +68,10 @@
     '#aula-ctx button.on{background:#1fc86a;border-color:#8dffbd;color:#052b16}#aula-ctx button.off{background:#566079;border-color:#c4cce0}' +
     '#aula-ctx .alerta{background:#e11d48;font-weight:900;text-align:center;padding:6px 10px;font-size:clamp(.9rem,3.4vw,1.25rem);animation:aulaPar 1s infinite alternate}' +
     '@keyframes aulaPar{from{background:#e11d48}to{background:#9f1239}}' +
-    'html{padding-top:var(--aula-h,56px)}';
+    'html{padding-top:var(--aula-h,56px)}' +
+    /* Las clases de pantalla completa (#app = 100vh, sin scroll) se achican lo que mide la barra: así su botón Siguiente nunca queda fuera */
+    '#app{height:calc(100vh - var(--aula-h,56px))!important;height:calc(100dvh - var(--aula-h,56px))!important}' +
+    '@media(max-width:640px){#aula-ctx .fila{gap:4px 6px;padding:4px 8px}#aula-ctx .p{font-size:.8rem;padding:3px 9px;border-radius:10px}#aula-ctx a,#aula-ctx button{font-size:.76rem;padding:3px 9px;border-width:1.5px}#aula-ctx .alerta{font-size:.82rem;padding:4px 8px}}';
 
   function pintar() {
     var s = document.createElement('style'); s.textContent = css; document.head.appendChild(s);
@@ -102,7 +105,16 @@
         }
       }
     };
-    ajustar(); acomodar(); window.addEventListener('resize', function () { ajustar(); acomodar(); });
+    var cabida = function () {
+      if (getComputedStyle(document.body).overflowY !== 'hidden') return;
+      var h = b.offsetHeight, k = document.body.children;
+      for (var i = 0; i < k.length; i++) {
+        var e = k[i]; if (b.contains(e) || /^(SCRIPT|STYLE|LINK|CANVAS)$/.test(e.tagName)) continue;
+        var cs = getComputedStyle(e);
+        if (cs.position !== 'fixed' && cs.position !== 'absolute' && e.offsetHeight >= innerHeight - 2 && e.id !== 'app') e.style.setProperty('height', 'calc(100vh - ' + h + 'px)', 'important');
+      }
+    };
+    ajustar(); acomodar(); cabida(); window.addEventListener('resize', function () { ajustar(); acomodar(); cabida(); });
     window.addEventListener('load', function () { ajustar(); acomodar(); }); setTimeout(acomodar, 800);
     if (window.ResizeObserver) new ResizeObserver(ajustar).observe(b);
     document.title = 'P' + per + (sem ? '·S' + sem : '') + ' · ' + document.title;

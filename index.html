@@ -400,6 +400,28 @@ body:before{background:radial-gradient(800px 420px at 12% -4%,rgba(255,255,255,.
 @keyframes pulso{0%,100%{box-shadow:0 8px 0 var(--sh),0 0 0 0 rgba(255,210,63,.9)}50%{box-shadow:0 8px 0 var(--sh),0 0 0 14px rgba(255,210,63,0),0 0 30px 6px rgba(255,210,63,.9)}}
 .extra{max-width:1180px;margin:20px auto;padding:10px 6px 26px;border-radius:30px;background:rgba(9,18,60,.93);color:#fff}
 footer{background:rgba(9,18,60,.93);color:#fff;margin-top:26px;border-radius:26px 26px 0 0}
+/* ===== ventana de entrada y PIN: claras y brillantes ===== */
+.gate{background:radial-gradient(800px 420px at 12% -4%,rgba(255,255,255,.7),transparent 62%),radial-gradient(700px 420px at 92% 18%,rgba(255,236,150,.55),transparent 60%),linear-gradient(180deg,#2f8cff 0%,#5ab8ff 52%,#c4ecff 100%)}
+.gbox{background:linear-gradient(180deg,#3d8dff,#2764e6);border:5px solid #fff;box-shadow:0 10px 0 #1a47b3,0 26px 48px rgba(10,50,140,.45)}
+.gbox h2,.pinb h2{color:#fff;text-shadow:0 3px 0 #1a47b3,0 0 16px rgba(255,210,63,.55)}
+.gar{filter:drop-shadow(0 8px 8px rgba(10,40,120,.4))}
+.gmsg{color:#fff3b0;text-shadow:0 1px 0 rgba(0,0,0,.35)}.gmsg.ok{color:#c8ffd8}
+.form label{color:#fff3b0}
+.pinw{background:rgba(20,70,160,.55);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+.pinb{background:linear-gradient(180deg,#3d8dff,#2764e6);border:5px solid #fff;box-shadow:0 10px 0 #1a47b3,0 30px 60px rgba(10,40,120,.5)}
+.pinb .pav,.pf .av{border-color:#fff;box-shadow:0 4px 0 #1a47b3}
+.pmsg{color:#fff3b0}
+.keys button{background:linear-gradient(180deg,#fff,#dbe9ff);color:#0b1a5c;border-color:#0b1a5c;box-shadow:0 5px 0 #7ea3e8}
+.keys button:active{box-shadow:0 1px 0 #7ea3e8}
+.keys button.sp{background:linear-gradient(180deg,#ffe0e3,#ff9aa6);color:#6a0f1a;box-shadow:0 5px 0 #c4586a}
+#gNew{background:linear-gradient(180deg,#6ff3d6,#1fb89a);color:#053b30;box-shadow:0 7px 0 #0e7a66,0 14px 22px rgba(10,60,80,.35),inset 0 2px 0 rgba(255,255,255,.55)}
+.back{background:linear-gradient(180deg,#fff,#dbe9ff);color:#0b1a5c;border-color:#0b1a5c;box-shadow:0 4px 0 #7ea3e8}
+.form .chs button{background:linear-gradient(180deg,#fff,#dbe9ff);color:#0b1a5c;border-color:#0b1a5c;box-shadow:0 4px 0 #7ea3e8}
+.form .chs button[aria-pressed=true]{background:linear-gradient(180deg,#ffe56a,#ffb000);color:#3b2400;box-shadow:0 4px 0 #b67a00}
+.pn,.pf{background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.14));border-color:rgba(255,255,255,.6)}
+.gtop{color:#fff;font-weight:900}
+.gar{height:150px;top:-82px}.gbox{padding-top:92px}
+
 </style>
 
 <script src="recursos/js/aula-config.js?v=20261108c"></script>
@@ -1133,7 +1155,7 @@ window.AulaPortada={sincronizar:sincronizar};
 })();
 </script>
 <script>try{ if(window.AulaFX){
-  AulaFX.intro({icono:'🎮',titulo:'AULA GAMIFICADA',sub:'Colegio Integrado Simón Bolívar · Profe Luis'});
+  AulaFX.intro({imagen:'recursos/imagenes/gif/gif_boli-saluda.webp',titulo:'AULA GAMIFICADA',sub:'Colegio Integrado Simón Bolívar · Profe Luis',boton:'▶ ¡A JUGAR!'});
 } }catch(e){}</script>
 </body>
 </html>

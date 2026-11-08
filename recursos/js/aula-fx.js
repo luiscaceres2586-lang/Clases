@@ -68,6 +68,17 @@
     '#fx-intro .fx-ibar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#5eeaff,#a855f7,#ffd23f);animation:fxBar 2.4s .2s ease-out forwards}' +
     '#fx-intro .fx-start{font:900 1.05rem Nunito,system-ui,sans-serif;letter-spacing:.14em;color:#0b1440;background:linear-gradient(180deg,#ffd23f,#ffb000);border:0;border-radius:999px;padding:13px 28px;box-shadow:0 6px 0 #b67a00,0 0 22px rgba(255,210,63,.6);cursor:pointer;animation:fxBlink 1.1s ease-in-out infinite}' +
     '@keyframes fxBlink{50%{transform:scale(1.06);box-shadow:0 6px 0 #b67a00,0 0 34px rgba(255,210,63,.95)}}' +
+    /* ── intro clara (rediseño): cielo azul, Bolí y botón verde ── */
+    '#fx-intro{background:radial-gradient(700px 380px at 15% 0,rgba(255,255,255,.8),transparent 62%),radial-gradient(600px 380px at 90% 20%,rgba(255,236,150,.6),transparent 60%),linear-gradient(180deg,#2f8cff 0%,#5ab8ff 55%,#c4ecff 100%);color:#0b1a5c}' +
+    '#fx-intro .fx-stars{opacity:.55}' +
+    '#fx-intro .fx-box{background:rgba(255,255,255,.72);border:4px solid #fff;border-radius:36px;padding:clamp(16px,4vw,30px) clamp(18px,5vw,44px);box-shadow:0 20px 44px rgba(10,50,140,.3);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}' +
+    '#fx-intro .fx-logo{filter:none;line-height:0;display:block;text-align:center}' +
+    '#fx-intro .fx-img{display:block;margin:0 auto;height:clamp(150px,30vh,250px);width:auto;max-width:70vw;filter:drop-shadow(0 8px 10px rgba(10,40,120,.35));animation:fxFloat 2.4s ease-in-out infinite}' +
+    '#fx-intro h1{background:linear-gradient(180deg,#ffb020,#ff6a00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #fff) drop-shadow(0 6px 10px rgba(10,40,120,.25))}' +
+    '#fx-intro p{color:#0b1a5c;font-weight:800;opacity:1}' +
+    '#fx-intro .fx-ibar{background:rgba(11,26,92,.12);border:2px solid #fff}' +
+    '#fx-intro .fx-ibar i{background:linear-gradient(90deg,#22d3ee,#2563ff,#ffb020)}' +
+    '#fx-intro .fx-start{color:#fff;background:linear-gradient(180deg,#4ade80,#16a34a);box-shadow:0 6px 0 #0f6b30,0 0 22px rgba(74,222,128,.6);text-shadow:0 2px 0 rgba(0,0,0,.25);letter-spacing:.08em}' +
     '@media (prefers-reduced-motion:reduce){#fx-intro *,#fx-wipe *{animation:none!important}}';
   var st = doc.createElement('style'); st.id = 'fx-css'; st.textContent = css; (doc.head || root).appendChild(st);
 
@@ -199,7 +210,7 @@
     o = o || {}; if (!on() || !doc.body) return;
     try { if (sessionStorage.getItem('aula_intro_visto') === '1' && !o.siempre) return; sessionStorage.setItem('aula_intro_visto', '1'); } catch (e) {}
     var d = doc.createElement('div'); d.id = 'fx-intro'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Bienvenida');
-    d.innerHTML = '<div class="fx-stars"></div><div class="fx-box"><div class="fx-logo">' + esc(o.icono || '🎮') + '</div><h1>' + esc(o.titulo || 'AULA GAMIFICADA') + '</h1><p>' + esc(o.sub || '') + '</p><div class="fx-ibar"><i></i></div><button type="button" class="fx-start">▶ PRESIONA PARA EMPEZAR</button></div>';
+    d.innerHTML = '<div class="fx-stars"></div><div class="fx-box"><div class="fx-logo">' + (o.imagen ? '<img class="fx-img" alt="" src="' + esc(o.imagen) + '">' : esc(o.icono || '🎮')) + '</div><h1>' + esc(o.titulo || 'AULA GAMIFICADA') + '</h1><p>' + esc(o.sub || '') + '</p><div class="fx-ibar"><i></i></div><button type="button" class="fx-start">' + esc(o.boton || '▶ PRESIONA PARA EMPEZAR') + '</button></div>';
     doc.body.appendChild(d);
     var cerrado = false;
     function cerrar() { if (cerrado) return; cerrado = true; doc.removeEventListener('keydown', tecla, true); d.classList.add('fx-out'); setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 560); }

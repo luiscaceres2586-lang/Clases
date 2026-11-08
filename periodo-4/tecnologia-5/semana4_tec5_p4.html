@@ -600,8 +600,8 @@ details p{font-size:.82rem;color:var(--text2);margin-top:7px;line-height:1.7;}
 .aviso-mejor-nota{background:#fff8dc;border:3px solid var(--accent,#F59E0B);border-radius:14px;padding:10px 14px;margin:8px auto 14px;max-width:480px;font-family:var(--font-ui,inherit);font-size:.85rem;color:var(--primary-dark,#1e3a8a);line-height:1.6;}
 .aviso-mejor-nota span{font-size:.78rem;}
 </style>
-<script src="../../recursos/js/aula-config.js"></script>
-<script src="../../recursos/js/aula-contexto.js"></script>
+<script src="../../recursos/js/aula-config.js?v=20261108c"></script>
+<script src="../../recursos/js/aula-contexto.js?v=20261108c"></script>
 </head>
 <body>
 <div id="app">
@@ -4005,11 +4005,6 @@ let pd_activeTab='stats';
 let pd_timerSecs=0, pd_timerTicking=false, pd_timerInt=null;
 
 (function initPanel(){
-  const lnk=document.createElement('link');
-  lnk.rel='stylesheet';
-  lnk.href='https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Orbitron:wght@700;900&display=swap';
-  document.head.appendChild(lnk);
-
   const style=document.createElement('style');
   style.textContent=`
     #pd-secret-L.escuchando{color:var(--gold)!important;text-shadow:0 0 14px rgba(255,215,0,.7);animation:lPulse .6s infinite alternate}

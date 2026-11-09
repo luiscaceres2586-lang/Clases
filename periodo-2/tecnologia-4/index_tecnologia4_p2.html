@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tecnología 4° · Período 2</title>
+<link rel="stylesheet" href="../../recursos/css/fuentes.css">
+<script src="../../recursos/js/aula-sync.js?v=1"></script>
+<script src="../../recursos/js/aula-config.js?v=20261108c"></script>
+<script src="../../recursos/js/aula-contexto.js?v=20261108c"></script>
+<script src="../../recursos/js/aula-fx.js"></script>
+<style>
+/* ÍNDICE DE CURSO — plantilla con texto (sin imagen de fondo). Generada por herramientas/crear_indice.py */
+:root{--c1:#22d3ee;--c2:#2563ff;--pc:#8B5CF6;--navy:#0b1a5c}
+*{box-sizing:border-box}html{background:#2f8cff}
+body{margin:0;min-height:100vh;font-family:"Nunito","Trebuchet MS",system-ui,sans-serif;color:var(--navy);
+ background:radial-gradient(800px 420px at 12% -4%,rgba(255,255,255,.75),transparent 62%),radial-gradient(700px 420px at 92% 18%,rgba(255,236,150,.55),transparent 60%),linear-gradient(180deg,#2f8cff 0%,#5ab8ff 52%,#c4ecff 100%) fixed}
+.wrap{max-width:1080px;margin:0 auto;padding:18px 14px 40px}
+.hero{text-align:center;margin:8px 0 18px}
+.hero .plate{display:block;width:fit-content;max-width:100%;margin:0 auto;padding:8px clamp(14px,4vw,30px) 10px;background:rgba(255,255,255,.92);border:4px solid #fff;border-radius:28px;box-shadow:0 10px 24px rgba(10,50,140,.28)}
+.hero h1{margin:0;font-size:clamp(2.1rem,8vw,4rem);font-weight:900;line-height:1;letter-spacing:.02em;background:linear-gradient(180deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero .per{display:inline-block;margin-top:10px;font-weight:900;font-size:clamp(1rem,3.6vw,1.4rem);padding:5px 18px;border-radius:999px;background:#fff;color:var(--navy);border:4px solid var(--pc);box-shadow:0 0 18px var(--pc)}
+.hero p{margin:12px 0 0;font-weight:800;font-size:clamp(1rem,3.4vw,1.25rem)}
+.panel{background:rgba(255,255,255,.7);border:4px solid #fff;border-radius:30px;padding:16px;box-shadow:0 14px 32px rgba(10,50,140,.22);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.yo{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.yo img{width:64px;height:64px;border-radius:50%;border:4px solid var(--c1);background:#fff;object-fit:cover}
+.yo b{font-size:1.2rem}.yo small{display:block;font-weight:800;opacity:.8}.yo .sp{flex:1}
+.btn{font:inherit;font-weight:900;cursor:pointer;border:4px solid var(--navy);border-radius:999px;padding:8px 18px;color:var(--navy);background:linear-gradient(180deg,#fff,#dbe9ff);box-shadow:0 5px 0 #7ea3e8;text-decoration:none;display:inline-block}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 #7ea3e8}
+.btn.go{color:#fff;border-color:#0f6b30;background:linear-gradient(180deg,#4ade80,#16a34a);box-shadow:0 5px 0 #0f6b30;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.sin{text-align:center;padding:10px 6px}.sin img{height:150px;filter:drop-shadow(0 8px 10px rgba(10,40,120,.35))}.sin h2{margin:6px 0 4px;font-size:1.6rem}.sin p{font-weight:800;margin:4px 0 14px}.sin .btn{margin:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:18px}
+.tarj{position:relative;overflow:hidden;background:#fff;border:5px solid #fff;border-radius:28px;padding:0 0 16px;box-shadow:0 8px 0 rgba(30,80,170,.35),0 16px 26px rgba(10,40,120,.25);display:flex;flex-direction:column;text-align:center}
+.tarj:before{content:"";height:12px;background:linear-gradient(90deg,var(--c1),var(--c2))}
+.tarj .n{margin:14px auto 6px;width:74px;height:74px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:1.9rem;color:#fff;background:linear-gradient(135deg,var(--c1),var(--c2));border:4px solid #fff;box-shadow:0 0 0 4px var(--c1),0 6px 12px rgba(0,0,0,.25);text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.tarj small{font-weight:900;letter-spacing:.1em;opacity:.7}
+.tarj h3{margin:4px 14px 4px;font-size:1.25rem;line-height:1.2}.tarj p{margin:0 14px 14px;font-weight:700;opacity:.85;min-height:1.2em}
+.tarj .btn{margin:auto 14px 0}
+.tarj.pronto{filter:grayscale(.85);opacity:.78}.tarj.pronto .btn{cursor:default;border-color:#6b7280;color:#4b5563;background:#e5e7eb;box-shadow:none}
+.pie{text-align:center;margin-top:22px}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#0b1a5c;color:#fff;font-weight:800;padding:10px 18px;border-radius:999px;display:none;z-index:50}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="plate"><h1>TECNOLOGÍA 4°</h1></div>
+    <span class="per">📅 PERÍODO 2</span>
+    <p id="saludo">¡Elige tu semana!</p>
+  </header>
+  <main class="panel">
+    <div id="yo"></div>
+    <div class="grid" id="grid"></div>
+  </main>
+  <div class="pie"><a class="btn" href="../../index.html">🏠 Volver a la portada</a></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+/* ===== CONFIGURACIÓN DEL CURSO (la rellena herramientas/crear_indice.py) ===== */
+var CURSO={area:'tec',grado:'4',periodo:2,nombreLargo:'Tecnología 4°',grupos:["401", "402", "403"]};
+var SEMANAS=[{"n": 1, "archivo": "", "titulo": "", "sub": "", "listo": false}, {"n": 2, "archivo": "", "titulo": "", "sub": "", "listo": false}, {"n": 3, "archivo": "", "titulo": "", "sub": "", "listo": false}, {"n": 4, "archivo": "", "titulo": "", "sub": "", "listo": false}, {"n": 5, "archivo": "", "titulo": "", "sub": "", "listo": false}, {"n": 6, "archivo": "", "titulo": "", "sub": "", "listo": false}, {"n": 7, "archivo": "", "titulo": "", "sub": "", "listo": false}, {"n": 8, "archivo": "", "titulo": "", "sub": "", "listo": false}, {"n": 9, "archivo": "", "titulo": "", "sub": "", "listo": false}];   /* {n, archivo, titulo, sub, listo} */
+var AVATARES=['nina-trenzas','nino-gafas','nina-coletas','nino-audifonos','nina-diadema','nino-gorra','nina-afro','nino-pecas','nina-rizos','nino-astronauta'];
+var R='../../recursos/imagenes/';
+function $(i){return document.getElementById(i)}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function toast(t){var b=$('toast');b.textContent=t;b.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(function(){b.style.display='none'},3200)}
+function avatarSrc(n){var i=(parseInt(String(n).replace('av',''),10)||1)-1;return R+'avatares/avatares_avatar-'+('0'+(i+1)).slice(-2)+'-'+(AVATARES[i]||AVATARES[0])+'.png'}
+function normalizar(n){return (n||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'_')}
+
+/* ===== sesión de la portada → misma sesión que usan las clases ===== */
+var SES=null,AVISO='';
+(function(){
+  try{
+    var A=window.AulaSync,a=A&&A.activo&&A.sesion();
+    if(!a){return}
+    var delCurso=CURSO.grupos.length?CURSO.grupos.indexOf(String(a.grupo))>=0:String(a.grupo).charAt(0)===CURSO.grado;
+    if(!delCurso){AVISO='Esta clase es de '+CURSO.grado+'°. Tu grupo es el '+a.grupo+'.';return}
+    SES={usuario:normalizar(a.nombre),nombre:a.nombre,nombreCorto:a.apodo||String(a.nombre).split(' ')[0],grado:CURSO.grado,grupo:String(a.grupo),area:CURSO.area,
+      prefijo:CURSO.area+'_'+CURSO.grado+'_'+a.grupo+'_p'+CURSO.periodo,avatar:'av'+(a.avatar||1),login_time:Date.now(),expira:Date.now()+5*60*60*1000,aula:true};
+    sessionStorage.setItem('sesion_activa',JSON.stringify(SES));sessionStorage.setItem('edu_session',JSON.stringify(SES));
+    localStorage.setItem('studentName',a.nombre);localStorage.setItem('edu_session',JSON.stringify(SES));
+  }catch(e){console.warn('Aula: ingreso omitido',e)}
+})();
+
+function irAClase(s){
+  if(!s.listo){toast('🚧 Esta semana se activará muy pronto');return}
+  if(!SES){toast('⚠️ Primero entra con tu perfil en la portada');return}
+  sessionStorage.setItem('clase_contexto',JSON.stringify({indexOrigen:location.href,indexNombre:document.title,area:CURSO.area,grado:CURSO.grado,grupo:SES.grupo,periodo:CURSO.periodo,
+    materia:CURSO.nombreLargo,prefijoIndex:SES.prefijo,semana:s.n,tema:s.titulo,storagePrefix:SES.prefijo+'_s'+s.n,studentName:SES.nombre,studentUser:SES.usuario,avatar:SES.avatar,timestamp:Date.now()}));
+  sessionStorage.setItem('desde_index','true');
+  window.AulaFX?AulaFX.ir(s.archivo):(location.href=s.archivo);
+}
+
+/* ===== pintar ===== */
+(function(){
+  var yo=$('yo');
+  if(SES){
+    var d=el('div','yo'),im=el('img');im.alt='';im.src=avatarSrc(SES.avatar);d.appendChild(im);
+    var t=el('div');t.appendChild(el('b','','¡Hola, '+SES.nombreCorto+'!'));t.appendChild(el('small','','Grupo '+SES.grupo));d.appendChild(t);d.appendChild(el('span','sp'));
+    var b=el('a','btn','👤 Cambiar de perfil');b.href='../../index.html';d.appendChild(b);yo.appendChild(d);
+  }else{
+    var s=el('div','sin'),bo=el('img');bo.alt='Bolí';bo.src=R+'personajes/personajes_boli-piensa.png';s.appendChild(bo);
+    s.appendChild(el('h2','',AVISO?'Ups, esta clase no es de tu grado':'Primero entra con tu perfil'));
+    s.appendChild(el('p','',AVISO||'Entra en la portada para que tu nota y tu avance se guarden.'));
+    var a1=el('a','btn go','🎮 Ir a la portada');a1.href='../../index.html';s.appendChild(a1);yo.appendChild(s);
+    $('saludo').textContent='Puedes mirar las semanas, pero para jugar necesitas tu perfil.';
+  }
+  var g=$('grid');
+  SEMANAS.forEach(function(s){
+    var c=el('div','tarj'+(s.listo?'':' pronto'));
+    c.appendChild(el('div','n',s.n));c.appendChild(el('small','','SEMANA '+s.n));
+    c.appendChild(el('h3','',s.listo?s.titulo:'Próximamente'));c.appendChild(el('p','',s.listo?(s.sub||''):'Esta semana aún se está preparando'));
+    var b=el('button','btn'+(s.listo?' go':''),s.listo?'🚀 ¡EMPEZAR!':'🚧 En construcción');b.type='button';b.addEventListener('click',function(){irAClase(s)});
+    c.appendChild(b);g.appendChild(c);
+  });
+})();
+</script>
+</body>
+</html>

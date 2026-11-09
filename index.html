@@ -538,7 +538,7 @@ footer{background:rgba(9,18,60,.93);color:#fff;margin-top:26px;border-radius:26p
 
 <aside class="aria" aria-live="polite">
   <div class="bub off" id="aBub"><span id="aTxt"></span></div>
-  <button class="sk" id="aBtn" type="button" aria-label="ARIA, tu asistente. Toca para oír otro consejo"><img id="aImg" alt="ARIA"></button>
+  <button class="sk" id="aBtn" type="button" aria-label="Bolí, tu guía. Toca para oír otro consejo"><img id="aImg" alt="Bolí"></button>
 </aside>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -614,21 +614,21 @@ Activa JavaScript para jugar. Enlaces directos: <a href="periodo-4/aritmetica-4/
 <script>
 /* ===== IMÁGENES (incrustadas: la portada es un solo archivo) ===== */
 window.IMG={
-"aria_asihace": "recursos/imagenes/legado/aria_asihace.webp",
-"aria_buenapreg": "recursos/imagenes/legado/aria_buenapreg.webp",
-"aria_corazon": "recursos/imagenes/legado/aria_corazon.webp",
-"aria_duda": "recursos/imagenes/legado/aria_duda.webp",
-"aria_genial": "recursos/imagenes/legado/aria_genial.webp",
-"aria_hastaluego": "recursos/imagenes/legado/aria_hastaluego.webp",
-"aria_hola": "recursos/imagenes/legado/aria_hola.webp",
-"aria_juntos": "recursos/imagenes/legado/aria_juntos.webp",
-"aria_listo": "recursos/imagenes/legado/aria_listo.webp",
-"aria_momento": "recursos/imagenes/legado/aria_momento.webp",
-"aria_paraTi": "recursos/imagenes/legado/aria_paraTi.webp",
-"aria_pista": "recursos/imagenes/legado/aria_pista.webp",
-"aria_practicar": "recursos/imagenes/legado/aria_practicar.webp",
-"aria_tupuedes": "recursos/imagenes/legado/aria_tupuedes.webp",
-"aria_vamos": "recursos/imagenes/legado/aria_vamos.webp",
+"aria_asihace": "recursos/imagenes/personajes/personajes_boli-tablet.png",
+"aria_buenapreg": "recursos/imagenes/personajes/personajes_boli-piensa.png",
+"aria_corazon": "recursos/imagenes/personajes/personajes_boli-salta.png",
+"aria_duda": "recursos/imagenes/personajes/personajes_boli-piensa.png",
+"aria_genial": "recursos/imagenes/personajes/personajes_boli-celebra.png",
+"aria_hastaluego": "recursos/imagenes/personajes/personajes_boli-saluda.png",
+"aria_hola": "recursos/imagenes/personajes/personajes_boli-saluda.png",
+"aria_juntos": "recursos/imagenes/personajes/personajes_boli-salta.png",
+"aria_listo": "recursos/imagenes/personajes/personajes_boli-trofeo.png",
+"aria_momento": "recursos/imagenes/personajes/personajes_boli-piensa.png",
+"aria_paraTi": "recursos/imagenes/personajes/personajes_boli-trofeo.png",
+"aria_pista": "recursos/imagenes/personajes/personajes_boli-senala.png",
+"aria_practicar": "recursos/imagenes/personajes/personajes_boli-tablet.png",
+"aria_tupuedes": "recursos/imagenes/personajes/personajes_boli-salta.png",
+"aria_vamos": "recursos/imagenes/personajes/personajes_boli-senala.png",
 "av1": "recursos/imagenes/avatares/avatares_avatar-01-nina-trenzas.png",
 "av2": "recursos/imagenes/avatares/avatares_avatar-02-nino-gafas.png",
 "av3": "recursos/imagenes/avatares/avatares_avatar-03-nina-coletas.png",
@@ -988,7 +988,7 @@ function abrirGate(modo,msg){
   pintarUltimo();$('gCfg').style.display=API?'none':'block';$('gIr').disabled=$('gNew').disabled=!API;$('gIr').style.opacity=$('gNew').style.opacity=API?'':'.5';
   if(API&&!RK)sincronizar(false);pintarGatePerfiles();
   if(!API)decir('aria_duda','Para el Profe: falta pegar la URL del servidor en la configuración.',9000);
-  else decir('aria_hola','¡Hola! Soy ARIA. Entra con tu perfil para guardar tu avance.',9000);
+  else decir('aria_hola','¡Hola! Soy Bolí. Entra con tu perfil para guardar tu avance.',9000);
 }
 function cerrarGate(){$('gate').classList.remove('on');document.body.style.overflow=''}
 function pintarGatePerfiles(){

@@ -28,3 +28,12 @@ Usa **Google Chrome o Microsoft Edge** al abrir los archivos con doble clic. Otr
 - Camino completo: menú de semanas → ¡EMPEZAR! → clase con el nombre del estudiante → Siguiente.
 - El botón 🌐 / 📴 bloquea las conexiones y recuerda el modo entre páginas.
 Lo que NO se pudo comprobar: la lista real de estudiantes (viene del servidor de Google) y navegadores distintos de Chrome.
+
+## Índices de curso con texto (plantilla para los períodos 1 a 3)
+- Plantilla: `recursos/plantillas/indice-curso.html`. Generador: `herramientas/crear_indice.py`.
+- Cada vez que agregues una clase `periodo-N/area-G/semanaK_..._pN.html`, ejecuta `python herramientas/crear_indice.py N area G` (por ejemplo `python herramientas/crear_indice.py 1 aritmetica 4`). Las clases que existan salen con «¡EMPEZAR!» y las que faltan con «En construcción».
+- El índice entra solo con la sesión de la portada y entrega a la clase la misma sesión que usan los índices de galaxia del período 4. No necesita imagen de fondo.
+- Cuando un período ya tenga clases publicadas, agrégalo en `PERIODOS_LISTOS` de `recursos/js/aula-config.js`.
+
+## Mascotas
+Bolí es la única mascota de la portada y los índices. ARIA vive solo dentro de las clases.

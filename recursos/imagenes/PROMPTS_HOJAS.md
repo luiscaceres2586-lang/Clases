@@ -139,3 +139,50 @@ Crea la HOJA 8 con las reglas del prompt maestro, pero con cuadrícula de 4 colu
 - Piezas pegadas o con poco espacio: "Regenera con el doble de separación entre elementos".
 - Aparecen letras o cuadrícula de ajedrez: "Sin ningún texto y sin cuadrícula: usa fondo magenta plano #FF00FF".
 - Se ven pequeñas o con poco detalle: pide solo la fila de arriba (5) y luego la de abajo (5), con el mismo estilo.
+
+---
+# HOJAS NUEVAS (9 a 11) · usar en el mismo chat, después del PROMPT MAESTRO
+Para la hoja 9, adjunta en ChatGPT las imágenes de `recursos/imagenes/referencias/` (ARIA y el escudo del colegio).
+
+## HOJA 9 · ARIA (asistente de las clases) y escudo del colegio
+```
+Crea la HOJA 9 con las reglas del prompt maestro. Adjunto imágenes de referencia de ARIA y del escudo del colegio: respeta sus formas y colores.
+ARIA es la asistente de las clases (distinta de BOLÍ): robot blanco y azul con cabeza redonda, visor negro brillante, ojos azules luminosos, auriculares laterales azules con luz, antena pequeña con bolita cian, cuerpo compacto blanco con un círculo azul brillante en el pecho (SIN letras) y manos blancas. Siempre la misma cara, proporciones y colores.
+10 elementos:
+1) ARIA saludando con una mano en alto;
+2) ARIA pensando, con un dedo junto al visor y un bombillo pequeño encendido;
+3) ARIA explicando, con una pantalla holográfica azul vacía flotando junto a ella;
+4) ARIA celebrando con los dos brazos arriba y confeti pequeño;
+5) ARIA señalando hacia la derecha;
+6) ARIA con una lupa, buscando una pista;
+7) ARIA con el pulgar arriba, animando (¡tú puedes!);
+8) escudo del colegio, redibujado limpio y de frente, con los mismos colores de la referencia (si trae letras, cámbialas por líneas decorativas);
+9) el escudo dentro de una insignia redonda con cinta, sin texto;
+10) el escudo en versión pequeña y simple, tipo ícono para un encabezado.
+```
+
+## HOJA 10 · Fotogramas de BOLÍ celebrando (para un GIF)
+```
+Crea la HOJA 10 con las reglas del prompt maestro, pero con cuadrícula de 4 columnas x 2 filas = 8 fotogramas de una animación de BOLÍ celebrando un acierto. Exactamente el mismo personaje, mismo tamaño y misma posición horizontal en todas las celdas; solo cambia la altura y la pose. Orden de izquierda a derecha y de arriba abajo:
+1) agachado, tomando impulso, con alitas abajo;
+2) empezando a saltar, alitas subiendo;
+3) en el aire con las dos alitas arriba, sonriendo;
+4) en el punto más alto, ojos cerrados de alegría, confeti de colores alrededor;
+5) comenzando a bajar, confeti cayendo;
+6) tocando el suelo, ligeramente aplastado;
+7) pequeño rebote hacia arriba;
+8) pose final feliz, alitas arriba, con una estrella dorada pequeña al lado.
+```
+
+## HOJA 11 · Fotogramas del cohete despegando (para un GIF)
+```
+Crea la HOJA 11 con las reglas del prompt maestro, pero con cuadrícula de 4 columnas x 2 filas = 8 fotogramas de un cohete de juguete (rojo y blanco, ventana azul, sin letras) despegando. Mismo cohete, mismo tamaño y centrado horizontalmente en cada celda; solo cambia su altura y la llama. Orden de izquierda a derecha y de arriba abajo:
+1) parado abajo en la celda, sin llama;
+2) vibrando, con humo gris pequeño en la base;
+3) llama pequeña naranja y más humo;
+4) se eleva un poco, llama mediana;
+5) sube más, llama grande amarilla y naranja;
+6) más alto, con estrellitas doradas alrededor;
+7) casi arriba en la celda, llama larga, estrellitas;
+8) en la parte más alta de la celda, llama larga y una estela de humo debajo.
+```

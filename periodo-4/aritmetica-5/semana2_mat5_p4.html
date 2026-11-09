@@ -1790,7 +1790,7 @@ function volverAlIndex() {
   showToast('💾 Guardado · 🔄 Sincronizado — volviendo al índice...');
   setTimeout(()=>{
     if (INDEX_URL) { window.location.href = INDEX_URL; }
-    else if (window.history.length > 1) { window.history.back(); }
+    else { (function(){try{var p=location.pathname.split('/'),d=p[p.length-2].split('-'),n=p[p.length-3].split('-')[1];location.href='index_'+d[0]+d[1]+'_p'+n+'.html'}catch(e){location.href='../../index.html'}})(); }
   }, 900);
 }
 
@@ -3576,15 +3576,15 @@ function mostrarConfirmacion() {
     ov.style.display='flex';
     ov.innerHTML=`<div class="conf-box">
       <div style="font-size:3.5rem;margin-bottom:8px">⚠️</div>
-      <div class="ttag rd" style="margin-bottom:8px">ACCESO DIRECTO — SIN SESIÓN</div>
+      <div class="ttag rd" style="margin-bottom:8px">¡UPS! ENTRASTE SIN TU PERFIL</div>
       <div class="conf-name-badge warn"><span>⚠</span><span>SIN NOMBRE</span></div>
       <div style="background:#fee2e2;border:2px solid var(--error);border-radius:10px;padding:12px;margin:10px 0;text-align:left">
         <p style="font-family:var(--font-ui);color:var(--error);font-size:.82rem;margin-bottom:4px">⚠ NOTA NO VÁLIDA</p>
         <p style="font-size:.78rem;color:#991b1b;line-height:1.6">La nota de esta sesión NO será registrada. Para que tu nota cuente, debes ingresar desde el índice de la clase.</p>
       </div>
       <p style="font-size:.78rem;color:var(--text2);margin-bottom:12px">Regresa al índice, inicia sesión y abre la clase desde allí.</p>
-      <button class="mbtn gy" style="width:100%;margin-bottom:8px;opacity:.7" onclick="cerrarConfirmacion()">⚠ Entrar de todas formas (sin nota)</button>
-      <button class="mbtn" style="width:100%;background:linear-gradient(135deg,#6b7280,#4b5563)" onclick="window.history.back()">← Volver al índice</button>
+      <button class="mbtn gr" style="width:100%;margin-bottom:10px;font-size:1rem" onclick="(function(){try{var p=location.pathname.split('/'),d=p[p.length-2].split('-'),n=p[p.length-3].split('-')[1];location.href='index_'+d[0]+d[1]+'_p'+n+'.html'}catch(e){location.href='../../index.html'}})()">📚 Ir al índice y entrar con mi perfil</button>
+      <button class="mbtn gy" style="width:100%;opacity:.8;font-size:.72rem" onclick="cerrarConfirmacion()">Entrar sin nota (solo mirar)</button>
     </div>`;
   }
 }

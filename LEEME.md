@@ -19,3 +19,12 @@
 
 ## Período en curso
 En `recursos/js/aula-config.js` cambia `PERIODO_ACTUAL` (y `PERIODOS_LISTOS` cuando publiques clases de otro período). Si un estudiante abre una clase de otro período, la barra superior muestra una alerta roja.
+
+## Navegador recomendado para la copia descargada
+Usa **Google Chrome o Microsoft Edge** al abrir los archivos con doble clic. Otros navegadores (por ejemplo Firefox o Safari) pueden no compartir la sesión entre archivos locales y mostrar la pantalla «ENTRASTE SIN TU PERFIL» aunque el estudiante ya haya entrado.
+
+## Qué está comprobado (con navegador real, sin internet y con archivos locales)
+- Portada, 4 índices y clases cargan sin pedir nada de internet.
+- Camino completo: menú de semanas → ¡EMPEZAR! → clase con el nombre del estudiante → Siguiente.
+- El botón 🌐 / 📴 bloquea las conexiones y recuerda el modo entre páginas.
+Lo que NO se pudo comprobar: la lista real de estudiantes (viene del servidor de Google) y navegadores distintos de Chrome.

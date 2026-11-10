@@ -2,6 +2,7 @@
 
 Ruta desde una clase: `../../recursos/imagenes/<carpeta>/<archivo>`. Desde `index.html`: `recursos/imagenes/<carpeta>/<archivo>`.
 Todas las piezas tienen fondo transparente real. Se generaron con las hojas de PROMPTS_HOJAS.md.
+Nota: `boli-v2-*` es una segunda versión de Bolí (contorno azul marino más marcado); la portada usa por ahora la versión 1.
 
 ## areas/aritmetica/ (10)
 - `aritmetica_abaco.png`
@@ -61,6 +62,24 @@ Todas las piezas tienen fondo transparente real. Se generaron con las hojas de P
 - `iconos_sin-internet.png`
 - `iconos_trofeo-dorado.png`
 
+## legado/ (16)
+- `ch_azul.webp`
+- `ch_bus.webp`
+- `ch_capucha.webp`
+- `ch_llama.webp`
+- `ch_osa.webp`
+- `ch_robot.webp`
+- `ch_roja.webp`
+- `ch_rubio.webp`
+- `escudo.webp`
+- `it_cofre.webp`
+- `it_corona.webp`
+- `it_docente.webp`
+- `it_gema.webp`
+- `ui_edificio.webp`
+- `ui_nina_listo.webp`
+- `ui_nina_lupa.webp`
+
 ## login/ (5)
 - `login_candado-abierto.png`
 - `login_candado-cerrado.png`
@@ -76,7 +95,14 @@ Todas las piezas tienen fondo transparente real. Se generaron con las hojas de P
 - `periodos_periodo-3.png`
 - `periodos_periodo-4.png`
 
-## personajes/ (11)
+## personajes/ (28)
+- `personajes_aria-celebra.png`
+- `personajes_aria-explica.png`
+- `personajes_aria-lupa.png`
+- `personajes_aria-piensa.png`
+- `personajes_aria-pulgar.png`
+- `personajes_aria-saluda.png`
+- `personajes_aria-senala.png`
 - `personajes_boli-animo.png`
 - `personajes_boli-birrete.png`
 - `personajes_boli-celebra.png`
@@ -88,6 +114,16 @@ Todas las piezas tienen fondo transparente real. Se generaron con las hojas de P
 - `personajes_boli-senala.png`
 - `personajes_boli-tablet.png`
 - `personajes_boli-trofeo.png`
+- `personajes_boli-v2-birrete.png`
+- `personajes_boli-v2-laptop.png`
+- `personajes_boli-v2-libro.png`
+- `personajes_boli-v2-lupa.png`
+- `personajes_boli-v2-piensa.png`
+- `personajes_boli-v2-pompones.png`
+- `personajes_boli-v2-pulgar.png`
+- `personajes_boli-v2-salta.png`
+- `personajes_boli-v2-saluda.png`
+- `personajes_boli-v2-trofeo.png`
 
 ## portada/ (5)
 - `portada_cohete-despegando.png`

@@ -2,7 +2,9 @@
 
 Ruta desde una clase: `../../recursos/imagenes/<carpeta>/<archivo>`. Desde `index.html`: `recursos/imagenes/<carpeta>/<archivo>`.
 Todas las piezas tienen fondo transparente real. Se generaron con las hojas de PROMPTS_HOJAS.md.
-Nota: `boli-v2-*` es una segunda versión de Bolí (contorno azul marino más marcado); la portada usa por ahora la versión 1.
+- `boli-v2-*` es una segunda versión de Bolí (contorno azul marino más marcado); la portada usa por ahora la versión 1.
+- `escudo/` tiene el escudo OFICIAL del colegio (archivo original `escudo_simon-bolivar-oficial.png` y versiones de 300, 120 y 64 px de alto) y las insignias con ese escudo dentro. El escudo nunca se redibuja con IA: sus letras salen con errores.
+- `marcos/` son marcos vacíos (el centro es transparente) para poner dentro un escudo, una imagen o un texto.
 
 ## areas/aritmetica/ (10)
 - `aritmetica_abaco.png`
@@ -40,6 +42,19 @@ Nota: `boli-v2-*` es una segunda versión de Bolí (contorno azul marino más ma
 - `avatares_avatar-09-nina-rizos.png`
 - `avatares_avatar-10-nino-astronauta.png`
 
+## escudo/ (11)
+- `escudo_insignia-circulo-cian.png`
+- `escudo_insignia-circulo-naranja.png`
+- `escudo_insignia-hexagono-dorado.png`
+- `escudo_insignia-insignia-laureles-cinta.png`
+- `escudo_insignia-insignia-laureles.png`
+- `escudo_insignia-medalla-listones.png`
+- `escudo_insignia-ovalo-estrellas.png`
+- `escudo_simon-bolivar-120.png`
+- `escudo_simon-bolivar-300.png`
+- `escudo_simon-bolivar-64.png`
+- `escudo_simon-bolivar-oficial.png`
+
 ## gif/ (2)
 - `gif_boli-saluda.gif`
 - `gif_boli-saluda.webp`
@@ -62,7 +77,7 @@ Nota: `boli-v2-*` es una segunda versión de Bolí (contorno azul marino más ma
 - `iconos_sin-internet.png`
 - `iconos_trofeo-dorado.png`
 
-## legado/ (16)
+## legado/ (15)
 - `ch_azul.webp`
 - `ch_bus.webp`
 - `ch_capucha.webp`
@@ -71,7 +86,6 @@ Nota: `boli-v2-*` es una segunda versión de Bolí (contorno azul marino más ma
 - `ch_robot.webp`
 - `ch_roja.webp`
 - `ch_rubio.webp`
-- `escudo.webp`
 - `it_cofre.webp`
 - `it_corona.webp`
 - `it_docente.webp`
@@ -86,6 +100,18 @@ Nota: `boli-v2-*` es una segunda versión de Bolí (contorno azul marino más ma
 - `login_gafete-estudiante.png`
 - `login_llave-dorada.png`
 - `login_pin-cuatro-puntos.png`
+
+## marcos/ (10)
+- `marcos_blason-rojo.png`
+- `marcos_cinta-ondulada.png`
+- `marcos_circulo-cian.png`
+- `marcos_circulo-naranja.png`
+- `marcos_hexagono-dorado.png`
+- `marcos_insignia-laureles-cinta.png`
+- `marcos_insignia-laureles.png`
+- `marcos_medalla-listones.png`
+- `marcos_ovalo-estrellas.png`
+- `marcos_placa-azul-dorada.png`
 
 ## periodos/ (6)
 - `periodos_calendario-semana.png`

@@ -221,3 +221,7 @@ Crea la HOJA 13 con las reglas del prompt maestro. 10 elementos de decoración y
 9) lápiz amarillo con borrador rosa y estrellitas a su alrededor;
 10) bombillo de ideas encendido con rayos amarillos.
 ```
+
+---
+## HOJA 9B · Marcos vacíos (ya generada y recortada en `marcos/`)
+El escudo del colegio NO se redibuja con IA (sus letras salen con errores). Se usa siempre el original: `escudo/escudo_simon-bolivar-oficial.png`. Los marcos tienen el centro transparente y las insignias de `escudo/` ya llevan el escudo oficial dentro.

@@ -186,3 +186,38 @@ Crea la HOJA 11 con las reglas del prompt maestro, pero con cuadrícula de 4 col
 7) casi arriba en la celda, llama larga, estrellitas;
 8) en la parte más alta de la celda, llama larga y una estela de humo debajo.
 ```
+
+---
+# HOJAS 12 y 13 · reemplazo de imágenes antiguas (la liga usaba personajes parecidos a Fortnite, que tiene derechos de autor)
+
+## HOJA 12 · Corredores originales de la liga y medallas de nivel
+```
+Crea la HOJA 12 con las reglas del prompt maestro. 10 elementos, todos del mismo tamaño y en la misma vista 3/4:
+CORREDORES de la liga (uno por grupo): niños y niñas exploradores de cuerpo completo, corriendo hacia la DERECHA, con una sudadera con capucha de un animal distinto, mochila pequeña, tenis blancos, sonrientes, sin letras ni logos. Personajes 100% originales, estilo clay brillante igual que BOLÍ.
+1) Grupo 401, color verde #46D063: niña con capucha de oso verde claro con orejitas redondas, cabello negro en coleta;
+2) Grupo 402, color rojo #FF5A68: niño de piel trigueña con capucha de zorro rojo con orejas puntiagudas;
+3) Grupo 403, color amarillo #FFD23F: niña de peinado afro con capucha de leoncito amarillo con melena de pompones;
+4) Grupo 501, color azul #2563FF: niño con capucha de delfín azul con una aleta en la capucha y gafas de natación sobre la frente;
+5) Grupo 502, color morado #9A73FF: niña con capucha de búho morado con plumitas en las orejas y lentes redondos.
+MEDALLAS de nivel (redondas con listón, sin texto):
+6) NOVATO: medalla de bronce con una estrella grande;
+7) EXPLORADOR: medalla de plata con una brújula;
+8) AVENTURERO: medalla azul con una gema facetada;
+9) CAMPEÓN: medalla de oro con una corona;
+10) LEYENDA: medalla de oro grande y la más elaborada, con un trofeo, alitas pequeñas a los lados y destellos.
+```
+
+## HOJA 13 · Colegio, decoración y premios de la portada
+```
+Crea la HOJA 13 con las reglas del prompt maestro. 10 elementos de decoración y premios, todos del mismo tamaño aproximado:
+1) el colegio: escuela de dos pisos color crema y amarillo, techo de teja roja, reloj redondo sobre la puerta, bandera de Colombia en el mástil, un árbol verde a cada lado, SIN letras;
+2) bandera de Colombia ondeando en un asta: franja amarilla ancha arriba, azul y roja debajo, sin escudo;
+3) placa o cinta horizontal VACÍA azul marino con borde dorado, sin ningún texto (para escribir el nombre del docente);
+4) corona dorada del líder con joyas rojas y azules;
+5) cofre del tesoro de madera con herrajes dorados y una estrella en la tapa, entreabierto con un brillo dentro;
+6) gema azul facetada, brillante;
+7) mochila escolar azul con un bolsillo naranja y cierre;
+8) libro abierto con destellos sobre las páginas, sin letras;
+9) lápiz amarillo con borrador rosa y estrellitas a su alrededor;
+10) bombillo de ideas encendido con rayos amarillos.
+```

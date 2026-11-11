@@ -38,6 +38,9 @@ body{margin:0;min-height:100vh;font-family:"Nunito","Trebuchet MS",system-ui,san
 .tarj .btn{margin:auto 14px 0}
 .tarj.pronto{filter:grayscale(.85);opacity:.78}.tarj.pronto .btn{cursor:default;border-color:#6b7280;color:#4b5563;background:#e5e7eb;box-shadow:none}
 .pie{text-align:center;margin-top:22px}
+.tarj .av{margin:0 18px 6px;height:12px;border-radius:99px;background:rgba(11,26,92,.14);overflow:hidden}.tarj .av i{display:block;height:100%;background:linear-gradient(90deg,var(--c1),var(--c2));border-radius:99px}
+.tarj .nt{margin:0 14px 12px;font-weight:900;font-size:.92rem}.tarj.hecha .n{background:linear-gradient(135deg,#4ade80,#16a34a);box-shadow:0 0 0 4px #4ade80,0 6px 12px rgba(0,0,0,.25)}
+.resu{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:0 0 14px;font-weight:900}.resu span{background:#fff;border:3px solid var(--c1);border-radius:999px;padding:3px 14px}
 .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#0b1a5c;color:#fff;font-weight:800;padding:10px 18px;border-radius:999px;display:none;z-index:50}
 </style>
 </head>
@@ -91,6 +94,20 @@ function irAClase(s){
   window.AulaFX?AulaFX.ir(s.archivo):(location.href=s.archivo);
 }
 
+/* ===== avance guardado por la clase (mismo formato que usa el índice de galaxia) ===== */
+function progreso(n){
+  if(!SES)return null;
+  var base=SES.prefijo+'_s'+n+'_'+SES.usuario,visto=null;
+  /* Las clases guardan su resumen en «_resumen» o en «_data» según su versión: se revisan las dos */
+  for(var i=0,ks=['_resumen','_data'];i<ks.length;i++){
+    try{var raw=localStorage.getItem(base+ks[i]);if(!raw)continue;var o=JSON.parse(raw);
+      var p=o.porcentajeAvance!=null?o.porcentajeAvance:o.porcentaje;
+      if(p!=null||o.nota!=null)return{nota:parseFloat(o.nota)||0,pct:Math.max(0,Math.min(100,parseInt(p,10)||0)),ok:!!o.completada,curso:false};
+      if(o.seen||o.slide!=null)visto={nota:0,pct:0,ok:false,curso:true};
+    }catch(e){}
+  }
+  return visto;
+}
 /* ===== pintar ===== */
 (function(){
   var yo=$('yo');
@@ -106,13 +123,20 @@ function irAClase(s){
     $('saludo').textContent='Puedes mirar las semanas, pero para jugar necesitas tu perfil.';
   }
   var g=$('grid');
+  var hechas=0,sumaNota=0,conNota=0;
   SEMANAS.forEach(function(s){
-    var c=el('div','tarj'+(s.listo?'':' pronto'));
-    c.appendChild(el('div','n',s.n));c.appendChild(el('small','','SEMANA '+s.n));
+    var pr=s.listo?progreso(s.n):null;if(pr&&pr.ok)hechas++;if(pr&&pr.nota>0){sumaNota+=pr.nota;conNota++}
+    var c=el('div','tarj'+(s.listo?'':' pronto')+(pr&&pr.ok?' hecha':''));
+    c.appendChild(el('div','n',pr&&pr.ok?'✓':s.n));c.appendChild(el('small','','SEMANA '+s.n));
     c.appendChild(el('h3','',s.listo?s.titulo:'Próximamente'));c.appendChild(el('p','',s.listo?(s.sub||''):'Esta semana aún se está preparando'));
-    var b=el('button','btn'+(s.listo?' go':''),s.listo?'🚀 ¡EMPEZAR!':'🚧 En construcción');b.type='button';b.addEventListener('click',function(){irAClase(s)});
+    if(pr&&pr.curso){c.appendChild(el('div','nt','⏳ En curso'))}
+    if(pr&&pr.pct>0){var av=el('div','av'),fi=el('i');fi.style.width=pr.pct+'%';av.appendChild(fi);c.appendChild(av);c.appendChild(el('div','nt',(pr.ok?'✅ Completada':'Avance '+pr.pct+'%')+' · Nota '+pr.nota.toFixed(1)))}
+    var txt=!s.listo?'🚧 En construcción':(pr&&pr.ok?'🔁 Repasar':((pr&&(pr.pct>0||pr.curso))?'▶ Continuar':'🚀 ¡EMPEZAR!'));
+    var b=el('button','btn'+(s.listo?' go':''),txt);b.type='button';b.addEventListener('click',function(){irAClase(s)});
     c.appendChild(b);g.appendChild(c);
   });
+  var listas=SEMANAS.filter(function(s){return s.listo}).length;
+  if(SES&&listas){var r=el('div','resu');r.appendChild(el('span','','📘 Semanas completadas: '+hechas+' de '+listas));if(conNota)r.appendChild(el('span','','⭐ Promedio: '+(sumaNota/conNota).toFixed(1)));yo.appendChild(r)}
 })();
 </script>
 </body>

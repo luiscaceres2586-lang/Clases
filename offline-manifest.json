@@ -1,0 +1,678 @@
+{
+"nucleo": [
+{
+"u": "index.html",
+"s": 99363
+},
+{
+"u": "recursos/css/fuentes.css",
+"s": 1635
+},
+{
+"u": "recursos/fuentes/fredoka-one-latin-400-normal.woff2",
+"s": 15596
+},
+{
+"u": "recursos/fuentes/nunito-latin-400-normal.woff2",
+"s": 16316
+},
+{
+"u": "recursos/fuentes/nunito-latin-600-normal.woff2",
+"s": 16556
+},
+{
+"u": "recursos/fuentes/nunito-latin-700-normal.woff2",
+"s": 16228
+},
+{
+"u": "recursos/fuentes/nunito-latin-800-normal.woff2",
+"s": 16520
+},
+{
+"u": "recursos/fuentes/nunito-latin-900-normal.woff2",
+"s": 16676
+},
+{
+"u": "recursos/fuentes/orbitron-latin-700-normal.woff2",
+"s": 6528
+},
+{
+"u": "recursos/fuentes/orbitron-latin-900-normal.woff2",
+"s": 6400
+},
+{
+"u": "recursos/fuentes/press-start-2p-latin-400-normal.woff2",
+"s": 12512
+},
+{
+"u": "recursos/fuentes/unifrakturmaguntia-latin-400-normal.woff2",
+"s": 26512
+},
+{
+"u": "recursos/imagenes/areas/aritmetica/aritmetica_abaco.png",
+"s": 151836
+},
+{
+"u": "recursos/imagenes/areas/aritmetica/aritmetica_balanza.png",
+"s": 122288
+},
+{
+"u": "recursos/imagenes/areas/aritmetica/aritmetica_calculadora.png",
+"s": 151765
+},
+{
+"u": "recursos/imagenes/areas/aritmetica/aritmetica_libro-lapiz.png",
+"s": 118694
+},
+{
+"u": "recursos/imagenes/areas/aritmetica/aritmetica_monedas-apiladas.png",
+"s": 116608
+},
+{
+"u": "recursos/imagenes/areas/aritmetica/aritmetica_pizza-fracciones.png",
+"s": 176434
+},
+{
+"u": "recursos/imagenes/areas/aritmetica/aritmetica_regla-escuadra.png",
+"s": 107736
+},
+{
+"u": "recursos/imagenes/areas/aritmetica/aritmetica_signo-dividir.png",
+"s": 77029
+},
+{
+"u": "recursos/imagenes/areas/aritmetica/aritmetica_signo-mas.png",
+"s": 69247
+},
+{
+"u": "recursos/imagenes/areas/aritmetica/aritmetica_signo-por.png",
+"s": 98978
+},
+{
+"u": "recursos/imagenes/areas/tecnologia/tecnologia_audifonos-microfono.png",
+"s": 114630
+},
+{
+"u": "recursos/imagenes/areas/tecnologia/tecnologia_chip-circuito.png",
+"s": 107205
+},
+{
+"u": "recursos/imagenes/areas/tecnologia/tecnologia_codigo-ventana.png",
+"s": 82430
+},
+{
+"u": "recursos/imagenes/areas/tecnologia/tecnologia_engranajes.png",
+"s": 101151
+},
+{
+"u": "recursos/imagenes/areas/tecnologia/tecnologia_escudo-seguridad.png",
+"s": 107980
+},
+{
+"u": "recursos/imagenes/areas/tecnologia/tecnologia_laptop-carita.png",
+"s": 137447
+},
+{
+"u": "recursos/imagenes/areas/tecnologia/tecnologia_memoria-usb.png",
+"s": 80637
+},
+{
+"u": "recursos/imagenes/areas/tecnologia/tecnologia_monitor-escritorio.png",
+"s": 81661
+},
+{
+"u": "recursos/imagenes/areas/tecnologia/tecnologia_nube-wifi.png",
+"s": 95446
+},
+{
+"u": "recursos/imagenes/areas/tecnologia/tecnologia_robot-juguete.png",
+"s": 128531
+},
+{
+"u": "recursos/imagenes/avatares/avatares_avatar-01-nina-trenzas.png",
+"s": 181145
+},
+{
+"u": "recursos/imagenes/avatares/avatares_avatar-02-nino-gafas.png",
+"s": 177825
+},
+{
+"u": "recursos/imagenes/avatares/avatares_avatar-03-nina-coletas.png",
+"s": 256904
+},
+{
+"u": "recursos/imagenes/avatares/avatares_avatar-04-nino-audifonos.png",
+"s": 173752
+},
+{
+"u": "recursos/imagenes/avatares/avatares_avatar-05-nina-diadema.png",
+"s": 194291
+},
+{
+"u": "recursos/imagenes/avatares/avatares_avatar-06-nino-gorra.png",
+"s": 161466
+},
+{
+"u": "recursos/imagenes/avatares/avatares_avatar-07-nina-afro.png",
+"s": 223876
+},
+{
+"u": "recursos/imagenes/avatares/avatares_avatar-08-nino-pecas.png",
+"s": 179791
+},
+{
+"u": "recursos/imagenes/avatares/avatares_avatar-09-nina-rizos.png",
+"s": 253875
+},
+{
+"u": "recursos/imagenes/avatares/avatares_avatar-10-nino-astronauta.png",
+"s": 204018
+},
+{
+"u": "recursos/imagenes/escudo/escudo_insignia-circulo-cian.png",
+"s": 133085
+},
+{
+"u": "recursos/imagenes/escudo/escudo_insignia-circulo-naranja.png",
+"s": 133703
+},
+{
+"u": "recursos/imagenes/escudo/escudo_insignia-hexagono-dorado.png",
+"s": 114978
+},
+{
+"u": "recursos/imagenes/escudo/escudo_insignia-insignia-laureles-cinta.png",
+"s": 198090
+},
+{
+"u": "recursos/imagenes/escudo/escudo_insignia-insignia-laureles.png",
+"s": 208723
+},
+{
+"u": "recursos/imagenes/escudo/escudo_insignia-medalla-listones.png",
+"s": 158534
+},
+{
+"u": "recursos/imagenes/escudo/escudo_insignia-ovalo-estrellas.png",
+"s": 143029
+},
+{
+"u": "recursos/imagenes/escudo/escudo_simon-bolivar-120.png",
+"s": 25988
+},
+{
+"u": "recursos/imagenes/escudo/escudo_simon-bolivar-300.png",
+"s": 113989
+},
+{
+"u": "recursos/imagenes/escudo/escudo_simon-bolivar-64.png",
+"s": 8856
+},
+{
+"u": "recursos/imagenes/escudo/escudo_simon-bolivar-oficial.png",
+"s": 432314
+},
+{
+"u": "recursos/imagenes/gif/gif_boli-saluda.gif",
+"s": 318756
+},
+{
+"u": "recursos/imagenes/gif/gif_boli-saluda.webp",
+"s": 214654
+},
+{
+"u": "recursos/imagenes/grados/grados_numero-4.png",
+"s": 92968
+},
+{
+"u": "recursos/imagenes/grados/grados_numero-5.png",
+"s": 105994
+},
+{
+"u": "recursos/imagenes/iconos/iconos_bandera-meta.png",
+"s": 96869
+},
+{
+"u": "recursos/imagenes/iconos/iconos_boton-jugar.png",
+"s": 100476
+},
+{
+"u": "recursos/imagenes/iconos/iconos_check-acierto.png",
+"s": 101892
+},
+{
+"u": "recursos/imagenes/iconos/iconos_corazon-vida.png",
+"s": 91825
+},
+{
+"u": "recursos/imagenes/iconos/iconos_en-construccion.png",
+"s": 102580
+},
+{
+"u": "recursos/imagenes/iconos/iconos_en-linea.png",
+"s": 123400
+},
+{
+"u": "recursos/imagenes/iconos/iconos_equis-error.png",
+"s": 107016
+},
+{
+"u": "recursos/imagenes/iconos/iconos_estrella-xp.png",
+"s": 84888
+},
+{
+"u": "recursos/imagenes/iconos/iconos_llama-racha.png",
+"s": 93519
+},
+{
+"u": "recursos/imagenes/iconos/iconos_moneda-estrella.png",
+"s": 103233
+},
+{
+"u": "recursos/imagenes/iconos/iconos_sin-internet.png",
+"s": 103165
+},
+{
+"u": "recursos/imagenes/iconos/iconos_trofeo-dorado.png",
+"s": 144332
+},
+{
+"u": "recursos/imagenes/legado/ch_azul.webp",
+"s": 29232
+},
+{
+"u": "recursos/imagenes/legado/ch_bus.webp",
+"s": 19758
+},
+{
+"u": "recursos/imagenes/legado/ch_capucha.webp",
+"s": 27560
+},
+{
+"u": "recursos/imagenes/legado/ch_llama.webp",
+"s": 15074
+},
+{
+"u": "recursos/imagenes/legado/ch_osa.webp",
+"s": 23994
+},
+{
+"u": "recursos/imagenes/legado/ch_robot.webp",
+"s": 22542
+},
+{
+"u": "recursos/imagenes/legado/ch_roja.webp",
+"s": 29066
+},
+{
+"u": "recursos/imagenes/legado/ch_rubio.webp",
+"s": 21238
+},
+{
+"u": "recursos/imagenes/legado/it_cofre.webp",
+"s": 6916
+},
+{
+"u": "recursos/imagenes/legado/it_corona.webp",
+"s": 2982
+},
+{
+"u": "recursos/imagenes/legado/it_docente.webp",
+"s": 10922
+},
+{
+"u": "recursos/imagenes/legado/it_gema.webp",
+"s": 2540
+},
+{
+"u": "recursos/imagenes/legado/ui_edificio.webp",
+"s": 14738
+},
+{
+"u": "recursos/imagenes/legado/ui_nina_listo.webp",
+"s": 20170
+},
+{
+"u": "recursos/imagenes/legado/ui_nina_lupa.webp",
+"s": 25336
+},
+{
+"u": "recursos/imagenes/login/login_candado-abierto.png",
+"s": 124818
+},
+{
+"u": "recursos/imagenes/login/login_candado-cerrado.png",
+"s": 100861
+},
+{
+"u": "recursos/imagenes/login/login_gafete-estudiante.png",
+"s": 112718
+},
+{
+"u": "recursos/imagenes/login/login_llave-dorada.png",
+"s": 101882
+},
+{
+"u": "recursos/imagenes/login/login_pin-cuatro-puntos.png",
+"s": 72526
+},
+{
+"u": "recursos/imagenes/periodos/periodos_calendario-semana.png",
+"s": 114399
+},
+{
+"u": "recursos/imagenes/periodos/periodos_camino-tablero.png",
+"s": 138015
+},
+{
+"u": "recursos/imagenes/periodos/periodos_periodo-1.png",
+"s": 107126
+},
+{
+"u": "recursos/imagenes/periodos/periodos_periodo-2.png",
+"s": 113764
+},
+{
+"u": "recursos/imagenes/periodos/periodos_periodo-3.png",
+"s": 116391
+},
+{
+"u": "recursos/imagenes/periodos/periodos_periodo-4.png",
+"s": 106296
+},
+{
+"u": "recursos/imagenes/personajes/personajes_aria-celebra.png",
+"s": 191174
+},
+{
+"u": "recursos/imagenes/personajes/personajes_aria-explica.png",
+"s": 183008
+},
+{
+"u": "recursos/imagenes/personajes/personajes_aria-lupa.png",
+"s": 175924
+},
+{
+"u": "recursos/imagenes/personajes/personajes_aria-piensa.png",
+"s": 165101
+},
+{
+"u": "recursos/imagenes/personajes/personajes_aria-pulgar.png",
+"s": 176886
+},
+{
+"u": "recursos/imagenes/personajes/personajes_aria-saluda.png",
+"s": 168730
+},
+{
+"u": "recursos/imagenes/personajes/personajes_aria-senala.png",
+"s": 146177
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-animo.png",
+"s": 121481
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-birrete.png",
+"s": 153867
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-celebra.png",
+"s": 136707
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-duerme.png",
+"s": 116657
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-piensa.png",
+"s": 134090
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-quieto.png",
+"s": 74394
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-salta.png",
+"s": 120631
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-saluda.png",
+"s": 137704
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-senala.png",
+"s": 123652
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-tablet.png",
+"s": 123428
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-trofeo.png",
+"s": 141022
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-v2-birrete.png",
+"s": 157932
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-v2-laptop.png",
+"s": 153060
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-v2-libro.png",
+"s": 137960
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-v2-lupa.png",
+"s": 140952
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-v2-piensa.png",
+"s": 150380
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-v2-pompones.png",
+"s": 133351
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-v2-pulgar.png",
+"s": 140055
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-v2-salta.png",
+"s": 126146
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-v2-saluda.png",
+"s": 140999
+},
+{
+"u": "recursos/imagenes/personajes/personajes_boli-v2-trofeo.png",
+"s": 136403
+},
+{
+"u": "recursos/imagenes/portada/portada_cohete-despegando.png",
+"s": 137769
+},
+{
+"u": "recursos/imagenes/portada/portada_emblema-escudo-cohete.png",
+"s": 152125
+},
+{
+"u": "recursos/imagenes/portada/portada_planeta-anillo.png",
+"s": 113739
+},
+{
+"u": "recursos/imagenes/portada/portada_portal-entrada.png",
+"s": 135394
+},
+{
+"u": "recursos/imagenes/portada/portada_tablet-carita.png",
+"s": 103967
+},
+{
+"u": "recursos/js/aula-config.js",
+"s": 804
+},
+{
+"u": "recursos/js/aula-contexto.js",
+"s": 10279
+},
+{
+"u": "recursos/js/aula-fx.js",
+"s": 20069
+},
+{
+"u": "recursos/js/aula-offline.js",
+"s": 4535
+},
+{
+"u": "recursos/js/aula-puente.js",
+"s": 2484
+},
+{
+"u": "recursos/js/aula-sync.js",
+"s": 13781
+},
+{
+"u": "recursos/js/confetti.browser.js",
+"s": 17469
+}
+],
+"cursos": {
+"4-aritmetica-4": [
+{
+"u": "periodo-4/aritmetica-4/clase 1.png",
+"s": 2410392
+},
+{
+"u": "periodo-4/aritmetica-4/index_aritmetica4_p4.html",
+"s": 1933569
+},
+{
+"u": "periodo-4/aritmetica-4/semana1_mat4_p4.html",
+"s": 6406217
+},
+{
+"u": "periodo-4/aritmetica-4/semana2_mat4_p4.html",
+"s": 8312715
+},
+{
+"u": "periodo-4/aritmetica-4/semana3_mat4_p4.html",
+"s": 4594125
+},
+{
+"u": "periodo-4/aritmetica-4/semana4_mat4_p4.html",
+"s": 4613065
+},
+{
+"u": "periodo-4/aritmetica-4/semana5_mat4_p4.html",
+"s": 4912767
+},
+{
+"u": "periodo-4/aritmetica-4/semana6_mat4_p4.html",
+"s": 4873955
+}
+],
+"4-aritmetica-5": [
+{
+"u": "periodo-4/aritmetica-5/index_aritmetica5_p4.html",
+"s": 1938755
+},
+{
+"u": "periodo-4/aritmetica-5/semana1_mat5_p4.html",
+"s": 6404660
+},
+{
+"u": "periodo-4/aritmetica-5/semana2_mat5_p4.html",
+"s": 3824315
+},
+{
+"u": "periodo-4/aritmetica-5/semana3_mat5_p4.html",
+"s": 3410526
+},
+{
+"u": "periodo-4/aritmetica-5/semana4_mat5_p4.html",
+"s": 3909049
+},
+{
+"u": "periodo-4/aritmetica-5/semana5_mat5_p4.html",
+"s": 6505594
+},
+{
+"u": "periodo-4/aritmetica-5/semana6_mat5_p4.html",
+"s": 7063187
+},
+{
+"u": "periodo-4/aritmetica-5/semana7_mat5_p4.html",
+"s": 7049027
+}
+],
+"4-tecnologia-4": [
+{
+"u": "periodo-4/tecnologia-4/index_tecnologia4_p4.html",
+"s": 1747375
+},
+{
+"u": "periodo-4/tecnologia-4/semana1_tec4_p4.html",
+"s": 9187361
+},
+{
+"u": "periodo-4/tecnologia-4/semana2_tec4_p4.html",
+"s": 6572990
+},
+{
+"u": "periodo-4/tecnologia-4/semana3_tec4_p4.html",
+"s": 6577212
+},
+{
+"u": "periodo-4/tecnologia-4/semana4_tec4_p4.html",
+"s": 6586531
+},
+{
+"u": "periodo-4/tecnologia-4/semana5_tec4_p4.html",
+"s": 6972802
+},
+{
+"u": "periodo-4/tecnologia-4/semana6_tec4_p4.html",
+"s": 8523754
+},
+{
+"u": "periodo-4/tecnologia-4/semana7_tec4_p4.html",
+"s": 8860163
+}
+],
+"4-tecnologia-5": [
+{
+"u": "periodo-4/tecnologia-5/clase 1.png",
+"s": 2304884
+},
+{
+"u": "periodo-4/tecnologia-5/index_tecnologia5_p4.html",
+"s": 1422010
+},
+{
+"u": "periodo-4/tecnologia-5/semana1_tec5_p4.html",
+"s": 9190170
+},
+{
+"u": "periodo-4/tecnologia-5/semana2_tec5_p4.html",
+"s": 5650677
+},
+{
+"u": "periodo-4/tecnologia-5/semana3_tec5_p4.html",
+"s": 6229249
+},
+{
+"u": "periodo-4/tecnologia-5/semana4_tec5_p4.html",
+"s": 7855907
+},
+{
+"u": "periodo-4/tecnologia-5/semana5_tec5_p4.html",
+"s": 4329031
+}
+]
+}
+}

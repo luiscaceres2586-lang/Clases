@@ -37,3 +37,10 @@ Lo que NO se pudo comprobar: la lista real de estudiantes (viene del servidor de
 
 ## Mascotas
 Bolí es la única mascota de la portada y los índices. ARIA vive solo dentro de las clases.
+
+## Usar las clases sin internet SIN descargar el ZIP (cuando se abre la página por internet)
+- En la portada hay un botón **📥 Usar sin internet**: guarda en el equipo la portada y un curso completo (una sola vez, con internet). Después el curso abre aunque se vaya la señal.
+- Funciona con un *service worker* (`sw.js`) y una lista de archivos (`offline-manifest.json`). Solo corre en páginas https (por ejemplo GitHub Pages); con archivos locales no hace falta.
+- **Cada vez que agregues clases o imágenes, regenera la lista:** `python herramientas/crear_manifiesto.py` y sube `offline-manifest.json`.
+- Las páginas, scripts y estilos se piden primero a internet (así llegan las actualizaciones) y, si no hay señal o va muy lenta, se usa lo guardado.
+- Comprobado con navegador real: con el servidor apagado, abrió la portada, el índice y una clase guardados; una clase no guardada no abrió.

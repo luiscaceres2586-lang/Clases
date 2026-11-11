@@ -37,6 +37,8 @@
 
   var me = document.currentScript, base = '';
   try { base = new URL('../../', me.src).href; } catch (e) {}
+  /* Service worker: permite usar lo ya visitado/guardado sin internet cuando la página se abre por https */
+  try { if ('serviceWorker' in navigator && /^https?:/.test(location.protocol) && base) navigator.serviceWorker.register(base + 'sw.js').catch(function () {}); } catch (e) {}
   var m = decodeURIComponent(location.pathname).match(/periodo-(\d)\/(aritmetica|tecnologia)-(\d)\/(?:semana(\d+)_)?/i);
   if (!m) {
     var ini = function () {

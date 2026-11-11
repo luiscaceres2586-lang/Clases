@@ -400,6 +400,13 @@ body:before{background:radial-gradient(800px 420px at 12% -4%,rgba(255,255,255,.
 @keyframes pulso{0%,100%{box-shadow:0 8px 0 var(--sh),0 0 0 0 rgba(255,210,63,.9)}50%{box-shadow:0 8px 0 var(--sh),0 0 0 14px rgba(255,210,63,0),0 0 30px 6px rgba(255,210,63,.9)}}
 .extra{max-width:1180px;margin:20px auto;padding:10px 6px 26px;border-radius:30px;background:rgba(9,18,60,.93);color:#fff}
 footer{background:rgba(9,18,60,.93);color:#fff;margin-top:26px;border-radius:26px 26px 0 0}
+/* ===== panel «Usar sin internet» ===== */
+.offp{max-width:760px;margin:14px auto;background:rgba(255,255,255,.88);border:4px solid #fff;border-radius:26px;padding:16px 18px;color:#0b1a5c;box-shadow:0 14px 30px rgba(10,50,140,.25)}
+.offp h3{margin:0 0 6px;font-size:1.4rem}.offp p{margin:6px 0;font-weight:700}
+.off-fila{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 0;border-top:2px dashed rgba(11,26,92,.2)}
+.off-t{flex:1 1 220px}.off-t b{display:block}.off-t small,.off-fila>small{font-weight:800;opacity:.85}
+.off-bar{display:none;flex:1 0 100%;height:14px;border-radius:99px;background:rgba(11,26,92,.15);overflow:hidden}.off-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22d3ee,#16a34a);transition:width .2s}
+.off-aviso{color:#b3202e}
 /* ===== ventana de entrada y PIN: claras y brillantes ===== */
 .gate{background:radial-gradient(800px 420px at 12% -4%,rgba(255,255,255,.7),transparent 62%),radial-gradient(700px 420px at 92% 18%,rgba(255,236,150,.55),transparent 60%),linear-gradient(180deg,#2f8cff 0%,#5ab8ff 52%,#c4ecff 100%)}
 .gbox{background:linear-gradient(180deg,#3d8dff,#2764e6);border:5px solid #fff;box-shadow:0 10px 0 #1a47b3,0 26px 48px rgba(10,50,140,.45)}
@@ -436,8 +443,8 @@ footer{background:rgba(9,18,60,.93);color:#fff;margin-top:26px;border-radius:26p
 
 </style>
 
-<script src="recursos/js/aula-config.js?v=20261108c"></script>
-<script src="recursos/js/aula-contexto.js?v=20261108c"></script>
+<script src="recursos/js/aula-config.js?v=20261109a"></script>
+<script src="recursos/js/aula-contexto.js?v=20261109a"></script>
 <script src="recursos/js/aula-fx.js"></script>
 </head>
 <body>
@@ -502,8 +509,9 @@ footer{background:rgba(9,18,60,.93);color:#fff;margin-top:26px;border-radius:26p
     <div class="ops per" id="opsPer"></div>
   </div>
 
-  <div class="go" style="justify-content:center;margin:18px 0 4px"><button class="btn sec" id="verLiga" type="button" aria-expanded="false">🏆 Liga y medallas</button></div>
+  <div class="go" style="justify-content:center;margin:18px 0 4px"><button class="btn sec" id="verLiga" type="button" aria-expanded="false">🏆 Liga y medallas</button><button class="btn sec" id="verOffline" type="button" aria-expanded="false">📥 Usar sin internet</button></div>
 </div>
+<div class="offp" id="offPanel" hidden></div>
 <section id="mundos" hidden><div class="mapa" id="mapa"></div></section>
 <div class="extra" id="extra" hidden>
 <section id="liga" aria-labelledby="tLiga">
@@ -1169,5 +1177,6 @@ window.AulaPortada={sincronizar:sincronizar};
 <script>try{ if(window.AulaFX){
   AulaFX.intro({imagen:'recursos/imagenes/gif/gif_boli-saluda.webp',titulo:'AULA GAMIFICADA',sub:'Colegio Integrado Simón Bolívar · Profe Luis',boton:'▶ ¡A JUGAR!'});
 } }catch(e){}</script>
+<script src="recursos/js/aula-offline.js"></script>
 </body>
 </html>

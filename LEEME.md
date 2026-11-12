@@ -49,3 +49,10 @@ Bolí es la única mascota de la portada y los índices. ARIA vive solo dentro d
 ## Cómo entra el estudiante (una pregunta por pantalla)
 1. **¿Quién eres?** (Ya tengo perfil · Primer ingreso · Solo mirar) → 2. **¿De qué grado eres?** → 3. **¿Qué quieres estudiar?** (Aritmética o Tecnología) → 4. **¿En qué período vamos?** → índice de semanas del curso → clase.
 Con el perfil ya iniciado se salta el grado y empieza en «¿Qué quieres estudiar?». Cada pantalla tiene «← Atrás».
+
+## Un solo acceso (sin volver a escribir nombre y clave)
+- El estudiante inicia sesión **una vez en la portada**. Los índices de curso entran solos con ese perfil (si el grupo es del grado del curso).
+- Si abre un índice **sin** perfil del Aula, ve «Primero entra con tu perfil» → portada → al entrar **vuelve solo a su curso** (parámetro `?vuelve=`).
+- Si el perfil es de otro grado, dice «Esta clase no es de tu grado» y lo manda a la portada.
+- Sin internet no aparece ese mensaje: se usa el registro de este equipo (el antiguo), que sigue funcionando para uso local.
+- El enlace pequeño «Usar el registro de este equipo» permite el registro antiguo a quien lo necesite.

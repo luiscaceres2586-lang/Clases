@@ -1176,7 +1176,8 @@ function elegir(n,ok,b){
   var espera=(YO&&SES&&n===ACT)?llamar('visitar',{token:SES.token,mundo:id},{timeout:5000}).then(function(j){if(j.otorgado>0)toast('⭐ ¡+'+j.otorgado+' XP! Misión iniciada');aplicarPerfil(j.perfil,true)}).catch(function(){}):Promise.resolve();
   Promise.race([espera,new Promise(function(ok){setTimeout(ok,4500)})]).then(function(){setTimeout(function(){window.AulaFX?AulaFX.ir(url):location.href=url},reduce?50:600)})}
 /* con perfil iniciado ya se sabe el grado: se salta directo a elegir el área */
-function sync(){var s=sesionAula();if(s&&s.grado&&!S.auto&&S.p===0){S.auto=true;S.g=s.grado;ir(1)}}
+function vuelve(){try{var v=new URLSearchParams(location.search).get('vuelve');if(v&&/^periodo-\d\/[a-z]+-\d\/index_[a-z0-9_]+\.html$/.test(v)){window.AulaFX?AulaFX.ir(v):(location.href=v);return true}}catch(e){}return false}
+function sync(){var s=sesionAula();if(s&&s.grado&&!S.auto&&S.p===0){S.auto=true;if(vuelve())return;S.g=s.grado;ir(1)}}
 [].forEach.call(document.querySelectorAll('.atras'),function(b){b.addEventListener('click',function(){if(S.p===0)abrirGate('menu');else ir(S.p-1)})});
 [].forEach.call(document.querySelectorAll('[data-g]'),function(b){b.addEventListener('click',function(){S.g=+b.getAttribute('data-g');try{localStorage.setItem('aula_grado_pref',String(S.g))}catch(e){}pintarMundos();ir(1)})});
 [].forEach.call(document.querySelectorAll('[data-a]'),function(b){b.addEventListener('click',function(){S.a=b.getAttribute('data-a');ir(2)})});

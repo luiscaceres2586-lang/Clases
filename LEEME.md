@@ -45,3 +45,7 @@ Bolí es la única mascota de la portada y los índices. ARIA vive solo dentro d
 - **Cada vez que agregues clases o imágenes, regenera la lista:** `python herramientas/crear_manifiesto.py` y sube `offline-manifest.json`.
 - Las páginas, scripts y estilos se piden primero a internet (así llegan las actualizaciones) y, si no hay señal o va muy lenta, se usa lo guardado.
 - Comprobado con navegador real: con el servidor apagado, abrió la portada, el índice y una clase guardados; una clase no guardada no abrió.
+
+## Cómo entra el estudiante (una pregunta por pantalla)
+1. **¿Quién eres?** (Ya tengo perfil · Primer ingreso · Solo mirar) → 2. **¿De qué grado eres?** → 3. **¿Qué quieres estudiar?** (Aritmética o Tecnología) → 4. **¿En qué período vamos?** → índice de semanas del curso → clase.
+Con el perfil ya iniciado se salta el grado y empieza en «¿Qué quieres estudiar?». Cada pantalla tiene «← Atrás».

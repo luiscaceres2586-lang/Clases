@@ -403,6 +403,16 @@ footer{background:rgba(255,255,255,.9);color:#0b1a5c;margin-top:70px;border-radi
 footer .ed{height:128px;margin:-96px auto 8px;filter:drop-shadow(0 6px 8px rgba(10,40,120,.35))}
 footer small{opacity:.85;font-weight:700}
 
+/* ===== páginas de una sola pregunta (compacto) ===== */
+footer{margin-top:22px!important;padding:12px 14px 96px!important;border-radius:22px 22px 0 0!important;box-shadow:none!important}
+footer small{display:block;font-size:.8rem;opacity:.85;margin-top:2px;font-weight:700}
+
+.pasos{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 10px;font-weight:900;color:#0b1a5c;font-size:.95rem}
+.pasos span{margin-right:4px}.pasos i{width:34px;height:10px;border-radius:99px;background:rgba(255,255,255,.75);border:2px solid #fff}.pasos i.on{background:#ffd23f;border-color:#0b1a5c}
+.sl{padding-top:clamp(48px,7vw,60px)}.sl.on{min-height:min(60vh,420px)}
+.mas{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:14px 0 4px}.btn.mini{font-size:.78rem;padding:6px 14px;min-height:0;letter-spacing:.02em}
+.op small:empty{display:none}
+@media(max-width:600px){.ops:not(.per){grid-template-columns:repeat(2,1fr)}.ops:not(.per) .op img{height:84px}.sl.on{min-height:0}}
 /* ===== panel «Usar sin internet» ===== */
 .offp{max-width:760px;margin:14px auto;background:rgba(255,255,255,.88);border:4px solid #fff;border-radius:26px;padding:16px 18px;color:#0b1a5c;box-shadow:0 14px 30px rgba(10,50,140,.25)}
 .offp h3{margin:0 0 6px;font-size:1.4rem}.offp p{margin:6px 0;font-weight:700}
@@ -444,6 +454,10 @@ footer small{opacity:.85;font-weight:700}
  .aria .bub{pointer-events:none!important}
 }
 
+/* ===== ajustes finales de las páginas ===== */
+.sl.on{padding-top:58px}
+@media(max-width:600px){.sl.on{padding-top:52px}.q{margin-top:6px}}
+footer{background:transparent!important;border-top:0!important;color:#0b1a5c!important;margin-top:14px!important;padding:6px 14px 90px!important}
 </style>
 
 <script src="recursos/js/aula-config.js?v=20261109a"></script>
@@ -475,44 +489,35 @@ footer small{opacity:.85;font-weight:700}
 
 <main id="inicio">
 <div class="wiz" id="wiz">
-  <nav class="pasos" id="pasos" aria-label="Pasos para entrar a tu clase">
-    <button type="button" data-p="0">1 · Entrar</button><button type="button" data-p="1">2 · Grado</button><button type="button" data-p="2">3 · Área</button><button type="button" data-p="3">4 · Período</button>
-  </nav>
+  <div class="pasos" id="pasos" role="status"><span>Paso <b id="pn">1</b> de 3</span><i></i><i></i><i></i></div>
   <div class="resumen" id="resumen" aria-live="polite"></div>
 
   <div class="sl on" data-s="0">
-    <img class="deco d1" src="recursos/imagenes/portada/portada_cohete-despegando.png" alt=""><img class="deco d2" src="recursos/imagenes/portada/portada_planeta-anillo.png" alt="">
-    <img class="boli" src="recursos/imagenes/gif/gif_boli-saluda.webp" alt="Bolí, tu guía del aula">
-    <h1><span class="a">Aula</span><span class="b">Gamificada</span></h1>
-    <p class="lead" id="bienv">¡Hola! Soy <b>Bolí</b>. Entra con tu perfil para guardar tu avance.</p>
-    <div class="go"><button class="btn" id="miJugador" type="button">🎮 Entrar</button><button class="btn sec" id="sigue" type="button">Seguir ▶</button></div>
+    <button class="atras" type="button">← Atrás</button>
+    <h2 class="q">¿De qué grado eres?</h2>
+    <div class="ops">
+      <button class="op g" type="button" data-g="4" style="--bg:#e6f1ff;--sh:#5b8fe0"><img src="recursos/imagenes/grados/grados_numero-4.png" alt=""><b>Cuarto</b></button>
+      <button class="op g" type="button" data-g="5" style="--bg:#e6f1ff;--sh:#5b8fe0"><img src="recursos/imagenes/grados/grados_numero-5.png" alt=""><b>Quinto</b></button>
+    </div>
   </div>
 
   <div class="sl" data-s="1">
     <button class="atras" type="button">← Atrás</button>
-    <h2 class="q">¿De qué grado eres?</h2>
+    <h2 class="q">¿Qué quieres estudiar?</h2>
     <div class="ops">
-      <button class="op g" type="button" data-g="4" style="--bg:#e6f1ff;--sh:#5b8fe0"><img src="recursos/imagenes/grados/grados_numero-4.png" alt=""><b>Cuarto</b><small>Grado 4°</small></button>
-      <button class="op g" type="button" data-g="5" style="--bg:#e6f1ff;--sh:#5b8fe0"><img src="recursos/imagenes/grados/grados_numero-5.png" alt=""><b>Quinto</b><small>Grado 5°</small></button>
+      <button class="op ar" type="button" data-a="aritmetica"><img src="recursos/imagenes/areas/aritmetica/aritmetica_calculadora.png" alt=""><b>Aritmética</b></button>
+      <button class="op te" type="button" data-a="tecnologia"><img src="recursos/imagenes/areas/tecnologia/tecnologia_laptop-carita.png" alt=""><b>Tecnología</b></button>
     </div>
   </div>
 
   <div class="sl" data-s="2">
     <button class="atras" type="button">← Atrás</button>
-    <h2 class="q">¿Qué área quieres?</h2>
-    <div class="ops">
-      <button class="op ar" type="button" data-a="aritmetica"><img src="recursos/imagenes/areas/aritmetica/aritmetica_calculadora.png" alt=""><b>Aritmética</b><small>Números y retos</small></button>
-      <button class="op te" type="button" data-a="tecnologia"><img src="recursos/imagenes/areas/tecnologia/tecnologia_laptop-carita.png" alt=""><b>Tecnología</b><small>Computadores y código</small></button>
-    </div>
-  </div>
-
-  <div class="sl" data-s="3">
-    <button class="atras" type="button">← Atrás</button>
     <h2 class="q">¿En qué período vamos?</h2>
     <div class="ops per" id="opsPer"></div>
   </div>
 
-  <div class="go" style="justify-content:center;margin:18px 0 4px"><button class="btn sec" id="verLiga" type="button" aria-expanded="false">🏆 Liga y medallas</button><button class="btn sec" id="verOffline" type="button" aria-expanded="false">📥 Usar sin internet</button></div>
+  <div class="mas"><button class="btn sec mini" id="verLiga" type="button" aria-expanded="false">🏆 Liga</button><button class="btn sec mini" id="verOffline" type="button" aria-expanded="false">📥 Sin internet</button></div>
+  <button id="miJugador" type="button" hidden></button>
 </div>
 <div class="offp" id="offPanel" hidden></div>
 <section id="mundos" hidden><div class="mapa" id="mapa"></div></section>
@@ -541,10 +546,8 @@ footer small{opacity:.85;font-weight:700}
 </main>
 
 <footer>
-  <img class="ed" src="recursos/imagenes/escudo/escudo_insignia-insignia-laureles.png" alt="Escudo del colegio">
-  <b>Docente: Luis Avellaneda · Profe Luis</b>
-  <small>Institución Educativa Colegio Integrado Simón Bolívar · Sede San Martín · Cúcuta · 2026</small>
-  <small>Virtud · Ciencia · Cultura</small>
+  <small>Docente: Luis Avellaneda · Profe Luis</small>
+  <small>I.E. Colegio Integrado Simón Bolívar · Sede San Martín · Cúcuta</small>
 </footer>
 
 <aside class="aria" aria-live="polite">
@@ -556,8 +559,8 @@ footer small{opacity:.85;font-weight:700}
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gTit">
   <div class="gbox">
     <img class="gar" src="recursos/imagenes/personajes/personajes_boli-saluda.png" alt="Bolí">
-    <h2 id="gTit">¡Bienvenido al Aula Gamificada!</h2>
-    <p id="gSub">Entra con tu perfil para guardar tu avance en línea, continuar desde cualquier computador y competir en la liga de tu grado.</p>
+    <h2 id="gTit">¿Quién eres?</h2>
+    <p id="gSub">Elige cómo quieres entrar.</p>
     <div id="gCfg" class="cfgbox" style="display:none"><b>⚠️ Para el Profe:</b> falta conectar el servidor. Abre este <code>index.html</code> y pega la URL de tu aplicación web en <code>AULA.API_URL</code> (arriba, en la configuración). Mientras tanto se puede entrar como invitado.</div>
     <div class="gmenu" id="gMenu">
       <button class="btn" id="gIr" type="button">🎮 Ya tengo perfil<small>Busca tu apodo en la lista</small></button>
@@ -999,7 +1002,7 @@ function abrirGate(modo,msg){
   pintarUltimo();$('gCfg').style.display=API?'none':'block';$('gIr').disabled=$('gNew').disabled=!API;$('gIr').style.opacity=$('gNew').style.opacity=API?'':'.5';
   if(API&&!RK)sincronizar(false);pintarGatePerfiles();
   if(!API)decir('aria_duda','Para el Profe: falta pegar la URL del servidor en la configuración.',9000);
-  else decir('aria_hola','¡Hola! Soy Bolí. Entra con tu perfil para guardar tu avance.',9000);
+  else{/* sin saludo automático: la pantalla ya dice qué hacer */}
 }
 function cerrarGate(){$('gate').classList.remove('on');document.body.style.overflow=''}
 function pintarGatePerfiles(){
@@ -1016,7 +1019,7 @@ function pintarGatePerfiles(){
 }
 $('gIr').addEventListener('click',function(){panel('perfiles');$('pBuscar').value='';gFiltro.q='';pintarGatePerfiles();$('gMsg').textContent='';setTimeout(function(){try{$('pBuscar').focus()}catch(e){}},160)});
 $('gNew').addEventListener('click',function(){panel('nuevo');$('gMsg').textContent='';pintarFormNuevo();cargarNombres()});
-$('gInv').addEventListener('click',function(){INV=true;cerrarGate();pintarHUD();toast('👀 Modo invitado: no se guarda tu avance');decir('aria_hola','Estás mirando como invitado. Crea tu perfil para ganar XP.',7000)});
+$('gInv').addEventListener('click',function(){INV=true;cerrarGate();pintarHUD();/* aviso repetido omitido: Bolí lo dice */decir('aria_hola','Estás mirando como invitado. Crea tu perfil para ganar XP.',7000)});
 $('pBack').addEventListener('click',function(){panel('menu')});$('nBack').addEventListener('click',function(){panel('menu')});
 $('pBuscar').addEventListener('input',function(){gFiltro.q=this.value.trim();pintarGatePerfiles()});
 $('pBuscar').addEventListener('keydown',function(e){if(e.key==='Enter'){var l=document.querySelectorAll('#pLista .pf');if(l.length===1){e.preventDefault();l[0].click()}}});
@@ -1123,7 +1126,7 @@ else if(SES){
   var av0=IMG['av'+SES.avatar];if(av0)$('hAv').style.backgroundImage='url('+av0+')';
   llamar('sincronizar',{token:SES.token},{reintentos:1}).then(function(j){
     aplicarPerfil(j.perfil,true);aplicarRanking(j.ranking);LG.grado=j.perfil.grado;pintarLiga();
-    setTimeout(function(){decir('aria_hola','¡Hola, '+nom()+'! Tu avance está guardado. Elige un mundo.',6500)},900);
+    setTimeout(function(){decir('aria_hola','¡Hola, '+nom()+'! Elige tu clase.',6500)},900);
   }).catch(function(e){
     if(e.codigo==='sesion'){cerrarSesionLocal();abrirGate('menu','Tu sesión venció. Entra de nuevo con tu PIN.')}
     else{redOk=false;$('hNiv').textContent='Sin conexión';pintarEstado();toast('⚠️ '+e.message);
@@ -1133,24 +1136,22 @@ else if(SES){
   setTimeout(function(){abrirGate('menu')},700);
 }
 
-/* ============ ASISTENTE DE INICIO POR PASOS: Entrar · Grado · Área · Período ============ */
+/* ============ INICIO POR PÁGINAS: Grado → Área → Período (una pregunta por pantalla) ============ */
 (function(){
 var C=window.AULA_CONFIG||{},ACT=+C.PERIODO_ACTUAL||4,LISTOS=C.PERIODOS_LISTOS||[4],IM='recursos/imagenes/';
 var AREAS={aritmetica:{n:'Aritmética',i:'🔢',k:'#ffb020'},tecnologia:{n:'Tecnología',i:'💻',k:'#22d3ee'}};
 var COL=[['#d9ffec','#1fa86a'],['#eadfff','#6d3fe0'],['#ffdbe8','#e03a72'],['#fff3c2','#d9a100']];
-var S={p:0,g:0,a:'',auto:false,pend:0},sl=[].slice.call(document.querySelectorAll('.sl')),pasos=[].slice.call(document.querySelectorAll('#pasos button'));
+var S={p:0,g:0,a:'',auto:false,pend:0},sl=[].slice.call(document.querySelectorAll('.sl')),pts=[].slice.call(document.querySelectorAll('#pasos i'));
 function chip(t,k){var s=el('span','rch',t);s.style.setProperty('--k',k);return s}
 function resumen(){var r=$('resumen');r.innerHTML='';if(S.p<1){r.style.display='none';return}r.style.display='flex';
-  r.appendChild(chip('📅 Período en curso: '+ACT,'#ffffff'));if(S.g)r.appendChild(chip('🎒 Grado '+S.g+'°','#ffd23f'));
-  if(S.a)r.appendChild(chip(AREAS[S.a].i+' '+AREAS[S.a].n.toUpperCase(),AREAS[S.a].k))}
-function ir(n){S.p=n;S.pend=0;sl.forEach(function(x,i){x.classList.toggle('on',i===n)});
-  pasos.forEach(function(b,i){b.classList.toggle('on',i===n);b.classList.toggle('hecho',i<n);b.disabled=i>n});
-  if(n===3)periodos();resumen();try{window.scrollTo({top:0,behavior:reduce?'auto':'smooth'})}catch(e){}}
+  if(S.g)r.appendChild(chip('🎒 Grado '+S.g+'°','#ffd23f'));if(S.a)r.appendChild(chip(AREAS[S.a].i+' '+AREAS[S.a].n.toUpperCase(),AREAS[S.a].k))}
+function ir(n){S.p=n;S.pend=0;sl.forEach(function(x,i){x.classList.toggle('on',i===n)});pts.forEach(function(d,i){d.className=i<=n?'on':''});
+  $('pn').textContent=String(n+1);if(n===2)periodos();resumen();try{window.scrollTo({top:0,behavior:reduce?'auto':'smooth'})}catch(e){}}
 function periodos(){var box=$('opsPer');box.innerHTML='';
   for(var n=1;n<=4;n++)(function(n){var ok=LISTOS.indexOf(n)>=0,b=el('button','op'+(ok?'':' lock')+(n===ACT?' now':''));b.type='button';
     b.style.setProperty('--bg',COL[n-1][0]);b.style.setProperty('--sh',COL[n-1][1]);
     var im=el('img');im.alt='';im.src=IM+'periodos/periodos_periodo-'+n+'.png';b.appendChild(im);
-    b.appendChild(el('b','','Período '+n));b.appendChild(el('small','',ok?(n===ACT?'⭐ ¡Vamos aquí!':'Clases listas'):'🚧 Pronto'));
+    b.appendChild(el('b','','Período '+n));b.appendChild(el('small','',n===ACT&&ok?'⭐ ¡Vamos aquí!':(ok?'':'🚧 Pronto')));
     b.addEventListener('click',function(){elegir(n,ok,b)});box.appendChild(b)})(n)}
 function elegir(n,ok,b){
   if(!ok){toast('🚧 Las clases del período '+n+' aún no están listas.');decir('aria_duda','Esas clases todavía están en construcción. ¡Vamos en el período '+ACT+'!',6000);return}
@@ -1159,16 +1160,11 @@ function elegir(n,ok,b){
   confeti(r.left+r.width/2,r.top+r.height/3,60);decir('aria_vamos','¡Vamos! Entrando a '+AREAS[S.a].n+' '+S.g+'°, período '+n+'…',3000);
   var espera=(YO&&SES&&n===ACT)?llamar('visitar',{token:SES.token,mundo:id},{timeout:5000}).then(function(j){if(j.otorgado>0)toast('⭐ ¡+'+j.otorgado+' XP! Misión iniciada');aplicarPerfil(j.perfil,true)}).catch(function(){}):Promise.resolve();
   Promise.race([espera,new Promise(function(ok){setTimeout(ok,4500)})]).then(function(){setTimeout(function(){window.AulaFX?AulaFX.ir(url):location.href=url},reduce?50:600)})}
-function sync(){var s=sesionAula(),ok=!!(s&&s.grado),b=$('bienv');b.textContent='';
-  if(ok){b.appendChild(document.createTextNode('¡Hola, '));b.appendChild(el('b','',nom()));b.appendChild(document.createTextNode('! Ya estás dentro. Sigue para elegir tu clase.'))}
-  else b.textContent='¡Hola! Soy Bolí. Entra con tu perfil para guardar tu avance, o sigue sin entrar.';
-  $('miJugador').textContent=ok?'🎮 Mi jugador':'🎮 Entrar';
-  if(ok&&!S.auto&&S.p<=1){S.auto=true;S.g=s.grado;ir(2)}}
-pasos.forEach(function(b){b.addEventListener('click',function(){ir(+b.getAttribute('data-p'))})});
-$('sigue').addEventListener('click',function(){ir(1)});
-[].forEach.call(document.querySelectorAll('.atras'),function(b){b.addEventListener('click',function(){ir(Math.max(0,S.p-1))})});
-[].forEach.call(document.querySelectorAll('[data-g]'),function(b){b.addEventListener('click',function(){S.g=+b.getAttribute('data-g');try{localStorage.setItem('aula_grado_pref',String(S.g))}catch(e){}pintarMundos();ir(2)})});
-[].forEach.call(document.querySelectorAll('[data-a]'),function(b){b.addEventListener('click',function(){S.a=b.getAttribute('data-a');ir(3)})});
+/* con perfil iniciado ya se sabe el grado: se salta directo a elegir el área */
+function sync(){var s=sesionAula();if(s&&s.grado&&!S.auto&&S.p===0){S.auto=true;S.g=s.grado;ir(1)}}
+[].forEach.call(document.querySelectorAll('.atras'),function(b){b.addEventListener('click',function(){if(S.p===0)abrirGate('menu');else ir(S.p-1)})});
+[].forEach.call(document.querySelectorAll('[data-g]'),function(b){b.addEventListener('click',function(){S.g=+b.getAttribute('data-g');try{localStorage.setItem('aula_grado_pref',String(S.g))}catch(e){}pintarMundos();ir(1)})});
+[].forEach.call(document.querySelectorAll('[data-a]'),function(b){b.addEventListener('click',function(){S.a=b.getAttribute('data-a');ir(2)})});
 $('verLiga').addEventListener('click',function(){var x=$('extra'),a=x.hidden;x.hidden=!a;this.setAttribute('aria-expanded',String(a));if(a)x.scrollIntoView({behavior:reduce?'auto':'smooth'})});
 try{new MutationObserver(sync).observe($('hNom'),{childList:true,characterData:true,subtree:true})}catch(e){}
 ir(0);sync();

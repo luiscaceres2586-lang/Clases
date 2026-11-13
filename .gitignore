@@ -1,0 +1,11 @@
+# Datos de estudiantes: NUNCA se suben a GitHub (el repositorio es público)
+datos-aula.local.js
+datos-aula.local.json
+*.csv
+*.xlsx
+copia-datos-*.json
+exportacion-*.json
+# archivos temporales
+_prueba*.html
+*.pyc
+__pycache__/

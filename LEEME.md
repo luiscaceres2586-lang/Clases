@@ -56,3 +56,15 @@ Con el perfil ya iniciado se salta el grado y empieza en «¿Qué quieres estudi
 - Si el perfil es de otro grado, dice «Esta clase no es de tu grado» y lo manda a la portada.
 - Sin internet no aparece ese mensaje: se usa el registro de este equipo (el antiguo), que sigue funcionando para uso local.
 - El enlace pequeño «Usar el registro de este equipo» permite el registro antiguo a quien lo necesite.
+
+## ¿Qué se guarda dónde? (importante)
+| Dato | Dónde vive | ¿Viaja en el repositorio / ZIP? |
+|---|---|---|
+| Portada, clases, índices, imágenes, fuentes, scripts | El repositorio | **Sí** |
+| Grupos (401, 402, 403, 501, 502) y períodos | El repositorio (configuración) | **Sí** |
+| Perfiles de estudiantes (apodo, avatar, XP, liga), PIN, nombres de la lista cargada | Hoja de cálculo de Google (servidor) | **No** |
+| Perfil local, avance y notas de cada clase en un equipo | El navegador de ese equipo | **No** |
+
+- **Descargar el repositorio NO trae los perfiles ni las listas de estudiantes.** Esos datos están en Google (y en el navegador de cada equipo).
+- **No se deben subir nombres de estudiantes (son menores de edad) a un repositorio público.** Un archivo subido queda en el historial de GitHub aunque se borre después. Por eso el `.gitignore` bloquea `datos-aula.local.*`, `*.csv` y `*.xlsx`.
+- Sin internet, un estudiante entra con el **registro de este equipo** (nombre y clave guardados en ese computador) desde el índice de su curso. «Ya tengo perfil» y «Primer ingreso» necesitan internet y lo avisan.

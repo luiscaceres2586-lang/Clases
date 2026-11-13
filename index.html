@@ -1025,7 +1025,10 @@ function pintarGatePerfiles(){
   var g=$('pGrupos');g.innerHTML='';
   [''].concat(GRUPOS).forEach(function(x){var b=el('button','',x?('Grupo '+x):'Todos');b.type='button';b.setAttribute('aria-pressed',String(gFiltro.grupo===x));b.addEventListener('click',function(){gFiltro.grupo=x;pintarGatePerfiles()});g.appendChild(b)});
   var lista=$('pLista');lista.innerHTML='';
-  if(!RK){lista.appendChild(el('p','nota','Cargando perfiles…'));$('pCuenta').textContent='';return}
+  if(!RK){var sinRedP=window.AulaModo&&AulaModo.sinRed();
+    lista.appendChild(el('p','nota',sinRedP?'📴 Sin internet: no se pueden buscar los perfiles del Aula. Toca «Volver» y luego «Solo mirar»; al elegir tu curso usa el registro de este equipo.':'Cargando perfiles…'));
+    if(!sinRedP){clearTimeout(pintarGatePerfiles._t);pintarGatePerfiles._t=setTimeout(function(){if(!RK&&$('gate').classList.contains('on')){var n=$('pLista').querySelector('.nota');if(n)n.textContent='No pude conectar con el servidor. Revisa tu internet, o toca «Volver» y luego «Solo mirar».'}},8000)}
+    $('pCuenta').textContent='';return}
   var q=gFiltro.q.toLowerCase();
   var l=RK.perfiles.filter(function(p){return(!gFiltro.grupo||p.grupo===gFiltro.grupo)&&(!q||p.apodo.toLowerCase().indexOf(q)>=0)}).sort(function(a,b){return a.apodo.localeCompare(b.apodo,'es')});
   l.forEach(function(p){var b=el('button','pf');b.type='button';var av=el('div','av'+(p.enLinea?' on':''));bg(av,'av'+p.avatar);b.appendChild(av);b.appendChild(el('b','',p.apodo));
@@ -1033,7 +1036,7 @@ function pintarGatePerfiles(){
   $('pCuenta').textContent=l.length?(l.length+(l.length===1?' perfil':' perfiles')+' · toca el tuyo y escribe tu PIN'):'No encontré ese apodo. ¿Eres nuevo? Vuelve y toca "Primer ingreso".';
 }
 $('gIr').addEventListener('click',function(){panel('perfiles');$('pBuscar').value='';gFiltro.q='';pintarGatePerfiles();$('gMsg').textContent='';setTimeout(function(){try{$('pBuscar').focus()}catch(e){}},160)});
-$('gNew').addEventListener('click',function(){panel('nuevo');$('gMsg').textContent='';pintarFormNuevo();cargarNombres()});
+$('gNew').addEventListener('click',function(){if(window.AulaModo&&AulaModo.sinRed()){$('gMsg').className='gmsg';$('gMsg').textContent='📴 Sin internet: el primer ingreso necesita conexión. Toca «Solo mirar» y usa el registro de este equipo en tu curso.';return}panel('nuevo');$('gMsg').textContent='';pintarFormNuevo();cargarNombres()});
 $('gInv').addEventListener('click',function(){INV=true;cerrarGate();pintarHUD();/* aviso repetido omitido: Bolí lo dice */decir('aria_hola','Estás mirando como invitado. Crea tu perfil para ganar XP.',7000)});
 $('pBack').addEventListener('click',function(){panel('menu')});$('nBack').addEventListener('click',function(){panel('menu')});
 $('pBuscar').addEventListener('input',function(){gFiltro.q=this.value.trim();pintarGatePerfiles()});

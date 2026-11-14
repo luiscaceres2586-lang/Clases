@@ -66,5 +66,8 @@ Con el perfil ya iniciado se salta el grado y empieza en «¿Qué quieres estudi
 | Perfil local, avance y notas de cada clase en un equipo | El navegador de ese equipo | **No** |
 
 - **Descargar el repositorio NO trae los perfiles ni las listas de estudiantes.** Esos datos están en Google (y en el navegador de cada equipo).
-- **No se deben subir nombres de estudiantes (son menores de edad) a un repositorio público.** Un archivo subido queda en el historial de GitHub aunque se borre después. Por eso el `.gitignore` bloquea `datos-aula.local.*`, `*.csv` y `*.xlsx`.
+- **Lista de nombres:** el docente decidió guardar en `listas/` solo los nombres y el curso (sin documentos) para que el registro funcione sin internet. Si algún día prefieres que no sean públicos, haz el repositorio privado o quita los archivos de `listas/`; recuerda que un archivo ya subido queda en el historial de GitHub. Las claves y las copias de datos NO se suben (`.gitignore`).
 - Sin internet, un estudiante entra con el **registro de este equipo** (nombre y clave guardados en ese computador) desde el índice de su curso. «Ya tengo perfil» y «Primer ingreso» necesitan internet y lo avisan.
+
+## Lista de estudiantes para el registro
+Ver `listas/LEEME.md`. Con la lista cargada, cada estudiante se busca y toca su nombre en el registro de su curso, también sin internet.

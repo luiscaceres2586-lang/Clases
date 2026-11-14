@@ -6,7 +6,7 @@ import json, os, glob
 RAIZ = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
 def rel(p): return os.path.relpath(p, RAIZ).replace(os.sep, '/')
 def item(p): return {'u': rel(p), 's': os.path.getsize(p)}
-nucleo = [os.path.join(RAIZ, 'index.html')]
+nucleo = [os.path.join(RAIZ, 'index.html'), os.path.join(RAIZ, 'listas', 'lista.js')]
 for dp, dn, fn in os.walk(os.path.join(RAIZ, 'recursos')):
     r = rel(dp)
     if any(x in r for x in ('imagenes/referencias', 'imagenes/marcos', 'recursos/plantillas', 'imagenes/legado/ch_')): continue

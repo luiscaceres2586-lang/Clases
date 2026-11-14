@@ -408,6 +408,7 @@ body{
 <script src="../../recursos/js/aula-config.js?v=20261109a"></script>
 <script src="../../recursos/js/aula-contexto.js?v=20261109a"></script>
 <script src="../../recursos/js/aula-acceso.js?v=1"></script>
+<script src="../../recursos/js/aula-lista.js?v=1"></script>
 </head>
 <body>
 
@@ -1267,7 +1268,7 @@ function crearUsuario() {
   let ok = true;
 
   if (nombre.length < 3) { document.getElementById('reg-nombre-error').textContent = 'El nombre debe tener al menos 3 letras.'; ok=false; }
-  else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre)) { document.getElementById('reg-nombre-error').textContent = 'Solo letras y espacios.'; ok=false; }
+  else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(nombre)) { document.getElementById('reg-nombre-error').textContent = 'Solo letras y espacios.'; ok=false; }
   else document.getElementById('reg-nombre-error').textContent = '';
 
   if (!avSeleccionado) { document.getElementById('reg-av-error').textContent = 'Elige un avatar.'; ok=false; }

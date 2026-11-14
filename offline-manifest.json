@@ -5,6 +5,10 @@
 "s": 101172
 },
 {
+"u": "listas/lista.js",
+"s": 192
+},
+{
 "u": "recursos/css/fuentes.css",
 "s": 1635
 },
@@ -529,6 +533,10 @@
 "s": 20069
 },
 {
+"u": "recursos/js/aula-lista.js",
+"s": 5162
+},
+{
 "u": "recursos/js/aula-offline.js",
 "s": 4535
 },
@@ -553,7 +561,7 @@
 },
 {
 "u": "periodo-4/aritmetica-4/index_aritmetica4_p4.html",
-"s": 1933630
+"s": 1933694
 },
 {
 "u": "periodo-4/aritmetica-4/semana1_mat4_p4.html",
@@ -583,7 +591,7 @@
 "4-aritmetica-5": [
 {
 "u": "periodo-4/aritmetica-5/index_aritmetica5_p4.html",
-"s": 1938816
+"s": 1938880
 },
 {
 "u": "periodo-4/aritmetica-5/semana1_mat5_p4.html",
@@ -617,7 +625,7 @@
 "4-tecnologia-4": [
 {
 "u": "periodo-4/tecnologia-4/index_tecnologia4_p4.html",
-"s": 1747436
+"s": 1747500
 },
 {
 "u": "periodo-4/tecnologia-4/semana1_tec4_p4.html",
@@ -655,7 +663,7 @@
 },
 {
 "u": "periodo-4/tecnologia-5/index_tecnologia5_p4.html",
-"s": 1422071
+"s": 1422135
 },
 {
 "u": "periodo-4/tecnologia-5/semana1_tec5_p4.html",

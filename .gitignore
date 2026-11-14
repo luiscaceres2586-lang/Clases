@@ -1,10 +1,9 @@
-# Datos de estudiantes: NUNCA se suben a GitHub (el repositorio es público)
+# Datos que no deben subirse (copias de seguridad y archivos con claves o documentos)
 datos-aula.local.js
 datos-aula.local.json
-*.csv
-*.xlsx
 copia-datos-*.json
 exportacion-*.json
+docente-claves*.txt
 # archivos temporales
 _prueba*.html
 *.pyc

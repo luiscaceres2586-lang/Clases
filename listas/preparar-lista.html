@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Preparar la lista de estudiantes</title>
+<style>
+:root{--n:#0b1a5c}*{box-sizing:border-box}body{margin:0;font-family:"Trebuchet MS",system-ui,sans-serif;color:var(--n);background:linear-gradient(180deg,#2f8cff,#5ab8ff 55%,#c4ecff) fixed;min-height:100vh}
+.w{max-width:900px;margin:0 auto;padding:18px 14px 40px}h1{margin:6px 0 4px;font-size:1.7rem}.sub{font-weight:700;margin:0 0 14px}
+.card{background:rgba(255,255,255,.9);border:4px solid #fff;border-radius:22px;padding:14px 16px;margin:12px 0;box-shadow:0 10px 24px rgba(10,50,140,.22)}
+h2{margin:0 0 6px;font-size:1.2rem}ol{margin:6px 0 0 18px;padding:0;font-weight:700}
+textarea{width:100%;min-height:150px;font:14px/1.4 ui-monospace,Consolas,monospace;border:3px solid var(--n);border-radius:12px;padding:8px}
+.fila{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+button,.btn{font:inherit;font-weight:900;cursor:pointer;border:4px solid var(--n);border-radius:999px;padding:8px 18px;color:var(--n);background:linear-gradient(180deg,#fff,#dbe9ff);box-shadow:0 5px 0 #7ea3e8}
+button.go{color:#fff;border-color:#0f6b30;background:linear-gradient(180deg,#4ade80,#16a34a);box-shadow:0 5px 0 #0f6b30}
+.ok{color:#127a3d;font-weight:900}.mal{color:#b3202e;font-weight:900}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #c9d6f2;padding:4px 8px;text-align:left}
+</style></head><body><div class="w">
+<h1>📋 Preparar la lista de estudiantes</h1>
+<p class="sub">Sirve para que cada estudiante se busque en la lista, toque su nombre y siga creando su perfil, incluso sin internet.</p>
+<div class="card"><h2>Cómo se usa</h2><ol>
+<li>En Excel o Google Sheets pon <b>dos columnas</b>: <b>curso</b> (401, 402, 403, 501 o 502) y <b>nombre</b>. Una fila por estudiante.</li>
+<li>Selecciona las filas, <b>cópialas</b> y <b>pégalas</b> en el cuadro de tu grado (o elige el archivo CSV).</li>
+<li>Pulsa <b>Revisar</b>. Si todo está bien, pulsa <b>Descargar lista.js</b>.</li>
+<li>Guarda ese archivo dentro de la carpeta <b>listas</b>, reemplazando el anterior. ¡Listo! Ya funciona en ese equipo, sin internet. Para que quede en todos los equipos, sube el archivo a GitHub.</li></ol></div>
+<div class="card"><h2>Grado 4° <small>(cursos 401, 402, 403)</small></h2><textarea id="t4" placeholder="401&#9;Perez Gomez Ana Maria&#10;401&#9;Rojas Diaz Luis Carlos&#10;402&#9;..."></textarea>
+<div class="fila"><label class="btn">📂 Elegir CSV<input id="f4" type="file" accept=".csv,.txt" hidden></label></div></div>
+<div class="card"><h2>Grado 5° <small>(cursos 501, 502)</small></h2><textarea id="t5" placeholder="501&#9;Perez Gomez Ana Maria&#10;502&#9;..."></textarea>
+<div class="fila"><label class="btn">📂 Elegir CSV<input id="f5" type="file" accept=".csv,.txt" hidden></label></div></div>
+<div class="fila"><button id="rev">🔍 Revisar</button><button id="desc" class="go" disabled>⬇ Descargar lista.js</button></div>
+<div class="card" id="res" hidden></div>
+</div><script>
+var CURSOS={'4':['401','402','403'],'5':['501','502']},lista=null;
+function sin(t){return t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+function leer(txt,g){var res={},av=[];CURSOS[g].forEach(function(c){res[c]=[]});txt=txt.replace(/^\uFEFF/,'');
+  var d=[';','\t',','].reduce(function(a,b){return txt.split(b).length>txt.split(a).length?b:a});
+  txt.split(/\r?\n/).forEach(function(l,i){if(!l.trim())return;var p=l.split(d);if(p.length<2)return;var c=p[0].replace(/"/g,'').trim(),n=p.slice(1).join(' ').replace(/"/g,'').replace(/\s+/g,' ').trim();
+    if(i===0&&/^(curso|grupo)$/.test(sin(c).replace(/[^a-z]/g,'')))return;if(!n||/^EJEMPLO/i.test(n))return;
+    if(!res[c]){av.push('Fila '+(i+1)+': el curso «'+c+'» no es válido para grado '+g+' → se omitió «'+n+'»');return}
+    if(res[c].some(function(x){return sin(x)===sin(n)})){av.push('Fila '+(i+1)+': «'+n+'» está repetido en '+c+' → se dejó una sola vez');return}
+    res[c].push(n)});
+  Object.keys(res).forEach(function(c){res[c].sort(function(a,b){return sin(a)<sin(b)?-1:1})});return {res:res,av:av}}
+function leerArchivo(inp,ta){inp.addEventListener('change',function(){var f=inp.files[0];if(!f)return;var r=new FileReader();r.onload=function(){ta.value=r.result};r.readAsText(f,'utf-8')})}
+leerArchivo(document.getElementById('f4'),document.getElementById('t4'));leerArchivo(document.getElementById('f5'),document.getElementById('t5'));
+document.getElementById('rev').onclick=function(){var a=leer(document.getElementById('t4').value,'4'),b=leer(document.getElementById('t5').value,'5');lista={'4':a.res,'5':b.res};
+  var box=document.getElementById('res');box.hidden=false;box.innerHTML='<h2>Resultado</h2>';var t=document.createElement('table'),total=0;
+  [['4',a],['5',b]].forEach(function(x){Object.keys(x[1].res).forEach(function(c){var n=x[1].res[c].length;total+=n;var r=t.insertRow();r.insertCell().textContent='Curso '+c;var u=r.insertCell();u.textContent=n+' estudiantes';u.className=n?'ok':'mal'})});box.appendChild(t);
+  var av=a.av.concat(b.av);if(av.length){var u=document.createElement('ul');av.forEach(function(m){var li=document.createElement('li');li.className='mal';li.textContent='⚠ '+m;u.appendChild(li)});box.appendChild(u)}
+  var p=document.createElement('p');p.className=total?'ok':'mal';p.textContent=total?'Total: '+total+' estudiantes. Si todo está bien, descarga el archivo.':'No encontré estudiantes. Revisa que cada fila tenga curso y nombre.';box.appendChild(p);document.getElementById('desc').disabled=!total};
+document.getElementById('desc').onclick=function(){if(!lista)return;var js='/* Lista de estudiantes. Se genera con herramientas/crear_lista.py o con listas/preparar-lista.html */\nwindow.AULA_LISTA='+JSON.stringify(lista)+';\n';
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([js],{type:'text/javascript'}));a.download='lista.js';document.body.appendChild(a);a.click();a.remove()};
+</script></body></html>
